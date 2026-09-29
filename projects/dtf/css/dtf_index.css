@@ -1,0 +1,325 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    /* background: linear-gradient(to bottom right, white 0%, #9dd3fd 10%, #1875bf 45%, #012643 100%); */
+    font-family: 'Noto sans', 'Roboto Slab', Arial, Tahoma, 'sans serif';
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-image: url(../images/dtf_oficina.png);
+    background-attachment: fixed;
+    transition: background-image 1s ease-in-out;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+header:not(#myModal header) {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 50px;
+    z-index: 2;
+}
+
+.container {
+    /* background: red; */
+    margin: 50px auto 0;
+    padding: 2rem;
+    color: white;
+    min-height: calc(100vh - 50px - 50px);
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+footer {
+    background: #151517;
+    color: #838383;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+
+nav {
+    display: flex;
+    flex-direction: column;
+    background-color: #151517;
+    overflow: hidden;
+}
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+nav ul li {
+    float: left;
+    position: relative;
+    height: 50px;
+}
+nav ul li a {
+    display: block;
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+nav ul li a:hover {
+    background-color: #3b3b3b;
+}
+
+nav ul li a.active::before {
+    content: ' ';
+    height: 5px;
+    width: 100%;
+    background: #ffffff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+
+.d-none{
+    display: none !important;
+}
+.d-block {
+    display: block !important;
+}
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.h1_title {
+    /* color: black; */
+    color: #ffffff;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+}
+.h1_title span {
+    display: block;
+    font-size: 1.5rem;
+}
+
+.wr_block_logo {
+    /* background: #00000042; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* padding: 2rem; */
+}
+.logo {
+    width: 100%;
+    max-width: 900px;
+}
+
+
+.wr_block {
+    background: #313131;
+    border: 1px solid #1c1c1c;
+    color: #919191;
+    /* max-width: 700px; */
+    margin: auto;
+    padding: 20px;
+    display: block;
+    border-radius: 5px;
+    width: 100%;
+}
+
+
+.wr_links {
+    background: #161616;
+    border: 1px solid #000000;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    border-radius: 5px;
+    gap: 20px;
+}
+
+.wr_block h1 {
+    text-align: center;
+    margin-top: 0;
+    color: #dab777;
+    padding: 0 0 20px;
+    font-size: 1.5rem;
+}
+
+button {
+    padding: 20px;
+    border-radius: 5px;
+    color: white;
+    font-size: 20px;
+    transition: 0.3s;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid #1c1c1c;
+    font-family: 'Roboto Slab',Arial,Tahoma, 'sans serif';
+    background: linear-gradient(to bottom, #f1df8d 0%, #b68f3f 30%, #8d651f 50%, #b68f3f 70%, #fdf4a2 100%);
+    box-shadow: 0 0 6px 3px transparent;
+}
+
+button:hover:not(#toast_container button, #myModal button) {
+    transform: scale(1.05);
+    box-shadow: 0 0 6px 3px #ffffff;
+    border: 1px solid #553a0c;
+    background: linear-gradient(to bottom, #eadc9b 0%, #b59759 30%, #8d651f 50%, #b59759 70%, #eadc9b 100%);
+}
+button:active {
+  transform: scale(0.9); /* Reduce ligeramente el tamaño del botón cuando se hace clic */
+}
+button img {
+    width: 40px;
+    height: 40px;
+}
+
+
+
+fieldset {
+    padding: .35em .75em .625em;
+    /* border: 1px solid #0195d8; */
+    border: 1px solid #8d5800;
+    /* color: #0c528a; */
+    color: #a16504;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    /* background: #0498dc; */
+}
+
+.alerta.error {
+    background-color: #b10404;
+}
+.alerta {
+    padding: .5rem;
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 1rem 0;
+}
+legend {
+    box-sizing: border-box;
+    color: inherit;
+    display: table;
+    max-width: 100%;
+    padding: 0 .5rem;
+    white-space: normal;
+}
+.formulario legend {
+    font-size: 1rem;
+    /* color: #0c528a; */
+    color: #a16504;
+}
+.formulario input:not([type=submit]), .formulario textarea, .formulario select {
+    padding: 1rem;
+    display: block;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #dec090;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+input {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+#btn_submit {
+    margin: 0 auto;
+    min-width: 230px;
+}
+
+.wr_block p {
+    margin: 10px 0;
+}
+
+
+
+
+
+
+/* ESTILOS RESPONSIVE */
+
+/* Desktop */
+@media screen and (min-width: 1024px){
+    .h1_title {
+        font-size: 3.5rem;
+    }
+}
+
+/* Tablet */
+@media screen and (min-width: 768px) and (max-width: 1023px){
+    .h1_title {
+        font-size: 2.5rem;
+    }
+
+}
+
+/* Mobilka */
+@media screen and (min-width: 1px) and (max-width: 767px) {
+    .wr_links{
+        flex-direction: column;
+    }
+    .h1_title {
+        font-size: 2rem;
+    }
+
+}
+
+
+/* mobilka XS extra small */
+@media screen and (min-width: 1px) and (max-width: 280px) {
+
+
+}
+
+/* mobilka S small */
+@media screen and (min-width: 281px) and (max-width: 320px) {
+    
+
+}
+
+/* mobilka M middle */
+@media screen and (min-width: 321px) and (max-width: 375px) {
+    
+
+}
+
+/* mobilka L large */
+@media screen and (min-width: 376px) and (max-width: 425px) {
+    
+
+}
+
+/* mobilka XL extra large */
+@media screen and (min-width: 426px) and (max-width: 767px) {
+    
+}
+
+
+
+
+
+
+

@@ -1,0 +1,247 @@
+/* Desktop y Tablet */
+@media screen and (min-width: 768px){
+    .oculto {
+        visibility: hidden;
+        position: absolute;
+        top: 0px;
+        left: -9999px;
+    } 
+    
+    .soloEnDesktopYTablet {
+        display: block;
+    }
+
+    .wr_opt_fondo {
+        flex-direction: row;
+    }
+
+}
+
+
+/* Desktop */
+@media screen and (min-width: 1024px){
+    #id_lista,
+    #fecha
+    {
+        max-width: 218px;
+    }
+
+    .wr_lcr,
+    .solo_en_mobile
+    {
+        display: none;
+    }
+
+    .oculto {
+        visibility: hidden;
+        position: absolute;
+        top: 0px;
+        left: -9999px;
+    }
+
+    .btn_v_vista,
+    .btn_vista_atras {
+        display: none !important;
+    }
+
+
+
+    .vista_fixed {
+        position: relative;
+        left: 0;
+    }
+    .btn_vista_fixed_close {
+        visibility: hidden;
+    }
+    .fullscreen_active .btn_vista_fixed_close {
+        visibility: visible;
+    }
+
+}
+
+
+/* Tablet */
+@media screen and (min-width: 768px) and (max-width: 1023px){
+    .wr_lcr,
+    .solo_en_mobile
+    {
+        display: none;
+    }
+
+
+}
+
+
+/* Mobilka y Tablet para vista previa */
+@media screen and (min-width: 1px) and (max-width: 1023px){
+
+    .vista_r {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        padding: 0;
+        height: 100vh;
+    }
+    
+    
+    .vista_r.shown {
+        left: 0;
+        padding: 0;
+        height: 100vh;
+        z-index: 9;
+    }
+    .vista_r.shown .parte_variable {
+        height: 100% !important;
+    }
+    
+    .vista_r .parte_fija {
+        display: none;
+    }
+    .vista_r .bloques_outer {
+        height: 100vh;
+    }
+
+    .partes.vista_r {
+        display: block !important;
+    }
+
+
+}
+
+
+/* Mobilka */
+@media screen and (min-width: 1px) and (max-width: 767px) {
+    .bl_partes, 
+    .wr_group 
+    {
+        flex-direction: column;
+    }
+    .partes {
+        width: 100% !important;
+        flex-direction: column;
+    }
+    
+    .wr_lcr,
+    .solo_en_mobile
+    {
+        display: block;
+    }
+
+    .partes ,
+    .wr_dbtns_panels,
+    #btn_enfocarPantalla_fast,
+    #btn_recargarPantalla_fast,
+    .solo_en_desktop,
+    .vkl_name
+    {
+        display: none !important;
+    }
+
+    .partes.bl_active {
+        display: block !important;
+    }
+
+    #wr_btns_pantalla {
+        margin-top: 7px;
+        margin-bottom: -2px;
+    }
+
+    .oculto {
+        visibility: visible;
+        position: relative;
+        top: 0px;
+        left: 0px;
+    }
+    .bl_parte_c {
+        width: 100%;
+        min-width: 220px;
+        max-width: 100%;
+    }
+    .soloEnDesktopYTablet {
+        display: none;
+    }
+
+    .wr_block_option .btn {
+        /* width: 100%; */
+    }
+    .wn_2_flex {
+        flex-direction: column;
+        max-width: 100%;
+        gap: 5px;
+    }    
+    .sp_flex_btns{
+        /* max-width: 100%; */
+        width: 100%;
+    }
+    .wr_dia_y_fecha{
+        max-width: 100%;
+    }
+
+    .btns_fx {
+        /* flex-direction: column; */
+    }
+
+    #contenedor_nav_pantalla {
+        padding-top: 0;
+    }
+
+
+}
+
+
+/* mobilka L */
+@media screen and (min-width: 1px) and (max-width: 425px) {
+    .step{
+        padding: 2px 5px;
+        font-size: 12px;
+    }
+    #id_lista,
+    #fecha
+    {
+        max-width: 100%;
+    }
+
+    .slide_inner{
+        padding: 0;
+    }
+    
+    fieldset {
+        padding: 1rem;
+    }
+
+    .barra_estado::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    .btn_vista span {
+        display: none;
+    }
+
+}
+
+
+/* mobilka horizontal */
+@media (orientation: landscape) and (max-height: 700px) {
+    .step {
+        padding: 2px 5px;
+        font-size: 12px;
+    }
+
+    .barra_estado::-webkit-scrollbar {
+        height: 3px;
+    }
+}
+
+
+
+/* mobilka XL */
+@media screen and (min-width: 426px) and (max-width: 767px) {
+   .step{
+        padding: 2px 5px;
+        font-size: 12px;
+    }
+        .barra_estado::-webkit-scrollbar {
+        height: 3px;
+    }
+
+}

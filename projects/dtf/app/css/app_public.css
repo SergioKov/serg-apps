@@ -1,0 +1,30 @@
+/* =================================================== */
+/* start - public */
+/* =================================================== */
+.public header, 
+.public #btn_menu,
+.public .barra_estado,
+.public fieldset legend,
+.public .song_titulo,
+.public p.c,
+.public p.n,
+.public p.b
+{
+    display: none !important;
+}
+
+.public fieldset  {
+    border: none;
+}
+
+.public p.t {
+    font-family: Arial;
+    text-align: center;
+}
+
+.public #carousel {
+    height: 100vh;
+}
+/* =================================================== */
+/* end - public */
+/* =================================================== */

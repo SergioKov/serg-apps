@@ -1,0 +1,10 @@
+
+# Ignora las siguientes carpetas
+#make_modules/
+
+#no subo el fichero app_local.log para no reescribirlo ya que se llena con datos en Localhost
+#no subo el fichero app_prod.log para no reescribirlo ya que se llena con datos en prod
+logs/
+song/logs/
+song/uploads/
+

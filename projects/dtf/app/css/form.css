@@ -1,0 +1,114 @@
+/* formularios login */
+#formulario_login {
+    padding: 10px;
+    background: white;
+}
+
+
+
+.login-page {
+    /* width: 360px;
+    padding: 8% 0 0;
+    margin: auto; */
+}
+
+.form {
+    background: #000000;
+    position: relative;
+    z-index: 1;
+    padding: 45px;
+    text-align: center;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+.form input {
+    font-family: "Roboto", sans-serif;
+    outline: 0;
+    background: #f2f2f2;
+    width: 100%;
+    border: 0;
+    margin: 0 0 15px;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.form button {
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    outline: 0;    
+    background: #666;
+    /* background: #43A047; */
+    /* background: #008bca; */
+    width: 100%;
+    border: 0;
+    padding: 15px;
+    color: #FFFFFF;
+    font-size: 14px;
+    -webkit-transition: 0.3s;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.form button:hover,
+.form button:active,
+.form button:focus {
+    background: #888;
+    /* background: #4CAF50; */
+    /* background: #01aeff; */
+}
+.form button.cerr_ses {
+    background: red;
+    transition: 0.3s;
+}
+.form button.cerr_ses:hover{
+    background: #fa4141;
+}
+.form .message {
+    margin: 15px 0 0;
+    color: #b3b3b3;
+    font-size: 12px;
+    text-wrap: pretty;
+}
+
+.form .message a {
+    color: #ccc;
+    /* color: #4CAF50; */
+    /* color: #0091d2; */
+    text-decoration: none;
+    padding: 2px 5px;
+    text-wrap: nowrap;
+    line-height: 18px;
+}
+.form .message a:hover {
+    color: #fff;
+    background: #666;
+    /* background: #4CAF50; */
+    /* background: #0091d2; */
+    outline: none;
+}
+
+.form p {
+    padding: 5px;
+    /* margin: 0 0 10px; */
+    margin: 15px 0 15px;
+    color: grey
+}
+.form .p_cerr_ses{
+    margin: 15px 0 0;
+    color: #b3b3b3;
+    font-size: 12px;
+    text-wrap: pretty;  
+}
+
+p a.a_cerr_ses {
+    color: red;
+    font-size: 14px;
+    font-weight: normal;
+    transition: color 0.3s, background 0.1s;
+    padding: 5px 10px;
+}
+p a.a_cerr_ses:hover{
+    background: red;
+    color: white;
+    outline: 1px solid brown;
+}

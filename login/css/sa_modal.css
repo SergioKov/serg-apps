@@ -1,0 +1,295 @@
+/* =================================================== */
+/* start - modal */
+/* =================================================== */
+
+/* start - modal ------------ */
+/* start modal */
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 40; /* Sit on top */
+    padding-top: 10vh; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    transition:0.3s;
+    opacity: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Modal Content */
+.modal-content {
+    /* background-color: #00000054; */
+    margin: auto;
+    padding: 10px;
+    /* outline: 1px solid #3e3e3e; */
+    width: 80%;
+    height: 80%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    /* box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.4); */
+}
+
+/* The Close Button */
+.antes_close {
+    /* background: red; */
+    /* outline: 1px solid white; */
+    color: white;
+    float: right;
+    font-size: 23px;
+    font-weight: bold;
+    top: -5px;
+    right: -5px;
+    padding: 0px 0px 2px;
+    transition: 0.3s;
+    height: 28px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    width: 30px;
+    position: absolute;
+    cursor: pointer;
+    text-decoration: none;
+    opacity: 0.5;
+}
+
+.close {
+    /* background: red; */
+    color: white;
+    font-size: 23px;
+    top: -2px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    cursor: pointer;
+    text-decoration: none;
+    opacity: 0.5;
+    position: relative;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    opacity: 1;
+    /* background: red; */
+}
+
+
+#modcont_header {
+    background: #333;
+    color: #ffffff;
+    overflow: overlay;
+}
+#antes_modcont_header h4 {
+    color: white;
+    font-size: large;
+    border: none;
+    /* background: #034603; */
+    position: relative;
+}
+#modcont_header h4 {
+    /* background: #034603; */
+    color: white;
+    font-size: large;
+    border: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#modcont_body {
+    background: #505050;
+    /* background: white; */
+    /* overflow: auto; */
+    height: auto;
+}
+#modcont_footer {
+    background: #4d4d4d;
+    color: white;
+}
+.inner{
+  margin: 10px;
+}
+
+#h4_text {
+    /* background: orange; */
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+}
+
+/* fin modal */
+
+#modcont_body h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #979797;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.modalContentTop {
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 0;
+    max-width: 425px;
+}
+.modalContentCenter {
+    width: 100%;
+    height: 50%;
+    justify-content: center;
+    padding: 0;
+    /* max-width: 425px; */
+    max-width: 768px;
+}
+.modalContentBottom {
+    width: 100%;
+    height: 50vh;
+    justify-content: flex-end;
+    padding: 0;
+    max-width: 425px;
+}
+.modalContentFull {
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 0;
+    /* max-width: 768px; */
+    max-width: max(90%, 768px);    
+}
+
+
+
+
+.wr_modcont {
+    background: #5a6065;
+    position: fixed;
+    width: 100%;
+    transition: 0.3s;
+    overflow: hidden;
+    padding: 0px;
+    box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.4);
+}
+
+
+.modalContentTop .wr_modcont {
+    top: 100%;
+    max-width: 425px;
+}
+.modalContentTop .wr_modcont.mooved {
+    top: 0;
+}
+
+.modalContentCenter .wr_modcont {
+    top: 120%;
+    min-width: 320px;
+    /* max-width: 425px; */
+    max-width: 768px;
+}
+.modalContentCenter .wr_modcont.mooved {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modalContentFull .wr_modcont {
+    top: 100%;
+    /* max-width: 768px; */
+    max-width: max(90%, 768px);
+}
+.modalContentFull .wr_modcont.mooved {
+    top: 0;
+}
+
+
+.theme_black {
+    background-color: black;
+    border: 1px solid #4d4d4d;
+}
+.theme_grey {
+    background: #333333;
+    border: 1px solid #232323;
+}
+.theme_white {
+    background-color: white;
+    border: 1px solid #333333;
+}
+
+#bl_modalTopInner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+#topLogin{
+    width: 100%;
+}
+#topLoginInner {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+}
+#topMenuInner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#bl_modalCenterInner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+#bl_modalBottomInner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+}
+#bl_headerBtns {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-x: auto;
+    margin-right: 5px;
+}
+
+
+
+
+
+
+
+/* =================================================== */
+/* end - modal */
+/* =================================================== */

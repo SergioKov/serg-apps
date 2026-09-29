@@ -1,0 +1,12 @@
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 158
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 158
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 164
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 164
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 165
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 165
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 166
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 166
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 167
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 167
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Undefined variable: obj_lang in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 168
+[26-May-2026 15:20:22 Europe/Berlin] PHP Notice:  Trying to access array offset on value of type null in C:\xampp\htdocs\holy-songs\song\php\update_password.php on line 168

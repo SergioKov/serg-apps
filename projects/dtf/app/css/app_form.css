@@ -1,0 +1,303 @@
+/* start form app */
+form {
+    background-color: #191919;
+    /* padding: 25px; */
+    padding: 15px;
+    /* outline: 7px solid #FF9800; */
+    border-radius: 5px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input,
+form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-weight: bold;
+    background: #313131;
+    color: white;
+}
+form input[type="text"] {
+    padding-right: 40px;
+}
+form input.pad_2_btms {
+    padding-right: 80px;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: calc(1.2em * 3 + 16px); /* altura mínima para 3 líneas + padding */
+}
+
+.form_container {
+    /* background-color: white; */
+    /* padding: 20px; */
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    /* max-width: 400px; */
+    position: relative;
+    overflow: auto;
+    /* border: 1px solid #683e02; */
+}
+
+form .form_group {
+    position: relative;
+    margin-bottom: 25px;
+}
+form > .form_group:last-child {
+  margin-bottom: 0px; /* Solo el último hijo directo */
+}
+form > .form_group:last-of-type {
+  margin-bottom: 0;
+}
+form > .form_group:has(+ .wr_btns_form),
+form > .form_group:has(+ .wr_url_youtube), 
+form > .form_group:has(+ .wr_btns_guardar),
+form > .form_group:has(+ .wr_btns_eliminar) 
+{
+  margin-bottom: 0 !important;
+}
+
+.wr_url_youtube {
+    margin-bottom: 0px;
+} 
+
+.form_group.wr_title_note,
+.form_group.wr_url_youtube {
+    margin-bottom: 0;
+}
+
+/* para id.notes */
+.form_group_last {
+    margin-bottom: 0 !important;
+}
+
+form .d_canciones_lista.parte_lista ,
+form .d_esquema_titulos.parte_lista {
+    margin-bottom: 40px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    /* font-size: 16px; */
+    /* font-size: 100%; */
+    font-family: Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    resize: none; /* Para evitar que el usuario cambie el tamaÃ±o del textarea */
+}
+
+input, select {
+    font-size: 16px;
+    /* font-size: 80%; */
+}
+textarea {
+    min-height: auto; /* Esto deja que el atributo rows controle la altura mÃ­nima */
+    font-size: 18px;
+    /* font-size: 100%; */
+}
+
+label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    background-color: #191919;
+    padding: 0 5px;
+    color: #999;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background: transparent;
+}
+label.lab_textarea {
+    top: 25px;
+}
+
+select:focus,
+input:focus,
+textarea:focus
+ {
+    border-color: #FF9800;
+}
+
+select:focus + label,
+select:valid + label,
+select:disabled + label,
+input:focus + label,
+input:disabled + label,
+input:not(:placeholder-shown) + label,
+textarea:focus + label,
+textarea:not(:placeholder-shown) + label
+{
+    top: -10px;
+    left: 10px;
+    font-size: 12px;
+    color: #FF9800;
+}
+
+/* mis estilos */
+.wr_group {
+    /* background: green; */
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wr_id_song,
+.wr_id_lista,
+.wr_input_general,
+
+
+.wr_title2,
+.wr_title_note,
+.wr_fecha,
+.wr_song_number,
+.wr_tune,
+.wr_tune_transpose,
+.wr_tune_transpose_pers,
+.wr_capo_pers,
+.wr_tipo_acorde,
+.wr_tipo_acorde_pers,
+.wr_tipo_fuente,
+.wr_tempo_bpm,
+.wr_tempo_bpm_pers,
+.wr_id_grupo,
+.wr_lang
+ {
+    /* background: red; */
+    width: 100%;
+}
+
+.wr_btns_form,
+.wr_btns_guardar,
+.wr_btns_eliminar 
+{
+    /* background: #e4e4e4; */
+    /* border-top: 1px solid #dddddd; */
+    padding: 25px 0 0;
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+}
+.wr_btns_eliminar {
+    flex-direction: flex-end;
+}
+
+.wr_revisar_y_guardar {
+    padding-top: 15px;
+}
+
+
+#contenedor_lista_sm .wr_btns_eliminar, 
+#contenedor_cliente_sm .wr_btns_eliminar 
+{
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #737373;
+}
+
+#contenedor_cliente_sm .parte_lista:not(:first-child){
+    margin-top: 15px;
+}
+#contenedor_cliente_sm .parte_lista:not(:last-child){
+    margin-bottom: 15px;
+}
+
+.color_red {
+    color: red !important;
+}
+form p.mensaje {
+    text-align: left;
+    white-space: normal;
+    padding: 5px 0 30px;
+    font-family: Arial;
+    color: #FF9800;
+}
+.add_result {
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+}
+.add_ok {
+    background: green;
+}
+.add_error {
+    background: red;
+}
+
+
+
+.select_container {
+  position: relative;
+  margin: 0 0 25px;
+}
+
+.sel_opt {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.sel_opt option {
+    font-weight: bold;
+}
+
+
+
+.aviso_contenedor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ff0000a8;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+}
+
+.toast_mensaje p {
+    line-height: 1.1rem;
+    padding: 0.5rem 0;
+}
+
+.d_limpiar_input {
+    /* background: red; */
+    position: absolute;
+    right: 6px;
+    top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: grey;
+    opacity: 0.3;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+.d_limpiar_input:hover {
+    opacity: 0.6;
+    background: red;
+}
+.d_limpiar_input img {
+    filter: brightness(0.75);
+    width: 24px;
+    height: 24px;
+}
+
+
+/* end form app */
