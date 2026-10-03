@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/config/app.php';
 //es: app/index.php
 //include('../includes/templates/check_auth.php');//antes (sin el enrutador en /index.php)
 // include __DIR__ . '/../includes/templates/check_auth.php';//antes
-//include __DIR__ . '/../includes/templates/check_login.php';
+include __DIR__ . '/../includes/templates/check_login.php';
 ?>
 
 <?php
@@ -105,7 +105,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 </div>
 
                 <div id="head_block_r">
-                    <span>&nbsp;</span>
+                    <div class="wr_login" onclick="manejarLogin();" data-block_name="login" title="Login">
+                        <img id="img_login" class="btn_img" src="<?= RUTA_APP ?>./app/images/login2_yellow.svg">
+                    </div>
                 </div>
 
             </div>

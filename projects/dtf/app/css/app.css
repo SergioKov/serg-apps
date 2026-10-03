@@ -99,6 +99,7 @@ header:not(#myModal header) {
 #head_block_r
  {
     width: 38px;
+    cursor: pointer;
     /* background: red; */
 }
 
@@ -128,10 +129,17 @@ header:not(#myModal header) {
     transition: 0.3s ease;
 }
 
-#head_block_l .hamburger {
+.wr_login {
+    transition: 0.3s ease;
+}
+
+#head_block_l .hamburger, 
+#head_block_r .wr_login 
+{
     opacity: 0.6;
 }
-#head_block_l:hover .hamburger {
+#head_block_l:hover .hamburger, 
+#head_block_r:hover .wr_login {
     opacity: 1;
 }
 
@@ -825,6 +833,19 @@ p.prim .btn.tres_puntos .btn_img {
 }
 
 
+.wr_btns_vertical {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: stretch;
+    flex-direction: column;
+    padding-top: 5px;
+}
+
+.wr_btns_vertical .btn {
+    padding: 10px;
+    font-size: 14px;
+}
 
 
 

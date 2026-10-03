@@ -181,7 +181,7 @@ function showToastLogin(tipo = 'info', mensaje, duration = null, position = 'def
 }
 
 
-async function iniciarSesionHS(){//antes login() //username,password
+async function iniciarSesion(){//antes login() //username,password
     console.log('=== function iniciarSesion() ===');
 
     try {
@@ -222,7 +222,7 @@ async function iniciarSesionHS(){//antes login() //username,password
 
     
         // Enviar los datos al servidor para la autenticación
-        const response = await fetch("../song/php/iniciar_sesion_hs.php", {
+        const response = await fetch("../app/php/iniciar_sesion_hs.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -257,7 +257,7 @@ async function iniciarSesionHS(){//antes login() //username,password
                 hay_sesion = true;
     
                 //Redirect:    
-                window.location.href = '/song';
+                window.location.href = '../app';
                 
                 //console.log(`Usuario autentificado con éxito. Sessión creada para el usuario ${username} . Hago redireccion...`);    
                 
@@ -403,7 +403,7 @@ async function crearCuenta(){
         }
     
         // Enviar los datos al servidor para la autenticación
-        const response = await fetch("../song/php/crear_cuenta.php", {
+        const response = await fetch("../app/php/crear_cuenta.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -540,7 +540,7 @@ async function enviarEmail(){
         
     
         // Enviar los datos al servidor para la autenticación
-        const response = await fetch("../song/php/generar_reset_token_hs.php", {
+        const response = await fetch("../app/php/generar_reset_token_hs.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -691,7 +691,7 @@ async function enviarChangeEmail(){
         }
     
         // Enviar los datos al servidor para la autenticación
-        const response = await fetch("../song/php/update_password.php", {
+        const response = await fetch("../app/php/update_password.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -813,7 +813,7 @@ async function enviarChangeEmail(){
 async function cerrarSesion(){
     console.log('=== function cerrarSession() ===');
 
-    window.location.href = '/logout';   
+    window.location.href = '../logout';   
 }
 
 

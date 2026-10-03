@@ -3735,19 +3735,6 @@ fieldset.kuplet.partial{
     height: 24px;
 }
 
-.wr_btns_vertical {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: stretch;
-    flex-direction: column;
-    padding-top: 5px;
-}
-
-.wr_btns_vertical .btn {
-    padding: 10px;
-    font-size: 14px;
-}
 
 .letra_cirilico{
     color: green;

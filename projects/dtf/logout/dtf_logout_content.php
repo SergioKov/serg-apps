@@ -2,6 +2,8 @@
 
 session_start();
 
+require_once __DIR__ . '/../includes/config/app.php';
+
 // vaciar variables de sesión
 $_SESSION = [];
 
@@ -20,5 +22,5 @@ if(isset($_COOKIE['authenticated'])) {
 }
 
 // redirect
-header('Location: /login?logout=1');//logout - para mostrar aviso con showToast()
+header('Location:' . RUTA_APP . 'login?logout=1');//logout - para mostrar aviso con showToast()
 exit;

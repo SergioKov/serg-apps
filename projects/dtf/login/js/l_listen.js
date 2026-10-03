@@ -58,5 +58,5 @@ window.onclick = (e)=>{
 
 //     e.preventDefault();
 
-//     await iniciarSesionHS();
+//     await iniciarSesion();
 // });

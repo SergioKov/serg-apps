@@ -364,7 +364,7 @@ function buildForm(id_form){
                 <input class="ch_mostrar" type="checkbox" onchange="showHidePassword(this)">
                 <span class="ch_mostrar_sp" data-dic="d417">mostrar contraseña</span>
             </label>
-            <button class="btn_wide" type="button" onclick="iniciarSesionHS()" data-dic="d184">Iniciar Sesión</button>
+            <button class="btn_wide" type="button" onclick="iniciarSesion()" data-dic="d184">Iniciar Sesión</button>
             <p class="message">
                 <span class="${cl_crear_cuenta}">
                     <span data-dic="d189">¿No estás registrado?</span> <a href="#" onclick="mostrarForm('bl_register_form')" data-dic="d177">Crear cuenta</a>
@@ -386,7 +386,7 @@ function buildForm(id_form){
         <p class="mensaje">${mensaje}</p>
         <br>
         <p class="p_svit">
-            <img src="../app/images/hs_login.png">
+            <img src="../images/dtf_app_logo_kvadrat.png">
         </p>
         <p class="p_cerr_ses">
             <a href="#" class="a_cerr_ses" onclick="cerrarSesion()" data-dic="d153">Cerrar sesión</a>
