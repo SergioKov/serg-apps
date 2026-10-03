@@ -202,9 +202,9 @@ textarea:not(:placeholder-shown) + label
 #contenedor_lista_sm .wr_btns_eliminar, 
 #contenedor_cliente_sm .wr_btns_eliminar 
 {
-    margin-top: 10px;
+    margin-top: 0px;
     padding-top: 10px;
-    border-top: 1px solid #737373;
+    border-top: 1px solid #606060;
 }
 
 #contenedor_cliente_sm .parte_lista:not(:first-child){

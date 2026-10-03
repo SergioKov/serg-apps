@@ -198,6 +198,23 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+                case 'buildBuscarCliente':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildCliente()');
+                    let cliente_action2 = args;
+                    console.log('cliente_action2:', cliente_action2);
+
+                    buildBuscarCliente();
+                    break;
+
+
 
 
 
@@ -2028,91 +2045,6 @@ async function getGruposFromBd(){//sacar TODOS los grupos para rellenar el <sele
 
 
 
-async function getDataSongsFromBdByFind(objFindParams){
-    console.log('=== function getDataSongsFromBdByFind(words_input) ===');
-
-    let {words_input, modo, buscar_en, arr_songbooks_search} = objFindParams;
-
-    try {
-        
-        if(!words_input){
-            alert('No hay words_input. hago return...');//'No hay todos los parametros necesarios.'
-            return;
-        }
-
-        const {
-            deviceResolution,
-            orientation
-        } = getDeviceData();
-               
-        const response = await fetch('../song/php/obtener_song_by_find.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
-            },
-            body: JSON.stringify({
-                words_input,
-                arr_songbooks_search,
-                modo,
-                buscar_en,
-                device_resolution: deviceResolution,
-                orientation: orientation
-            }), // Convertir los datos a formato JSON
-        });
-
-        const text = await response.text();
-
-        if(!text.trim()) {
-            throw new Error('Respuesta vacía del servidor');
-        }
-
-        if(debug){
-            console.log('text:', text);
-        }
-
-        if(!response.ok){
-            console.error('❌ HTTP ERROR', response.status);
-            console.error(text.slice(0, 300));
-            throw new Error(`HTTP (error obtener_song_by_find.php) ${response.status}`);
-        }
-
-        try {
-
-            const data = JSON.parse(text);
-            console.log('data:', data);   
-    
-            if (data.success) {
-                console.log('success is true');
-
-                let arr_data = data.arr_data;
-                //console.log(`arr_data: `, arr_data);
-
-                return data;        
-                
-            } else {
-
-                console.log('success is false');
-                return 'no_hay_datos';                         
-    
-            }
-
-        } catch (error) {
-            
-            console.error('❌ JSON inválido en obtener_song_by_find.php');
-            console.error(text.slice(0, 500));
-            console.error('error.name: ', error.name);            
-            console.error('error.message: ', error.message);            
-
-            throw new Error(
-                'JSON inválido en obtener_song_by_find.php',
-                { cause: error }
-            );
-        }
-
-    } catch (error) {
-        console.error('Error en getDataSongsFromBdByFind(): error.message: ', error.message);
-    }
-}
 
 
 async function getDataListasFromBdByFind(objFindListaParams){
@@ -2319,48 +2251,7 @@ async function deleteSongFromBd(){
 
 
 
-async function insertarListaDatos(objLista) {
-    console.log('=== function insertarListaDatos(objLista) ===');
 
-    try {
-        
-        // if(get_cookieConsent && get_cookieConsent === 'rejected'){
-        //     let aviso_text = `Si no aceptas cookies no puedes insertar datos. <a onclick="showBlockCookies(); closeModal(null,true);">Seleccionar Coockies</a>.`;
-        //     openModal('center','Cookies',aviso_text,'showAviso');
-        //     return;
-        // }
-
-        if(!objLista || Object.keys(objLista).length == 0){
-            alert('No hay todos los parametros necesarios de la lista...');//'No hay todos los parametros necesarios.'
-            return;
-        }
-
-        console.log('objLista: ',objLista);
-
-        const objLista_str = JSON.stringify(objLista);
-        console.log('objLista_str: ',objLista_str);
-
-        const response = await fetch('../song/php/insertar_lista_datos.php', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: objLista_str
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al obtener datos');
-        }
-
-        const data = await response.json();
-        console.log('data: ',data); 
-        
-        return data;
-
-    } catch (error) {
-        console.error('Error en la función insertarSongDatos: ', error);
-    }
-}
 
 
 async function deleteListaFromBd(){

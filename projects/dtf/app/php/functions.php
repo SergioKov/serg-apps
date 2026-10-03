@@ -222,7 +222,7 @@ function prepararQuery($conn, $query, $arr_params, $sign = '?') {
 
 
 
-function buildWhere($modo, $texto, $campos = ["array de campos"], &$params = [], &$types = "", $arr_songbooks) {
+function buildWhere($modo, $texto, $campos = ["array de campos"], &$params = [], &$types = "") {
     
     $where = "";
     $texto = trim($texto);
@@ -330,26 +330,6 @@ function buildWhere($modo, $texto, $campos = ["array de campos"], &$params = [],
             $where .= implode(" AND ", $ands);
             break;
 
-    }
-
-    //si se ha indicado songbook donde buscar
-    if(!empty($arr_songbooks)){
-        $ids = [];
-        foreach ($arr_songbooks as $songbook) {
-            if (filter_var($songbook, FILTER_VALIDATE_INT) !== false) {
-                //si quero meter en la consulta directamente ' AND s.songbook IN (1,2,3) '
-                //$ids[] = $songbook;
-                
-                //si quiero meter como ' AND s.songbook IN (?,?,?) ' y convertir en ' AND s.songbook IN (1,2,3) '
-                $ids[] = "?";
-                $params[] = $songbook;
-                $types .= "i"; // tipo entero
-            }
-        }
-
-        if (!empty($ids)) {
-            $where .= " AND s.songbook IN (" . implode(",", $ids) . ") ";
-        }
     }
 
     return $where;

@@ -22,6 +22,8 @@ document.addEventListener('click', (e) => {
         closeModal(null, true);
     }
 
+    /*
+    //ya lo hace otra func!
     const tresPuntos = e.target.closest('.tres_puntos');
 
     //elemento clickeado es el 'tres_puntos'
@@ -29,12 +31,14 @@ document.addEventListener('click', (e) => {
         hideShowTresPuntosMenu(tresPuntos);
         return;
     }
+    */
 
     const menuShown = document.querySelector('.tres_puntos_menu.shown');
 
     if (menuShown && !menuShown.contains(e.target)) {
         menuShown.classList.remove('shown');
     }
+    
 
     //click fuera del contenido del modal
     if(e.target == eid_myModal || e.target == eid_myModalContent){
@@ -45,27 +49,7 @@ document.addEventListener('click', (e) => {
 
 
 
-/*
-//al teclear texto en la busqueda de cancion
-let timeoutFindSong;
 
-eid_inpt_find.addEventListener('input', (e) => {
-    console.log('=== listener --- eid_inpt_find input');
-
-    const input_val = e.currentTarget.value.trim();
-    console.log('input_val: ', input_val);
-
-    clearTimeout(timeoutFindSong);
-
-    if(input_val.length < 3){
-        return;
-    }
-
-    timeoutFindSong = setTimeout(async () => {
-        await findWordsSong();
-    }, 400);
-});
-*/
 
 
 /*

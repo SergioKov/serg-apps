@@ -138,17 +138,20 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
         <div id="block_clientes" class="main_block active">
             <div id="block_clientes_inner" class="main_block_inner">
 
-            <h4>Clientes</h4>
+            <div class="wr_bl_buscar">
+                <h4>Clientes</h4>
+                <div class="wr_btn_img" onclick="openModal('full','Buscar Cliente',null,'buildBuscarCliente', true, 'ver');">
+                    <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                </div>
+            </div>
 
-            <div class="wr_d_clientes wr_d_arts">
+            <div id="contenedor_clientes" class="wr_d_clientes wr_d_arts">
 
                 <div class="d_cliente d_art" data-tipo_art="cliente" data-id_cliente="5">
                     <div class="datos_cliente datos_art">
-                        <div class="da_nombre">Nombre1 Apellido1</div>
+                        <div class="da_nombre">Nombre Apellido (Ejemplo)</div>
                         <div class="da_tel">622 315 345</div>
                         <div class="da_com">cliente fiel</div>
-
-
                     </div>
 
                     <div class="tres_puntos">
@@ -168,46 +171,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                     
                 </div>
 
-
-                <div class="d_cliente d_art">
-                    <div class="datos_cliente datos_art">
-                        <div class="da_nombre">Nombre1 Apellido1</div>
-                        <div class="da_tel">622 315 345</div>
-                        <div class="da_com">cliente fiel</div>
-                    </div>
-
-                    <div class="tres_puntos">
-                        <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
-                    </div>
-                    <div class="tres_puntos_menu">
-                        <div>ver 2</div>
-                        <div>editar</div>
-                        <div>eliminar</div>
-                    </div>
-
-                </div>
-
-                <div class="d_cliente d_art">
-                    <div class="datos_cliente datos_art">
-                        <div class="da_nombre">Nombre1 Apellido1</div>
-                        <div class="da_tel">622 315 345</div>
-                        <div class="da_com">cliente fiel</div>
-                    </div>
-
-                    <div class="tres_puntos">
-                        <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
-                    </div>
-                    <div class="tres_puntos_menu">
-                        <div>ver 3</div>
-                        <div>editar</div>
-                        <div>eliminar</div>
-                    </div>
-
-                </div>
         
             </div><!--/.wr_d_clientes -->
 
-            <button id="btn_add_cliente" class="btn_add">+</button>           
+            <button id="btn_add_cliente" class="btn_add" onclick="openModal('full','Crear Cliente',null,'buildCliente',true, 'nuevo');">+</button>           
             
             </div><!--/#block_clientes_inner -->
         </div><!--/#block_clientes -->
@@ -447,6 +414,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_modal.js"></script>
     <script src="js/a_listen.js"></script>
     <script src="js/a_new.js"></script>
+    <script src="js/a_new2.js"></script>
     <script src="js/a_test.js"></script>
 
 </body>

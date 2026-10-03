@@ -3447,30 +3447,7 @@ async function guardarSong(event, id_contenedor, cancion_action, revisar = false
 
 }
 
-function promtConClaveSecreta() {//temporal
-    const CLAVE_SECRETA = "eliminar"; // Tu clave definida
-    
-    // Lanzamos el cuadro de entrada
-    let passwordInput = prompt("⚠️ Acción crítica: Introduce la clave secreta para eliminar:");
 
-    // 1. Si el usuario cancela, passwordInput será null
-    if (passwordInput === null) {
-        alert("❌ Eliminación cancelada por el usuario.");
-        return; 
-    }
-
-    // 2. Validamos la clave
-    if (passwordInput === CLAVE_SECRETA) {
-        // Aquí ejecutas la lógica de eliminación real
-        alert("✅ Clave correcta. Procedo a eliminar.");
-        return true;
-        // ejecutarEliminacion(); 
-    } else {
-        // Si falla, avisamos
-        alert("❌ Clave incorrecta. Acceso denegado.");
-        return false;
-    }
-}
 
 async function deleteSong(event, id_contenedor){
     console.log('=== function deleteSong() ===');
@@ -4399,62 +4376,6 @@ async function findWordsLista(){
         addFilterListener(contenedor_filtro, sp_icon_filtro, el_input, selector_items, arr_spans);
 
 
-        /*
-        //CREAR TABLA
-        //Recorrer listas encontradas...
-        objDataListas.arr_data.forEach((el, i, arr) => {
-            console.log('el: ', el);
-
-            const tr_lista = document.createElement('tr');
-            tr_lista.className = 'tr_lista';
-            tr_lista.dataset.id = el.id_lista;
-
-            let hay_lista_texto;
-
-            //convierto arr_esquema (string) en array correcto
-            if(esString(el.arr_lista) && el.arr_lista != ''){
-                el.arr_lista = JSON.parse(el.arr_lista);
-                hay_lista_texto = `Sí (${el.arr_lista.length})`;
-            }
-            else if(esArray(el.arr_lista) && el.arr_lista.length > 0){
-                hay_lista_texto = `Sí (${el.arr_lista.length})`;
-            }
-            else{
-                el.arr_lista = [];
-                hay_lista_texto = '';
-            }
-            console.log('(parseado) --- el.arr_lista: ', el.arr_lista);            
-
-            let fecha_str = (el.fecha && el.fecha !== '0000-00-00') ? el.fecha : '' ;
-            let diaSemana_val = '';
-            let fecha_val = '';
-
-            if(fecha_str){
-                diaSemana_val = diaSemana(fecha_str);
-                fecha_val = convertirFecha(fecha_str, 'ver', '/');
-            }
-
-            tr_lista.innerHTML = `
-                <td class="td_n">${i + 1}</td>
-                <td class="td_id_lista" data-id_lista="${el.id_lista}" title="${el.id_lista}">${el.id_lista}</td>
-                <td class="td_titulo">${el.title}</td>
-                <td class="td_dia_semana">${diaSemana_val}</td>            
-                <td class="td_fecha">${fecha_val}</td>            
-                <td class="td_lista">${hay_lista_texto}</td>
-            `;
-
-            tr_lista.onclick = (e) => {                
-                console.log('e.currentTarget: ', e.currentTarget);
-    
-                id_lista = e.currentTarget.dataset.id;
-                console.log('asigno global --- id_lista: ', id_lista);                
-                
-                pintListaActive();//en la ventana a la derecha de la tabla de lista
-            }
-
-            tbody_lista.append(tr_lista);
-        });
-        */
 
         //CREAR DIV'S Y P'S
         //Recorrer listas encontradas...
@@ -4501,14 +4422,6 @@ async function findWordsLista(){
                 fecha_val = convertirFecha(fecha_str, 'ver', '/');
             }
 
-            // p_lista.innerHTML = `
-            //     <td class="td_n">${i + 1}</td>
-            //     <td class="td_id_lista" data-id_lista="${el.id_lista}" title="${el.id_lista}">${el.id_lista}</td>
-            //     <td class="td_titulo">${el.title}</td>
-            //     <td class="td_dia_semana">${diaSemana_val}</td>            
-            //     <td class="td_fecha">${fecha_val}</td>            
-            //     <td class="td_lista">${hay_lista_texto}</td>
-            // `;
 
             let cl_title = (el.title) ? '' : 'd-none';//si no hay título, lo oculto 
             let cl_grupo_nombre = (el.id_grupo > 0 && el.grupo_nombre != '') ? '' : 'd-none';//si no hay grupo, lo oculto 
@@ -4592,24 +4505,7 @@ async function findWordsLista(){
 }
 
 
-function esString(valor) {
-    return typeof valor === "string";
-}
 
-function esObjeto(valor) {
-    return typeof valor === 'object' && valor !== null && !Array.isArray(valor);
-}
-
-function esArray(valor) {
-    return Array.isArray(valor);
-}
-
-
-function clear_inpt(param){
-    let thisInpt = document.getElementById(`inpt_${param}`);
-    thisInpt.value = '';
-    thisInpt.focus();
-}
 
 function convertirFechaAntes(fechaStr) {// de '01:31:2021' que es 31 de enero de 2021 => '2021-01-31'
     // Separar por ':'
@@ -5760,63 +5656,7 @@ function nextFrame() {
 //============================================================//
 
 
-function pintSongActive(){//click en tr de la tabla de canciones
-    console.log('=== function pintSongActive(e) === ');
 
-    console.log('asignado global --- id_song: ', id_song);
-
-    //resetTrSelected(tbody);//antes
-    //tbody.querySelector(`.tr_song[data-id="${id_song}"]`).classList.add('selected');//antes
-    
-    resetPSongActive(eid_bl_songs_finded);//new
-    eid_bl_songs_finded.querySelector(`.p_song[data-id="${id_song}"]`).classList.add('active');//new
-
-    mostrarVista(eid_block_buscar_body);
-
-    mostrarPrim = false;
-    ocultarElementosPrimEn(buscar_option_inner);
-    mostrarElementosEditablesEn(buscar_option_inner);
-    mySizeBuscar();//importante después de quitar opt_prim y mostrar opt_edit 
-
-    //song_text
-    buscar_vista_song_content.innerHTML = '';//reset
-
-    buscar_ul_action.innerHTML = `
-        <div class="razdel">Lista:</div>
-        <li class="li_action btn_add_lista" onclick="addToLista();">    
-            <!--Añadir a una Lista nueva o a la lista actual-->
-        </li>
-
-        <div class="razdel">Esquema:</div>
-        <li class="li_action" onclick="showBlockName('esquema'); ver_esquema();">Ver esquema</li>
-        <li class="li_action" onclick="showBlockName('esquema'); crear_esquema();">Crear esquema</li>
-        <li class="li_action" onclick="showBlockName('esquema'); select_slide();">Select slide</li>
-        
-        <div class="razdel">Canción:</div>
-        <li class="li_action" onclick="showBlockName('cancion'); editar_song();">Ver / Editar canción</li>
-        <li class="li_action" onclick="showBlockName('cancion'); eliminar_song();">Eliminar canción</li>
-        
-        <div class="razdel">Modal:</div>
-        <li class="li_action" onclick="openModal('full','Ver Canción',null,'buildFormCancion',true, 'ver')">Ver canción</li>
-        <li class="li_action" onclick="openModal('full','Editar Canción',null,'buildFormCancion',true, 'editar')">Editar canción</li>
-        <li class="li_action" onclick="openModal('full','Eliminar Canción',null,'buildFormCancion',true, 'eliminar')">Eliminar canción</li>
-        
-        <div class="razdel">Diapositivas:</div>
-        <li class="li_action" onclick="crearSlides()">Crear slides</li>
-        <li class="li_action" onclick="crearSlides(); closeAll()">Crear slides + Ver</li>
-    `;
-    buscar_ul_action.onclick = e => close_ul_action(e);
-
-    //dejo '==' en vez de '===' porque id_song viene como string: "925"
-    objSong = objDataSongs.arr_data.find(s => s.id_song == id_song);
-    console.log('objSong: ', objSong);
-
-    pintSongActiveSoloDatos();
-
-    resetBlockEsquemaSoloHTML();
-    resetBlockCancion();
-    resetLineasXinBlock(eid_block_cancion);
-}
 
 function pintSongActiveSoloDatos(){
     console.log('=== function pintSongActiveSoloDatos() === ');
@@ -10034,33 +9874,7 @@ function fullscreenReferenciaOCrear(referencia){
 }
 */
 
-function normalizeSearchText(text) {
-    return text
-        // 1) minúsculas
-        .toLowerCase()
 
-        // 2) normalizar Unicode
-        .normalize('NFD')
-
-        // 3) eliminar diacríticos SOLO de letras latinas
-        .replace(/(?<=\p{Script=Latin})\p{Mn}+/gu, '')
-
-        // 4) recomponer Unicode
-        .normalize('NFC')
-
-        // 5) proteger apóstrofe entre letras
-        .replace(/(\p{L})'(\p{L})/gu, '$1§§§$2')
-
-        // 6) eliminar puntuación y símbolos
-        .replace(/[^\p{L}\p{N}§ ]+/gu, ' ')
-
-        // 7) restaurar apóstrofe
-        .replace(/§§§/g, "'")
-
-        // 8) normalizar espacios
-        .replace(/\s+/g, ' ')
-        .trim();
-}
 
 
 function makeColumns(num){

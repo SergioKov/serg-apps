@@ -16,7 +16,11 @@ const los_puntosMenu_ul = eid_puntosMenu.querySelector('ul');
 //start - main
 //==================================================================//
 const eid_main = document.getElementById('main');
+
 const eid_block_clientes = document.getElementById('block_clientes');
+const eid_contenedor_clientes = document.getElementById('contenedor_clientes');
+
+
 const eid_block_productos = document.getElementById('block_productos');
 const eid_block_pedidos = document.getElementById('block_pedidos');
 
@@ -112,8 +116,8 @@ if(modoMobile){
 //====================================================//
 
 
-let objDataSongsBd = {};//objeto con datos de BD de todas las canciones encontradas en 'Buscar' 
-let objDataSongs = {};//objeto con datos de todas las canciones encontradas en 'Buscar' 
+let objDataClientesBd = {};//objeto con datos de BD de todas las canciones encontradas en 'Buscar' 
+let objDataClientes = {};//objeto con datos de todas las canciones encontradas en 'Buscar' 
 
 let objDataListasBd = {};//objeto con datos de BD de todas las listas encontradas en 'Lista' 
 let objDataListas = {};//objeto con datos de todas las listas encontradas en 'Lista' 
@@ -160,7 +164,7 @@ let objGrupos = {};//datos de todos grupos
 
 
 
-let objFindParams = {
+let objFindClienteParams = {
     words_input: '',
     lang: '',//idioma de la canción
     buscar_en: '',// campos para buscar en

@@ -2,19 +2,19 @@
 
 
 // Conexión a la base de datos
-if($_SERVER['HTTP_HOST'] == 'holy-songs.com'){//HOSTALIA
+if($_SERVER['HTTP_HOST'] == 'serg-apps.com'){//HOSTALIA
     //echo"hostalia";
 	$servername = "PMYSQL120.dns-servicio.com";
     $username = "demovtc";//porque 'holy_songs_user' no funciona
     $password = "&777&demovtc&777&";//antes '&parol_holy_songs_user&'
-    $dbname = "7229353_db_holy_songs";//db de holy-songs en holy-songs.com
+    $dbname = "7229353_db_dtf";//db de holy-songs en holy-songs.com
     
 }else{//LOCALHOST
     //echo"localhost";
 	$servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "db_holy_songs";    
+    $dbname = "db_dtf";    
 }
 
 $conn = new mysqli($servername, $username, $password, $dbname);
