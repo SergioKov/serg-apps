@@ -53,9 +53,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 include('includes/connect_db.php');
 
-$words_input = $conn->real_escape_string($words_input);//aki importante
-$modo = $conn->real_escape_string($modo);
-$buscar_en = $conn->real_escape_string($buscar_en);
+//aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
+$words_input = $datos['words_input'];
+$modo = $datos['modo'];
+$buscar_en = $datos['buscar_en'];
+
 //echo_json_x($datos, 'datos');
 //echo_json_x($words_input);
 //echo_json_x($modo);

@@ -43,6 +43,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             exit;
         }
 
+        //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
         $id_cliente = $datos['id_cliente'];
     } 
 
