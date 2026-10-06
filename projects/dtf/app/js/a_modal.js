@@ -1,3 +1,8 @@
+//JSDoc de abajo indica: puede devolver promise. 
+//esto es para que no me muestere vscode el error en deleteCliente() donde llamo await openModal()
+/**
+ * @returns {Promise<boolean>|undefined}
+ */
 function openModal(param = null, headerTitle = null, htmlTrans = null, action = null, modalFadeIn = true, args = null){
     console.log('=== function openModal() ===');
     console.log(`param: ${param} --- headerTitle: ${headerTitle}`); 
@@ -113,6 +118,17 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     //alert('aki showAviso2()');
                     showAviso2(htmlTrans, param);//es arr_p_id en este caso
                     break;
+
+                case 'confirmDelete'://se introduce objeto HTML (y no elemento.innerHTML como en 'showAviso')
+                    eid_h4_text.innerHTML = `${headerTitle} `;//'Избранныe модули Библии';    
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey'); 
+                    
+                    return new Promise(resolve => {
+                        console.log('aki llamar mostrarConfirm()');
+                        mostrarConfirm(htmlTrans, param, resolve);
+                    });
+                    //break; aki no hace falta break porque hago return de la promise
                                 
                 default:
                     //console.log('indica action en openModal()');
@@ -177,7 +193,18 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     //console.log('aki llamar showAviso2()');
                     //alert('aki showAviso2()');
                     showAviso2(htmlTrans, param);//es arr_p_id en este caso
-                    break;           
+                    break; 
+
+                case 'confirmDelete'://se introduce objeto HTML (y no elemento.innerHTML como en 'showAviso')
+                    eid_h4_text.innerHTML = `${headerTitle} `;//'Избранныe модули Библии';    
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey'); 
+                    
+                    return new Promise(resolve => {
+                        console.log('aki llamar mostrarConfirm()');
+                        mostrarConfirm(htmlTrans, param, resolve);
+                    });
+                    break;
 
 
                 case 'buildCliente':
@@ -232,19 +259,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     buildFormCancion(contenedor, cancion_action);
                     break;
 
-                case 'buildFormEjemplo':
-                    eid_h4_text.innerHTML = `${headerTitle} `;//'Избранныe модули Библии';
-                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
-                    eid_modcont_body.classList.add('theme_grey');   
-                    console.log('aki llamar buildFormCancion()');
-                    // alert('hasta aki...');
-                    let contenedor_ejemplo = eid_bl_modalFullInner;//solo aki
-                    let lang_ejemplo = args;
-                    console.log('contenedor_ejemplo:', contenedor_ejemplo);
-                    console.log('lang_ejemplo:', lang_ejemplo);
 
-                    buildFormEjemplo(contenedor_ejemplo, lang_ejemplo);
-                    break;
             
                 default:
                     //console.log('indica action en openModal()');
@@ -2309,8 +2324,8 @@ function showAviso(htmlTrans, positionModal){
 
     if(positionModal == 'center'){
         eid_bl_modalCenterInner.innerHTML = '';
-    }else if(positionModal == 'bottom'){
-        eid_bl_modalBottomInner.innerHTML = '';
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.innerHTML = '';
     }
     
     const p = document.createElement('p');
@@ -2318,9 +2333,9 @@ function showAviso(htmlTrans, positionModal){
     p.innerHTML = htmlTrans;
 
     if(positionModal == 'center'){
-        eid_bl_modalCenterInner.append(p);    
-    }else if(positionModal == 'bottom'){
-        eid_bl_modalBottomInner.append(p);
+        eid_bl_modalCenterInner.append(contenedor_aviso);    
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.append(contenedor_aviso);
     }
 
 }
@@ -2330,8 +2345,8 @@ function showAviso2(elemento_aviso, positionModal){// elemento_aviso es objeto H
 
     if(positionModal == 'center'){
         eid_bl_modalCenterInner.innerHTML = '';
-    }else if(positionModal == 'bottom'){
-        eid_bl_modalBottomInner.innerHTML = '';
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.innerHTML = '';
     }
     
     const contenedor_aviso = document.createElement('div');
@@ -2340,8 +2355,55 @@ function showAviso2(elemento_aviso, positionModal){// elemento_aviso es objeto H
 
     if(positionModal == 'center'){
         eid_bl_modalCenterInner.append(contenedor_aviso);    
-    }else if(positionModal == 'bottom'){
-        eid_bl_modalBottomInner.append(contenedor_aviso);
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.append(contenedor_aviso);
     }
 
+}
+
+function mostrarConfirm(htmlTrans, positionModal, resolve){
+    console.log('=== mostrarConfirm() ===');
+
+    if(positionModal == 'center'){
+        eid_bl_modalCenterInner.innerHTML = '';
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.innerHTML = '';
+    }
+
+    const wr_confirm_aviso = document.createElement('div');
+    wr_confirm_aviso.className = 'wr_confirm_aviso';
+    wr_confirm_aviso.innerHTML = `
+        ${htmlTrans}
+        <div class="wr_btns_confirm">
+            <button id="btn_cancelar" class="btn btn_big">Cancelar</button>            
+            <button id="btn_aceptar" class="btn btn_big">Aceptar</button>            
+        </div>
+    `;
+
+    wr_confirm_aviso.onclick = (e) => {
+        if(e.target.closest('.wr_btns_confirm')){//si el click es en los botones de confirm
+            
+            if(e.target.id === 'btn_cancelar'){
+                console.log('clic en btn_cancelar');
+                closeModal(null, true);
+                resolve(false);
+            }
+            else if(e.target.id === 'btn_aceptar'){
+                console.log('clic en btn_aceptar');
+                closeModal(null, true);
+                resolve(true);
+            }
+        }
+    }
+
+    const contenedor_aviso = document.createElement('div');
+    contenedor_aviso.className = 'contenedor_aviso';
+    contenedor_aviso.append(wr_confirm_aviso);
+
+    if(positionModal == 'center'){
+        eid_bl_modalCenterInner.append(contenedor_aviso);    
+    }else if(positionModal == 'full'){
+        eid_bl_modalFullInner.append(contenedor_aviso);
+    }
+    
 }

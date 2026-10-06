@@ -563,7 +563,7 @@ p.p_aviso a {
 .cl_campo {
     color: grey;
     font-size: 0.75rem;
-    min-width: 60px;
+    min-width: 65px;
     display: inline-block;
     text-align: justify;
 }
@@ -848,7 +848,29 @@ p.prim .btn.tres_puntos .btn_img {
 }
 
 
+.wr_btns_confirm {
+    /* background: red; */
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: 10px;
+    border-top: 1px solid #343434;
+    padding-top: 10px;
+}
 
+.wr_confirm_aviso {
+    background: #000000;
+    padding: 10px;
+    border-radius: 5px;
+    color: orange;
+}
+.wr_confirm_aviso h3 {
+    text-align: center;
+    margin: 1rem 0 !important;
+}
+.wr_confirm_aviso p  {
+    padding: 3px 0;
+}
 
 
 

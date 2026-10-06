@@ -130,11 +130,9 @@
 .toast_body.ok {
     background: #0e833f;
 }
-
 .toast_body.error {
     background: #f03f2b;
 }
-
 .toast_body.info {
     background: #3498db;
 }

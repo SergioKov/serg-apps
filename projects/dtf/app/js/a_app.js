@@ -550,15 +550,15 @@ function buildCliente(cliente_action = null){
             return; // <- se detiene aquí si no hay id_cliente
         } 
         id_cliente_val = objCliente.id_cliente;
-        nombre_val = objCliente.nombre || '';
-        telefono_val = objCliente.telefono || '';
-        codigo_cliente_val = objCliente.codigo_cliente || '';
-        comentario_val = objCliente.comentario || '';
-        taquilla_val = objCliente.taquilla || '';
-        descuento_val = objCliente.descuento || '';
-        precio_fijo_dtf_val = objCliente.precio_fijo_dtf || '';
-        precio_fijo_uv_val = objCliente.precio_fijo_uv || '';
-        saldo_val = objCliente.saldo || '';
+        nombre_val = escaparHTML(objCliente.nombre) || '';
+        telefono_val = escaparHTML(objCliente.telefono) || '';
+        codigo_cliente_val = escaparHTML(objCliente.codigo_cliente) || '';
+        comentario_val = escaparHTML(objCliente.comentario) || '';
+        taquilla_val = escaparHTML(objCliente.taquilla) || '';
+        descuento_val = escaparHTML(objCliente.descuento) || '';
+        precio_fijo_dtf_val = escaparHTML(objCliente.precio_fijo_dtf) || '';
+        precio_fijo_uv_val = escaparHTML(objCliente.precio_fijo_uv) || '';
+        saldo_val = escaparHTML(objCliente.saldo) || '';
         diaSemana_val = diaSemana(objCliente.fecha);
         fecha_val = convertirFecha(objCliente.fecha, 'ver', '/');
         //fecha_val = objCliente.fecha_ver;//formato ya desde bd '03/08/2025'
@@ -1086,18 +1086,33 @@ async function deleteCliente(event){
             alert('id_cliente no está indicado... hago return.');
         }
 
-        const respuesta = confirm(`¿Estás seguro de que quieres ELIMINAR IRREVERSIBLEMENTE el cliente con los siguientes datos? \nID: ${id_cliente} \nnombre: '${objCliente.nombre || '(no asignado)'}' \n\nEsta acción no se podrá deshacer.`);
-        if(respuesta){
-            console.log('sigo adelante para eliminar el cliente...'); //clic en "Aceptar"
-            // if(promtConClaveSecreta()){
-            //     console.log('Clave secreta correcta. Procedo a eliminar el cliente.');
-            // }else{
-            //     return;
-            // }
-        } else {
+        const pregunta = `
+            <h3>¿Estás seguro de que quieres ELIMINAR IRREVERSIBLEMENTE el cliente con los siguientes datos?</h3> 
+            <p><span class="cl_campo">id:</span> ${id_cliente}</p> 
+            <p><span class="cl_campo">Nombre:</span> ${escaparHTML(objCliente.nombre) || '(no asignado)'}</p> 
+            <p><span class="cl_campo">Teléfono:</span> ${escaparHTML(objCliente.telefono) || '(no asignado)'}</p> 
+            <p><span class="cl_campo">Comentario:</span> ${escaparHTML(objCliente.comentario) || '(sin comentario)'}</p> 
+            <h3>¡Esta acción no se podrá deshacer!</h3>
+        `;
+
+        const respuesta = await openModal( //aqui await es importante!
+            'center',
+            'Eliminar cliente',
+            pregunta,
+            'confirmDelete',
+            true,
+            id_cliente
+        );
+
+        if(!respuesta){
             //console.log("7755. Cancelar..."); //clic en "Cancelar"
             return;
         }
+
+        let text1 = 'sigo adelante para eliminar el cliente...'; //clic en "Aceptar"
+        console.log(text1);
+        //alert(text1);
+
 
         const data = await deleteClienteFromBd();
         console.log('data: ',data);
@@ -1109,8 +1124,6 @@ async function deleteCliente(event){
             console.log(text_show);
 
             eid_contenedor_clientes.scrollIntoView({behavior: 'smooth'});//hago scroll al top del formulario donde hay mensaje
-
-            showToast('ok', text_show, 5000);
 
             if(data.id_cliente){
                 console.log('id_cliente: ', data.id_cliente);
@@ -1137,14 +1150,7 @@ async function deleteCliente(event){
                 id_cliente = null;
                 objCliente = {};//reseteo objeto song
 
-                setTimeout(()=>{
-                    const aviso_outer = document.createElement('div');
-                    aviso_outer.className = 'aviso_outer';
-                    aviso_outer.innerHTML = `
-                        <p class="p_aviso">${text_show}</p>
-                    `;
-                    openModal('center','Resultado de la eliminación',aviso_outer,'showAviso2');
-                }, 1000);
+                showToast('ok', text_show, 5000);
             }
             
         }else{
@@ -1334,9 +1340,9 @@ function pintClienteOne(objClienteOne, lugar_de_pintar = 'abajo'){//pintar solo 
     d_cliente.dataset.tipo_art = 'cliente';
     d_cliente.innerHTML = `
         <div class="datos_cliente datos_art">
-            <div class="da_nombre">${objClienteOne.nombre || '(nombre no asignado)'}</div>
-            <div class="da_tel">${objClienteOne.telefono}</div>
-            <div class="da_com ${cl_da_comm}">${objClienteOne.comentario || '(sin comentario)'}</div>
+            <div class="da_nombre">${escaparHTML(objClienteOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="da_tel">${escaparHTML(objClienteOne.telefono)}</div>
+            <div class="da_com ${cl_da_comm}">${escaparHTML(objClienteOne.comentario) || '(sin comentario)'}</div>
         </div>
 
         <div class="tres_puntos">
@@ -1975,3 +1981,5 @@ function manejarLogin(){
         window.location.href = '../login';//redirecciono a login para que se loguee y luego vuelva a la pantalla
     }
 }
+
+
