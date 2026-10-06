@@ -1123,8 +1123,6 @@ async function deleteCliente(event){
             text_show = 'Cliente eliminado con éxito.';
             console.log(text_show);
 
-            eid_contenedor_clientes.scrollIntoView({behavior: 'smooth'});//hago scroll al top del formulario donde hay mensaje
-
             if(data.id_cliente){
                 console.log('id_cliente: ', data.id_cliente);
 
@@ -1146,6 +1144,7 @@ async function deleteCliente(event){
 
                 //Elimino elemento d_cliente de los clientes encontrados en 'contenedor_clientes'
                 eid_contenedor_clientes.querySelector(`.d_cliente[data-id_cliente="${id_cliente}"]`).remove();
+                eid_contenedor_clientes.scrollIntoView({behavior: 'smooth'});//hago scroll al top del formulario donde hay mensaje
 
                 id_cliente = null;
                 objCliente = {};//reseteo objeto song
