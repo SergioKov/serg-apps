@@ -10024,28 +10024,7 @@ function getDeviceData(){
 }
 
 
-function manejarLogin(){
-    console.log('=== function manejarLogin() ===');
 
-    if(hay_usuario_logueado){
-        let aviso_html = `
-            <h3>Bienvenido de nuevo, ${username}!</h3>
-            <p>${email}</p>
-            <p>Puedes crear canciones, listas y  guardar tus ajustes personales.</p>
-            <div class="wr_btns_vertical">
-                <button class="btn" onclick="window.location.href = '/home';">Inicio</button>            
-                <button class="btn" onclick="window.location.href = '/login';">Login</button>            
-                <button class="btn" onclick="window.location.href = '/logout';">Cerrar sesión</button>            
-            </div>
-        `;
-
-        showToast('ok', aviso_html, 1000, 'center', true, 'Sesión iniciada correctamente.');
-        return;
-    }else{
-        //alert('no hay_usuario_logueado');
-        window.location.href = '/login';//redirecciono a login para que se loguee y luego vuelva a la pantalla
-    }
-}
 
 
 

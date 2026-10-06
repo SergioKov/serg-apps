@@ -115,16 +115,17 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     include('includes/connect_db.php');
 
     
-    $id_cliente = $conn->real_escape_string($datos['id_cliente']);//get parameter
-    $nombre = $conn->real_escape_string($datos['nombre']);//get parameter
-    $telefono = $conn->real_escape_string($datos['telefono']);//get parameter
-    $codigo_cliente = $conn->real_escape_string($datos['codigo_cliente']);//get parameter
-    $comentario = $conn->real_escape_string($datos['comentario']);//get parameter
-    $taquilla = $conn->real_escape_string($datos['taquilla']);//get parameter
-    $descuento = $conn->real_escape_string($datos['descuento']);//get parameter
-    $precio_fijo_dtf = $conn->real_escape_string($datos['precio_fijo_dtf']);//get parameter
-    $precio_fijo_uv = $conn->real_escape_string($datos['precio_fijo_uv']);//get parameter
-    $saldo = $conn->real_escape_string($datos['saldo']);//get parameter
+    //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
+    $id_cliente = $datos['id_cliente'];
+    $nombre = $datos['nombre'];
+    $telefono = $datos['telefono'];
+    $codigo_cliente = $datos['codigo_cliente'];
+    $comentario = $datos['comentario'];
+    $taquilla = $datos['taquilla'];
+    $descuento = $datos['descuento'];
+    $precio_fijo_dtf = $datos['precio_fijo_dtf'];
+    $precio_fijo_uv = $datos['precio_fijo_uv'];
+    $saldo = $datos['saldo'];
     
     //variables de busqueda
     $cliente_search = normalizeSearchText($nombre ?? '');

@@ -212,9 +212,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="icon" type="image/png" href="../images/sa_icon2.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/sa_favicon_16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/sa_favicon_32x32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="../images/sa_favicon_180x180.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
-    <link id="estilos_slideshow" rel="stylesheet" href="../css/sa_index.css">
+    <link rel="stylesheet" href="../css/sa_index.css">
     <link rel="stylesheet" href="./css/login.css">
     <link rel="stylesheet" href="./css/login_form.css">
     <!-- <link rel="stylesheet" href="./css/login_resp.css"> -->

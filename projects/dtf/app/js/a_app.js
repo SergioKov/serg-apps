@@ -834,7 +834,7 @@ function buildCliente(cliente_action = null){
 async function guardarCliente(event, modo_guardar = 'normal'){
     //modo_guardar: 'normal' o 'fast' (para guardar rápido sin pasar por el formulario, 
     //solo con los datos actuales de objLista y arr_lista)
-    console.log('=== function guardarLista() ===');
+    console.log('=== function guardarCliente() ===');
     
     if(event){
         console.log('hay event. no lo propago...')

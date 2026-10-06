@@ -16,7 +16,7 @@ require_once __DIR__ . '/../includes/config/app.php';
     <title>DTF - Home</title>
     <link rel="icon" type="image/png" href="<?= RUTA_APP ?>images/dtf_favicon_76x76.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
-    <link id="estilos_slideshow" rel="stylesheet" href="../css/dtf_index.css">
+    <link rel="stylesheet" href="../css/dtf_index.css">
 </head>
 <body>
 
