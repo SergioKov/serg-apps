@@ -951,13 +951,20 @@ async function guardarCliente(event, modo_guardar = 'normal'){
                 console.log('objCliente: ', objCliente);
 
                 const itemClienteUpdate = objDataClientes.arr_data?.find(item => item.id_cliente == id_cliente);
-                if (itemClienteUpdate) {
+                if (itemClienteUpdate) {//es update del cliente existente
                     Object.assign(itemClienteUpdate, objCliente);
                     // el objeto dentro de arr_data ya está actualizado
-                } else {
+                } else {//es insert del cliente nuevo
                     console.warn('No encontrado objCliente.id_cliente en objDataClientes.arr_data');
                     //entonces es un cliente nuevo que se crea
-                    //debo pintar d_cliente en el top del contenedor
+
+                    //1.debo añadir objCliente en objDataClientes.arr_data al inicio
+                    objDataClientes.arr_data.unshift(objCliente);
+
+                    //2.debo aumentar el numero de total clientes
+                    objDataClientes.totalRows++;
+
+                    //3.debo pintar d_cliente en el top del contenedor
                     pintClienteOne(objCliente, 'arriba');//div de cliente se pinta al inicio (arriba)
 
                 }
