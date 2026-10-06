@@ -119,13 +119,13 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $id_cliente = $datos['id_cliente'];
     $nombre = $datos['nombre'];
     $telefono = $datos['telefono'];
-    $codigo_cliente = $datos['codigo_cliente'];
+    $codigo_cliente = ($datos['codigo_cliente'] === '') ? null : $datos['codigo_cliente'];//si viene vacio => null
     $comentario = $datos['comentario'];
-    $taquilla = $datos['taquilla'];
-    $descuento = $datos['descuento'];
-    $precio_fijo_dtf = $datos['precio_fijo_dtf'];
-    $precio_fijo_uv = $datos['precio_fijo_uv'];
-    $saldo = $datos['saldo'];
+    $taquilla = ($datos['taquilla'] === '') ? null : $datos['taquilla'];//si viene vacio => null
+    $descuento = ($datos['descuento'] === '') ? null : $datos['descuento'];//si viene vacio => null
+    $precio_fijo_dtf = ($datos['precio_fijo_dtf'] === '') ? null : $datos['precio_fijo_dtf'];//si viene vacio => null
+    $precio_fijo_uv = ($datos['precio_fijo_uv'] === '') ? null : $datos['precio_fijo_uv'];//si viene vacio => null
+    $saldo = ($datos['saldo'] === '') ? null : $datos['saldo'];//si viene vacio => null
     
     //variables de busqueda
     $cliente_search = normalizeSearchText($nombre ?? '');
