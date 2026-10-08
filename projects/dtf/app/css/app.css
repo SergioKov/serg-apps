@@ -360,12 +360,12 @@ header:not(#myModal header) {
 
 .btn_add {
     font-size: 500%;
-    padding: 3rem;
+    padding: 2rem;
     background: #343434;
     border: 1px solid #000000;
     border-radius: 10px;
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -641,6 +641,10 @@ p.p_aviso a {
 }
 
 .wr_bl_buscar {
+    /* background: green; */
+    margin-bottom: 10px;
+}
+.wr_bl_buscar_head {
     /* background: red; */
     display: flex;
     gap: 10px;
@@ -649,10 +653,104 @@ p.p_aviso a {
     align-items: center;
 }
 
+.wr_bl_buscar_body {
+    background: #ff9800;
+    height: auto;
+    color: #FF9800;
+    border: 5px solid #FF9800;
+    border-radius: 5px;
+    overflow: auto;
+    transition: border-color 0.3s ease;
+}
+
+.wr_filtros_aplicados {
+    background: #FF9800;
+    overflow-x: auto;
+}
+
+.wr_filtros_aplicados_inner {
+    /* background: #9C27B0; */
+    display: flex;
+    gap: 5px;
+    color: #e4e4e4;
+    font-size: 12px;
+    align-items: center;
+    margin: 5px 5px 0;
+}
+
+.find_text {
+    background: #000000 !important;
+    color: #FF9800;
+    border-radius: 5px !important;
+    padding: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+.f_frase {
+    font-weight: bold;
+}
+
+.fa_option {
+    display: flex;
+    background: #343434;
+    border-radius: 5px;
+    padding: 0px 0px;
+    font-size: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 5px;
+    white-space: nowrap;
+    height: 22px;
+    padding: 5px;
+}
+.fa_option .sp_close{
+    color: white;
+}
+.fa_busqueda {
+    white-space: nowrap;
+    color: #583400;
+}
+.fa_cursor {
+    cursor: pointer;
+    transition: 0.5s ease;
+}
+.fa_cursor:hover {
+    background: #d71515;
+}
+.sp_close {
+    min-width: 22px!important;
+    padding: 0 0 2px;
+    font-size: 15px;
+    border: none;
+    opacity: 0.4;
+    background-color: transparent;
+    /* background: red; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2px;
+    color: #000000;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+    margin-right: -5px;
+}
+.sp_close:hover {
+    background-color: red;
+    color: white;
+    opacity: 1;
+    border-radius: 0 5px 5px 0;
+}
+
+
 .wr_bl_buscar h4 {
     color: #414141;
     /* text-align: center; */
+    cursor: pointer;
+    transition: 0.3s ease;
 }
+.wr_bl_buscar h4:hover {
+    color: #FF9800;
+}
+
 .wr_btn_img {
     /* background: red; */
     padding: 10px;
@@ -673,6 +771,25 @@ p.p_aviso a {
     gap: 10px;
 }
 
+.flex_dir_col {
+    flex-direction: column;
+}
+.flex_dir_row {
+    flex-direction: column;
+}
+.flex_gap_5 {
+    gap: 5px;
+}
+.flex_gap_10 {
+    gap: 10px;
+}
+.flex_gap_15 {
+    gap: 15px;
+}
+.flex_gap_20 {
+    gap: 20px;
+}
+
 h5 {
     padding: 15px 0 5px;
     color: #FF9800;
@@ -684,6 +801,9 @@ h5 {
     padding: 3px;
     margin: 0 0 25px;
     border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .sel_opt_find {
@@ -873,4 +993,44 @@ p.prim .btn.tres_puntos .btn_img {
 }
 
 
+.regs_finded {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
+.wr_num_regs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background: #ff9800;
+    padding: 5px;
+    border-radius: 5px;
+    color: #000000;
+    font-size: 80%;
+}
+.num_regs_finded {
+    background: green;
+    border: 1px solid #006000;
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+
+.wr_btns_exp_ej {
+    background: #585858;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 80%;
+}
+.btn_exp_ej {
+    width: 100%;
+    text-align: center;
+}

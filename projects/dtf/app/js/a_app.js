@@ -6,7 +6,7 @@ async function init() {
     //await crear_objSongbooks();
 
     //await crear_objGrupos();   
-    await getClientesAll();   
+    await loadClientesAll();   
 }
 
 function hideShowPuntosMenu(){
@@ -1144,7 +1144,7 @@ async function deleteCliente(event){
 
                 //Elimino elemento d_cliente de los clientes encontrados en 'contenedor_clientes'
                 eid_contenedor_clientes.querySelector(`.d_cliente[data-id_cliente="${id_cliente}"]`).remove();
-                eid_contenedor_clientes.scrollIntoView({behavior: 'smooth'});//hago scroll al top del formulario donde hay mensaje
+                eid_block_clientes.scrollIntoView({behavior: 'smooth'});//hago scroll al top del formulario donde hay mensaje
 
                 id_cliente = null;
                 objCliente = {};//reseteo objeto song
@@ -1305,21 +1305,107 @@ function pintClienteActive(){//click en div del contenedor de clientes que ya es
 
 }
 
-function pintClientesAll(){//pintar todos los div de clientes, o al load o al find
-    console.log('=== function pintClientesAll() === ');
+async function loadClientesAll(){
+    console.log('=== function loadClientesAll() === ');
 
-    if(!objDataClientes || !objDataClientes.arr_data || objDataClientes.arr_data.length === 0){
-        console.warn('No hay clientes en objDataClientes.arr_data');
-        return;
-    }    
+    objDataClientes = await getClientesAll();
+
+    const wr_filtros_aplicados_inner = document.createElement('div');
+    wr_filtros_aplicados_inner.className = 'wr_filtros_aplicados_inner';
+    wr_filtros_aplicados_inner.innerHTML = `
+        <div class="fa_busqueda">
+            <span>Mostrado:</span>
+        </div>
+
+        <div class="fa_option">
+            <span>Todos registros</span>
+        </div>   
+    `;
+    
+    const objDataPint = {
+        f_frase: '(Todos clientes)',
+        f_num: objDataClientes.totalRows,
+        element_inner: wr_filtros_aplicados_inner,
+    }
+
+    pintFiltrosAplicados(eid_bl_buscar_clientes, objDataPint);
+    
+    pintClientesAll();
+
+}
+
+async function pintClientesAll(){//pintar todos los div de clientes, o al load o al find
+    console.log('=== function pintClientesAll() === '); 
+    
+    console.time('time_pintClientesAlll');
+
+    // if(!objDataClientes?.arr_data?.length){//si length === 0, entonces no hay clientes
+    //     console.warn('No hay clientes en objDataClientes.arr_data');
+    //     return;
+    // }
+
+    eid_contenedor_clientes.innerHTML = '';//reset contenedor de clientes
+
+    const hay_datos = (esObjeto(objDataClientes) && objDataClientes.arr_data?.length > 0);//true o false
+
+    if(!hay_datos){
+        console.log('no hay datos...');
+        //eid_sp_icon_filtro.classList.remove('d-none');//oculto el boton de filtro ya que no hay nada para filtrar
+
+        eid_contenedor_clientes.innerHTML = `
+            <p class="prim">No existe ningún cliente en la base de datos.</p>
+        `;
+    }
+
+    if(hay_datos){
+        console.log('hay datos...');
+        
+        console.log('objDataClientes: ', objDataClientes);        
+        
+        //eid_titulo_tabla_song.querySelector('b').style.display = 'inline';
+        //eid_titulo_tabla_song.querySelector('b').textContent = objDataSongs.arr_data.length;        
+        
+        //eid_sp_icon_filtro.classList.remove('d-none');//muestro el boton de filtro
+        
+        /*
+        //Parametros para filtrar resultados de buscar
+        const contenedor_filtro = eid_d_filter_results;
+        const sp_icon_filtro = eid_sp_icon_filtro;
+        const el_input = eid_inpt_filter;
+        // const selector_items = '.tr_song';//CLASES JUNTOS!. los elementos que se ocultarán, si no cumplen con el filtro
+        const selector_items = '.p_song';//CLASES JUNTOS!. los elementos que se ocultarán, si no cumplen con el filtro
+        const arr_spans = [
+            '.l_title',    
+            '.l_title2',    
+            '.l_title_note',    
+            '.l_id',    
+            '.l_idioma',    
+            '.l_tune',    
+            '.l_tune_transpose',    
+            // '.td_id_song',    
+            // '.td_numero',    
+            // '.td_titulo',    
+            // '.td_esquema',    
+            // '.td_category',    
+            // '.td_songbook',    
+            // '.td_idioma',  
+            // '.td_tonalidad'
+        ];//se buscará texto en cada elemento de estos span's
+        addFilterListener(contenedor_filtro, sp_icon_filtro, el_input, selector_items, arr_spans);
+        */
+
+        //CREAR DIV'S Y P'S
+        //Recorrer clientes encontradas... 
+        objDataClientes.arr_data.forEach( obj => {
+            console.log('obj: ', obj);
+
+            pintClienteOne(obj, 'abajo');//cada div de cliente se pinta al final (abajo)
+        });
+
+    }
+
+    console.timeEnd('time_pintClientesAlll');
    
-    //CREAR DIV'S Y P'S
-    //Recorrer clientes encontradas... 
-    objDataClientes.arr_data.forEach( obj => {
-        console.log('obj: ', obj);
-
-        pintClienteOne(obj, 'abajo');//cada div de cliente se pinta al final (abajo)
-    });
 }
 
 
@@ -1490,6 +1576,8 @@ async function findWordsCliente(){
     const eid_inpt_find_cliente = document.getElementById('inpt_find_cliente');
     const eid_modo_cliente = document.getElementById('modo_cliente');
     const eid_buscar_en_cliente = document.getElementById('buscar_en_cliente');
+    const eid_regs_finded_cliente = document.getElementById('regs_finded_cliente');
+    const eid_btn_mostrar_finded_cliente = document.getElementById('btn_mostrar_finded_cliente');
 
     let words_input_trimed = eid_inpt_find_cliente.value.trim();
     let words_input = normalizeSearchText(words_input_trimed);//quito espacios duplicados, puntuacion, tildes etc...
@@ -1499,6 +1587,9 @@ async function findWordsCliente(){
 
     if(words_input == ''){
         console.log('1. no has introducido nada....');
+        let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
+            
+        showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
         return;
     }
     
@@ -1511,41 +1602,103 @@ async function findWordsCliente(){
 
     if(arr_words.length === 0){
         console.log('2. no has introducido nada....');
+        let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
+            
+        showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
         return;
     }
 
-    objFindClienteParams.words_input = words_input;
-    objFindClienteParams.modo = modo;
-    objFindClienteParams.buscar_en = buscar_en;
+    objFindParamsCliente.words_input = words_input;
+    objFindParamsCliente.modo = modo;
+    objFindParamsCliente.buscar_en = buscar_en;
+    objFindParamsCliente.findedRows = 0;//por defecto '0' luego lo actualizo si hay coincidencias
 
-    objDataClientesBd = await getDataClientesFromBdByFind(objFindClienteParams);
-    console.log('objDataClientesBd: ', objDataClientesBd);
+
+    objDataClientesFinded = await getDataClientesFromBdByFind(objFindParamsCliente);
+    console.log('objDataClientesFinded: ', objDataClientesFinded);   
+
     
-    eid_contenedor_clientes.innerHTML = '';//reset contenedor de clientes
-
+    const hay_coincidencias = (esObjeto(objDataClientesFinded) && objDataClientesFinded.arr_data?.length > 0);//true o false
+    
     //si no hay nada...
-    let hay_coincidencias = (esObjeto(objDataClientesBd) && objDataClientesBd.arr_data.length > 0);//true o false
-
     if(!hay_coincidencias){
         console.log('no hay coincidencias...');
         //eid_sp_icon_filtro.classList.remove('d-none');//oculto el boton de filtro ya que no hay nada para filtrar
+        
+        objFindParamsCliente.findedRows = 0;
 
-        eid_contenedor_clientes.innerHTML = `
-            <p class="prim">No se encontraron clientes con la frase: "<b>${words_input_trimed}</b>"</p>
+        eid_regs_finded_cliente.classList.remove('d-none');
+        eid_regs_finded_cliente.innerHTML = `
+            <p class="prim">
+                No se han encontrado resultados para "<b>${words_input_trimed}</b>" con los criterios de búsqueda seleccionados. 
+                <br><br> 
+                Prueba a modificarlos o a utilizar otros términos de búsqueda.
+            </p>
         `;
     }
 
+    //si hay clientes...
     if(hay_coincidencias){
-        console.log('hay coincidencias...');
+        console.log('hay coincidencias...'); 
         
-        //Clono objeto
-        objDataClientes = structuredClone(objDataClientesBd);
-        console.log('objDataClientes: ', objDataClientes);        
+        objFindParamsCliente.findedRows = objDataClientesFinded.arr_data.length;
+                
+        //Resultado de búsqueda
+        eid_regs_finded_cliente.classList.remove('d-none');
+        eid_regs_finded_cliente.innerHTML = `
+            <div class="wr_num_regs">
+                <span>Registros encontrados: </span>
+                <span class="num_regs_finded">${objDataClientesFinded.arr_data.length}</span>
+            </div>
+            <button id="btn_mostrar_finded_cliente" class="btn btn_big mostrar_finded">Mostrar</button>
+        `;
+
+        //click en div
+        eid_regs_finded_cliente.onclick = (e) => {
+            
+            if(e.target.id === 'btn_mostrar_finded_cliente') {
+                console.log('clic en btn_mostrar_finded_cliente');
+                console.log('mostrar clicked -> reasigno objDataClientes desde objDataClientesFinded'); 
+                
+                //Clono objeto
+                objDataClientes = structuredClone(objDataClientesFinded);
+                console.log('objDataClientes: ', objDataClientes);
+
+
+
+                const modo_val = objModoBusqueda[`modo${objFindParamsCliente.modo}`].titulo;
+                const buscar_en_val = objBuscarEnBusqueda[`buscar_en${objFindParamsCliente.buscar_en}`].titulo;
+
+                const wr_filtros_aplicados_inner = document.createElement('div');
+                wr_filtros_aplicados_inner.className = 'wr_filtros_aplicados_inner';
+                wr_filtros_aplicados_inner.innerHTML = `
+                    <div class="fa_busqueda">
+                        <span>Tu búsqueda:</span>
+                    </div>
+            
+                    <div class="fa_option">
+                        <span>${modo_val}</span>
+                    </div>   
+
+                    <div class="fa_option">
+                        <span>${buscar_en_val}</span>
+                    </div>   
+                `;
+
+                const objDataPint = {
+                    f_frase: objFindParamsCliente.words_input,
+                    f_num: objFindParamsCliente.findedRows,
+                    element_inner: wr_filtros_aplicados_inner,
+                }
+
+                pintFiltrosAplicados(eid_bl_buscar_clientes, objDataPint);               
+                                
+                pintClientesAll();
+                closeModal(null,true);
+            }
+        }
         
-        //eid_titulo_tabla_song.querySelector('b').style.display = 'inline';
-        //eid_titulo_tabla_song.querySelector('b').textContent = objDataSongs.arr_data.length;        
-        
-        //eid_sp_icon_filtro.classList.remove('d-none');//muestro el boton de filtro
+        //eid_sp_icon_filtro.classList.remove('d-none');//muestro el boton de filtro ?
         
         /*
         //Parametros para filtrar resultados de buscar
@@ -1572,16 +1725,26 @@ async function findWordsCliente(){
             // '.td_tonalidad'
         ];//se buscará texto en cada elemento de estos span's
         addFilterListener(contenedor_filtro, sp_icon_filtro, el_input, selector_items, arr_spans);
-        */
-
-        pintClientesAll();
+        */      
 
     }
+
+    await update_objFindParamsCliente();
 
     console.timeEnd('time_findWordsNew');
 }
 
+function pintFiltrosAplicados(contenedor, objDataPint){
+    console.log('=== function pintFiltrosAplicados() ===');
 
+    //pinto Filtros aplicados
+    contenedor.querySelector('.f_frase').textContent = objDataPint.f_frase;
+    contenedor.querySelector('.f_num').textContent = objDataPint.f_num;
+
+    contenedor.querySelector('.wr_filtros_aplicados').innerHTML = '';//reset
+    contenedor.querySelector('.wr_filtros_aplicados').append(objDataPint.element_inner);
+    
+}
 
 async function getClientesAll(){
     console.log('=== async function getClientesAll() ===');
@@ -1589,64 +1752,11 @@ async function getClientesAll(){
 
     objDataClientesBd = await getDataClientesAllFromBd();//la funcion que saca todos los cliente para pintarlo
     console.log('objDataClientesBd: ', objDataClientesBd);
-    
-    eid_contenedor_clientes.innerHTML = '';//reset contenedor de clientes
-
-    const hay_coincidencias = (esObjeto(objDataClientesBd) && objDataClientesBd.arr_data.length > 0);//true o false
-
-    if(!hay_coincidencias){
-        console.log('no hay coincidencias...');
-        //eid_sp_icon_filtro.classList.remove('d-none');//oculto el boton de filtro ya que no hay nada para filtrar
-
-        eid_contenedor_clientes.innerHTML = `
-            <p class="prim">No existe ningún cliente en la base de datos.</p>
-        `;
-    }
-
-    if(hay_coincidencias){
-        console.log('hay coincidencias...');
-        
-        //Clono objeto
-        objDataClientes = structuredClone(objDataClientesBd);
-        console.log('objDataClientes: ', objDataClientes);        
-        
-        //eid_titulo_tabla_song.querySelector('b').style.display = 'inline';
-        //eid_titulo_tabla_song.querySelector('b').textContent = objDataSongs.arr_data.length;        
-        
-        //eid_sp_icon_filtro.classList.remove('d-none');//muestro el boton de filtro
-        
-        /*
-        //Parametros para filtrar resultados de buscar
-        const contenedor_filtro = eid_d_filter_results;
-        const sp_icon_filtro = eid_sp_icon_filtro;
-        const el_input = eid_inpt_filter;
-        // const selector_items = '.tr_song';//CLASES JUNTOS!. los elementos que se ocultarán, si no cumplen con el filtro
-        const selector_items = '.p_song';//CLASES JUNTOS!. los elementos que se ocultarán, si no cumplen con el filtro
-        const arr_spans = [
-            '.l_title',    
-            '.l_title2',    
-            '.l_title_note',    
-            '.l_id',    
-            '.l_idioma',    
-            '.l_tune',    
-            '.l_tune_transpose',    
-            // '.td_id_song',    
-            // '.td_numero',    
-            // '.td_titulo',    
-            // '.td_esquema',    
-            // '.td_category',    
-            // '.td_songbook',    
-            // '.td_idioma',  
-            // '.td_tonalidad'
-        ];//se buscará texto en cada elemento de estos span's
-        addFilterListener(contenedor_filtro, sp_icon_filtro, el_input, selector_items, arr_spans);
-        */
-
-        pintClientesAll();
-
-    }
 
     console.timeEnd('time_getClientesAll');
+
+    return objDataClientesBd;
+
 }
 
 
@@ -1747,7 +1857,7 @@ function buildBuscarCliente(){
                     type="text"
                     placeholder="Introduce una palabra o frase para buscar..."
                     data-dic=""
-                    value="Demko">
+                    value="${objFindParamsCliente.words_input}">
                 <div class="clear_inpt" onclick="clear_inpt('find_cliente')">&times;</div>
             </div>
 
@@ -1761,17 +1871,27 @@ function buildBuscarCliente(){
         <div class="wr_sel_opt_find m_0">
             <h5>Modo de búsqueda:</h5>
             <select id="modo_cliente" class="sel_opt_find">
-                <option value="1">1) Todas las palabras (pueden ser parte de otras palabras, sin importar orden)</option>
-                <option value="2">2) Todas las palabras (no pueden ser parte de otras palabras, sin importar orden)</option>
-                <option value="3">3) Coincidir al menos una palabra</option>
-                <option value="4">4) Palabras en el orden establecido</option>
-                <option value="5" selected>5) Frase exacta</option>
-                <option value="6">6) Palabras exactas (no pueden ser parte de otras palabras, sin importar orden)</option>
+                <option value="1">1) Palabras PARCIALES, cualquier orden</option>
+                <option value="2">2) Palabras EXACTAS, cualquier orden</option>
+
+                <option value="3">3) Coincidir al menos una palabra PARCIAL, cualquier orden</option>
+                <option value="4">4) Coincidir al menos una palabra EXACTA, cualquier orden</option>
+
+                <option value="5">5) Palabras PARCIALES, respetando orden</option>
+                <option value="6">6) Palabras EXACTAS, respetando orden</option>
+
+                <option value="7">7) Frase EXACTA</option>
             </select>
+
+            <div id="modo_exp_ej" class="wr_btns_exp_ej">
+                <botton class="btn btn_exp_ej" data-tipo_btn="exp">Explicación</botton>
+                <botton class="btn btn_exp_ej" data-tipo_btn="ej">Ejemplo</botton>
+            </div>
+
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Campos de búsqueda:</h5>
+            <h5>Buscar en:</h5>
             <select id="buscar_en_cliente" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1780,12 +1900,80 @@ function buildBuscarCliente(){
                 <option value="5">5) Sólo el identificador de cliente</option>
                 <option value="6">6) Sólo el nombre</option>
                 <option value="7">7) Sólo el teléfono</option>
-
             </select>
+
+            <div id="buscar_en_exp_ej" class="wr_btns_exp_ej">
+                <botton class="btn btn_exp_ej" data-tipo_btn="exp">Explicación</botton>
+                <botton class="btn btn_exp_ej" data-tipo_btn="ej">Ejemplo</botton>
+            </div>
+
         </div>
+
+        <div id="regs_finded_cliente" class="regs_finded">
+            <!-- aki Registros encontrados: -->    
+        </div>
+
     `;
 
+    //input
     const eid_inpt_find = wr_args_busqueda.querySelector('#inpt_find_cliente');
+    
+    //modo
+    const eid_modo_cliente = wr_args_busqueda.querySelector('#modo_cliente');
+    const eid_modo_exp_ej = wr_args_busqueda.querySelector('#modo_exp_ej');
+
+    //hago seleccionado opcion segun el parametros guardados en objFindParamsCliente
+    eid_modo_cliente.value = objFindParamsCliente.modo;
+
+    eid_modo_cliente.onchange = async (e) => {
+        findWordsCliente();
+    }
+
+    eid_modo_exp_ej.onclick = (e) => {
+        const tipo_btn = e.target.dataset.tipo_btn;
+        console.log('tipo_btn: ', tipo_btn);
+        
+        let aviso_text = '';
+
+        if(tipo_btn === 'exp'){//Explicación
+            aviso_text = objModoBusqueda[`modo${objFindParamsCliente.modo}`].desc_full;
+            showToast('info', aviso_text, 50, 'center', true, 'Explicación');
+        }
+
+        if(tipo_btn === 'ej'){//Ejemplo
+            aviso_text = objModoBusqueda[`modo${objFindParamsCliente.modo}`].ejemplo;
+            showToast('info', aviso_text, 50, 'center', true, 'Ejemplo');
+        }
+    }
+
+    //buscar_en
+    const eid_buscar_en_cliente = wr_args_busqueda.querySelector('#buscar_en_cliente');
+    const eid_buscar_en_exp_ej = wr_args_busqueda.querySelector('#buscar_en_exp_ej');
+    
+    //hago seleccionado opcion segun el parametros guardados en objFindParamsCliente
+    eid_buscar_en_cliente.value = objFindParamsCliente.buscar_en;
+    
+    eid_buscar_en_exp_ej.onclick = (e) => {
+        const tipo_btn = e.target.dataset.tipo_btn;
+        console.log('tipo_btn: ', tipo_btn);
+
+        let aviso_text = '';
+
+        if(tipo_btn === 'exp'){//Explicación
+            aviso_text = objBuscarEnBusqueda[`buscar_en${objFindParamsCliente.buscar_en}`].desc_full;
+            showToast('info', aviso_text, 50, 'center', true, 'Explicación');
+        }
+
+        if(tipo_btn === 'ej'){//Ejemplo
+            aviso_text = objBuscarEnBusqueda[`buscar_en${objFindParamsCliente.buscar_en}`].ejemplo;
+            showToast('info', aviso_text, 50, 'center', true, 'Ejemplo');
+        }
+    }
+
+    eid_buscar_en_cliente.onchange = async (e) => {
+        findWordsCliente();
+    }
+
 
     //al teclear texto en la busqueda de cliente
     let timeoutFindCliente;
@@ -1803,7 +1991,7 @@ function buildBuscarCliente(){
         }
     
         timeoutFindCliente = setTimeout(async () => {
-            //await findWordsCliente();
+            await findWordsCliente();
         }, 400);
     };
 
@@ -1812,10 +2000,10 @@ function buildBuscarCliente(){
     console.log('fin func');
 }
 
-async function getDataClientesFromBdByFind(objFindClientesParams){
+async function getDataClientesFromBdByFind(objFindParamsCliente){
     console.log('=== function getDataClientesFromBdByFind(words_input) ===');
 
-    let {words_input, modo, buscar_en} = objFindClientesParams;
+    let {words_input, modo, buscar_en} = objFindParamsCliente;
 
     try {
         

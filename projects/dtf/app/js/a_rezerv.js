@@ -4122,7 +4122,7 @@ async function findWordsSong(){
     objDataSongsBd = await getDataSongsFromBdByFind(objFindParams);
     console.log('objDataSongsBd: ', objDataSongsBd);
 
-    if(esObjeto(objDataSongsBd) && objDataSongsBd.arr_data.length > 0){
+    if(esObjeto(objDataSongsBd) && objDataSongsBd.arr_data?.length > 0){
         console.log('hay coincidencias...');
         
         //Clono objeto
@@ -4338,7 +4338,7 @@ async function findWordsLista(){
     objDataListasBd = await getDataListasFromBdByFind(objFindListaParams);
     console.log('objDataListasBd: ', objDataListasBd);
 
-    if(esObjeto(objDataListasBd) && objDataListasBd.arr_data.length > 0){
+    if(esObjeto(objDataListasBd) && objDataListasBd.arr_data?.length > 0){
         console.log('hay coincidencias...');
 
         //Clono objeto
