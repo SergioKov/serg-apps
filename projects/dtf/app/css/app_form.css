@@ -199,18 +199,18 @@ textarea:not(:placeholder-shown) + label
 }
 
 
-#contenedor_lista_sm .wr_btns_eliminar, 
-#contenedor_cliente_sm .wr_btns_eliminar 
+ 
+#contenedor_form_sm .wr_btns_eliminar 
 {
     margin-top: 0px;
     padding-top: 10px;
     border-top: 1px solid #606060;
 }
 
-#contenedor_cliente_sm .parte_lista:not(:first-child){
+#contenedor_form_sm .parte_lista:not(:first-child){
     margin-top: 15px;
 }
-#contenedor_cliente_sm .parte_lista:not(:last-child){
+#contenedor_form_sm .parte_lista:not(:last-child){
     margin-bottom: 15px;
 }
 

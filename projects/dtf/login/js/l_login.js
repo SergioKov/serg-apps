@@ -220,9 +220,10 @@ async function iniciarSesion(){//antes login() //username,password
             return;
         }
 
-    
+        const nombre_fichero = 'iniciar_sesion_app.php';
+
         // Enviar los datos al servidor para la autenticación
-        const response = await fetch("../app/php/iniciar_sesion_hs.php", {
+        const response = await fetch(`../app/php/${nombre_fichero}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -246,7 +247,7 @@ async function iniciarSesion(){//antes login() //username,password
         if(!response.ok){
             console.error('❌ HTTP ERROR', response.status);
             console.error(text.slice(0, 300));
-            throw new Error(`HTTP (error iniciar_sesion_hs.php) ${response.status}`);
+            throw new Error(`HTTP (error ${nombre_fichero}) ${response.status}`);
         }
 
         try {
@@ -278,13 +279,13 @@ async function iniciarSesion(){//antes login() //username,password
 
         } catch (error) {
             
-            console.error('❌ JSON inválido en iniciar_sesion_hs.php');
+            onsole.error(`❌ JSON inválido en ${nombre_fichero}`);
             console.error(text.slice(0, 500));
             console.error('error.name: ', error.name);            
             console.error('error.message: ', error.message);            
 
             throw new Error(
-                'JSON inválido en iniciar_sesion_hs.php',
+                `JSON inválido en ${nombre_fichero}`,
                 { cause: error }
             );
         }

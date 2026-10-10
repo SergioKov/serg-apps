@@ -289,7 +289,7 @@ function buildForm(id_form){
             <h1 data-dic="d177">${'Crear cuenta'}</h1>
             <p class="mensaje" data-dic="d178">${'Al crear la cuenta tendrás acceso a tus ajustes personales.'}</p>
             <input id="reg_username" name="username" type="text" autocomplete="off" placeholder="${'Nombre'}" data-dic="d192_ph" />
-            <input id="reg_email" name="email" type="email" autocomplete="on" placeholder="${ 'Email'}" required data-dic="d194_ph" />
+            <input id="reg_email" name="email" type="email" autocomplete="username" placeholder="${ 'Email'}" required data-dic="d194_ph" />
             <input id="reg_password" name="password" class="type_password m_bot0" type="password" autocomplete="off" placeholder="${ 'Contraseña'}" data-dic="d193_ph" />
             <label class="ch_lab">
                 <input class="ch_mostrar" type="checkbox" onchange="showHidePassword(this)">
@@ -318,7 +318,7 @@ function buildForm(id_form){
         <form class="email-form">
             <h1 data-dic="d181">Recuperar contraseña</h1>
             <p class="mensaje" data-dic="d182">Introduce tu correo electrónico para recibir instrucciones sobre cómo establecer una nueva contraseña.</p>
-            <input id="rec_email" name="email" type="email" required autocomplete="on" placeholder="Email" data-dic="d194_ph" />
+            <input id="rec_email" name="email" type="email" required autocomplete="username" placeholder="Email" data-dic="d194_ph" />
             <button class="btn_wide" type="button" onclick="enviarEmail()" data-dic="d183">Enviar</button>
             <p class="message"><a href="#" onclick="mostrarLoginForm()" data-dic="d184">Iniciar sesión</a></p>
         </form>
@@ -358,7 +358,7 @@ function buildForm(id_form){
             <p class="mensaje">
                 <span data-dic="d188">Tendrás acceso a tus ajustes personales.</span>
             </p>
-            <input id="email" name="email" type="email" autocomplete="on" placeholder="Email" data-dic="d194_ph" required />
+            <input id="email" name="email" type="email" autocomplete="username" placeholder="Email" data-dic="d194_ph" required />
             <input id="password" name="password" class="type_password m_bot0" type="password" autocomplete="on" placeholder="Contraseña" data-dic="d193_ph" required />
             <label class="ch_lab">
                 <input class="ch_mostrar" type="checkbox" onchange="showHidePassword(this)">

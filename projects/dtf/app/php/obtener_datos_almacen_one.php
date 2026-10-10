@@ -3,6 +3,7 @@ include('includes/config.php');
 session_start();//importante para ver al usuario logueado
 include('functions.php');
 
+
 /*
 //HACER PRUEBAS...
 echo json_encode([
@@ -28,7 +29,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $inputJSON = file_get_contents('php://input');
         $datos = json_decode($inputJSON, true);
         //debug($inputJSON, 'inputJSON');
-        //echo json_encode(['$datos' => $datos],JSON_UNESCAPED_UNICODE);
+        //echo json_encode(['$datos' => $datos]);
         // Verificar que se decodificó correctamente
 
         if ($datos === null) {
@@ -42,88 +43,59 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             exit;
         }
 
-        $id_cliente = $datos['id_cliente'];
+        //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
+        $id_almacen = $datos['id_almacen'];
     } 
 
 }
+
+$id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 
 
 
 include('includes/connect_db.php');
 
-$id_cliente = $datos['id_cliente'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
+//Consula el clientes por su id 
+$sql = "SELECT
+            a.id_almacen, 
+            a.nombre, 
+            a.direccion, 
+            a.comentario, 
 
-$id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
-//echo_json_x($datos, 'datos');
+            a.created_at, 
+            a.updated_at
 
-//luego añadire comprobacion de permisos de usuario para eliminar clientes
-//por ahora lo comento...!
-// if(/*!$_SESSION['id_user'] || */ $_SESSION['email'] != 'sergiokovalchuk@gmail.com'){
-//     echo json_encode([
-//         'success' => false,
-//         'valorData' => '80.no_tiene_datos',
-//         'error' => 'El usuario no tiene permisos para eliminar clientes.',
-//         'dic_code' => 'd...'
-//     ],JSON_UNESCAPED_UNICODE);
-//     exit;
-// }
+        FROM almacenes a
 
-
-//busco si hay registro
-// Preparar y ejecutar la consulta
-$sql_init = "SELECT 
-                id_cliente, 
-                nombre, 
-                telefono, 
-                comentario, 
-                created_at, 
-                updated_at  
-            FROM clientes 
-            WHERE id_cliente = ?
+        WHERE a.id_almacen = ?
 ";
-$stmt = $conn->prepare($sql_init);
-$stmt->bind_param("i", $id_cliente);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param(
+    "i",
+    $id_almacen
+);
 $stmt->execute();
 $result = $stmt->get_result();
-
-//echo_json_x($sql_init, 'sql');
-//debug_x($sql_init, 'sql');
+$row = $result->fetch_assoc();
 
 
-if($result->num_rows > 0){   
-    $row = $result->fetch_assoc();
+
+if($row){   
     //echo_json_x($row, 'row']);
-    
-    $id_cliente_bd = $row['id_cliente'];
+
     $data = [
         'success' => true,
-        'id_cliente' => $row['id_cliente'],
+
+        'id_almacen' => $row['id_almacen'],
         'nombre' => $row['nombre'],
-        'telefono' => $row['telefono'],
+        'direccion' => $row['direccion'],
         'comentario' => $row['comentario'],
+
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
+    
         'valorData' => 'hay_datos'
     ];
-
-    //consulta para eliminar
-    $sql_delete = "DELETE FROM 
-                    clientes 
-                   WHERE id_cliente = ?
-    ";
-    $stmt = $conn->prepare($sql_delete);
-    $stmt->bind_param("i", $id_cliente_bd);
-    $result_delete = $stmt->execute();
-
-    // Obtener la fecha y hora actual
-    $fechaHoraActual = date("Y-m-d H:i:s");
-
-
-    if($result_delete === TRUE){
-        $data['success'] = true;
-        $data['valorData'] = 'cliente_eliminado';
-        $data['fecha_hora'] = $fechaHoraActual;
-    }
 
 }else{
     
