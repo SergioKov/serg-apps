@@ -27,8 +27,6 @@ const eid_main = document.getElementById('main');
 
 
 
-const eid_block_productos = document.getElementById('block_productos');
-const eid_block_pedidos = document.getElementById('block_pedidos');
 
 
 
@@ -125,17 +123,6 @@ if(modoMobile){
 
 
 
-let objProducto = {};
-let objPedido = {};
-
-
-let id_producto = null;//id de la lista actual
-let id_pedido = null;//id de la lista actual
-    //? let lista_id_song = null;//id de song clicked de la lista actual
-
-
-
-
 
 
 
@@ -154,10 +141,22 @@ let obj_ajustes_def = {
     },
     objFindParamsCliente: {
         words_input: "demko",
-        modo: 5,
+        modo: 3,
         buscar_en: 1,
         findedRows: 0,
-    }
+    },
+    objFindParamsProducto: {
+        words_input: "dtf",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
+    objFindParamsTaquilla: {
+        words_input: "1",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
 }
 
 let obj_ajustes = {};
@@ -184,7 +183,9 @@ try {
 // Desestructuración para CREAR ( con let sin parentesis. no redeclarar). ejemplo: let {...} = obj_ajustes;
 let {
     objFindParamsAlmacen,
-    objFindParamsCliente
+    objFindParamsCliente,
+    objFindParamsProducto,
+    objFindParamsTaquilla
 } = obj_ajustes;
 
 localStorage.setItem('obj_ajustes', JSON.stringify(obj_ajustes));

@@ -8,6 +8,8 @@ async function init() {
     //await crear_objGrupos();   
     await loadAlmacenesAll();   
     await loadClientesAll();   
+    await loadProductosAll();   
+    await loadTaquillasAll();   
 }
 
 function hideShowPuntosMenu(){

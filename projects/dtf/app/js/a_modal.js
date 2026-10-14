@@ -182,7 +182,6 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     //console.log('aki llamar showAviso()');
-                    //alert('aki showAviso()');
                     showAviso(htmlTrans, param);//es arr_p_id en este caso
                     break;
 
@@ -191,7 +190,6 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     //console.log('aki llamar showAviso2()');
-                    //alert('aki showAviso2()');
                     showAviso2(htmlTrans, param);//es arr_p_id en este caso
                     break; 
 
@@ -199,7 +197,6 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     eid_h4_text.innerHTML = `${headerTitle} `;//'Избранныe модули Библии';    
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey'); 
-                    
                     return new Promise(resolve => {
                         console.log('aki llamar mostrarConfirm()');
                         mostrarConfirm(htmlTrans, param, resolve);
@@ -219,7 +216,6 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     console.log('aki llamar buildAlmacen()');
                     let almacen_action = args;
                     console.log('almacen_action:', almacen_action);
-
                     buildAlmacen(almacen_action);
                     break;
 
@@ -234,11 +230,60 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildCliente()');
-                    // alert('hasta aki...');
                     let cliente_action = args;
                     console.log('cliente_action:', cliente_action);
-
                     buildCliente(cliente_action);
+                    break;
+
+
+                case 'buildProducto':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildProducto()');
+                    let producto_action = args;
+                    console.log('producto_action:', producto_action);
+                    buildProducto(producto_action);
+                    break;
+
+
+                case 'buildTaquilla':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildTaquilla()');
+                    let taquilla_action = args;
+                    console.log('taquilla_action:', taquilla_action);
+                    buildTaquilla(taquilla_action);
+                    break;
+
+
+
+
+
+                case 'buildBuscarAlmacen':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarAlmacen()');
+                    let almacen_action2 = args;
+                    console.log('almacen_action2:', almacen_action2);
+                    buildBuscarAlmacen();
                     break;
 
 
@@ -254,12 +299,11 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     console.log('aki llamar buildBuscarCliente()');
                     let cliente_action2 = args;
                     console.log('cliente_action2:', cliente_action2);
-
                     buildBuscarCliente();
                     break;
 
 
-                case 'buildBuscarAlmacen':
+                case 'buildBuscarProducto':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
                             <img class="btn_img" src="./images/search_zoom_icon_white.svg">
@@ -268,12 +312,30 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     `;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
-                    console.log('aki llamar buildBuscarAlmacen()');
-                    let almacen_action2 = args;
-                    console.log('almacen_action2:', almacen_action2);
-
-                    buildBuscarAlmacen();
+                    console.log('aki llamar buildBuscarProducto()');
+                    let producto_action2 = args;
+                    console.log('producto_action2:', producto_action2);
+                    buildBuscarProducto();
                     break;
+
+
+                case 'buildBuscarTaquilla':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarTaquilla()');
+                    let taquilla_action2 = args;
+                    console.log('taquilla_action2:', taquilla_action2);
+                    buildBuscarTaquilla();
+                    break;
+
+
+
 
 
 

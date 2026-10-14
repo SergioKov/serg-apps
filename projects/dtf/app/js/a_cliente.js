@@ -10,11 +10,6 @@ function buildCliente(cliente_action = null){
 
     eid_bl_modalFullInner.innerHTML = '';//reset
 
-    // Formato YYYY-MM-DD que necesita <input type="date">
-    const fecha_hoy = new Date().toISOString().split("T")[0];
-    let diaSemana_val = '';
-    let fecha_val = fecha_hoy;
-
     //campos de input
     let id_cliente_val = '';
     let nombre_val = '';
@@ -51,7 +46,7 @@ function buildCliente(cliente_action = null){
                 <p class="p_aviso">Crea un cliente pulsando "+".</p>
                 <button id="btn_lista" class="btn btn_big w_100" onclick="closeModal(null,true); showEdit('lista');">Buscar Lista</button>
             `;
-            openModal('center','Aviso Lista',aviso_outer,'showAviso2');
+            openModal('center','Aviso Cliente',aviso_outer,'showAviso2');
             return; // <- se detiene aquí si no hay id_cliente
         } 
         id_cliente_val = objCliente.id_cliente;
@@ -64,15 +59,21 @@ function buildCliente(cliente_action = null){
         precio_fijo_dtf_val = escaparHTML(objCliente.precio_fijo_dtf) || '';
         precio_fijo_uv_val = escaparHTML(objCliente.precio_fijo_uv) || '';
         saldo_val = escaparHTML(objCliente.saldo) || '';
-        diaSemana_val = diaSemana(objCliente.fecha);
-        fecha_val = convertirFecha(objCliente.fecha, 'ver', '/');
-        //fecha_val = objCliente.fecha_ver;//formato ya desde bd '03/08/2025'
+    }
+
+    //si es ver o editar, muestro id
+    if(['ver','editar'].includes(cliente_action)){
+        mensaje_html = `
+            <span class="sp_id">
+                <span>Id: <b class="c_green">${id_cliente}</b></span>
+            </span>
+        `;
     }
 
     switch (cliente_action) {
         case 'nuevo'://Nueva Cliente
             mensaje_html = `
-                <span>Rellena los campos del formulario con los datos del cliente <b class="c_blue">NUEVO</b>.</span>
+                <span>Rellena los campos del formulario con los datos de un cliente <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_cliente
             if(id_cliente){
@@ -88,19 +89,11 @@ function buildCliente(cliente_action = null){
         
         default:
         case 'ver'://Ver Cliente - FORMULARIO
-            //console.log('(editar) --- arr_lista_bucle: ', arr_lista_bucle);
             cl_id_cliente = '';//muestro
             cl_d_limpiar_input = 'd-none';//oculto porque es 'ver'
             break;
 
         case 'editar'://Editar Cliente - FORMULARIO
-            fecha_val = objCliente.fecha;//formato correcto para el input '2025-08-03'
-            mensaje_html = `
-                <span class="sp_id">
-                    <span>Id: <b class="c_green">${id_cliente}</b></span>
-                    <span><b class="actual">(ACTUAL)</b></span>
-                </span>
-            `;
             cl_d_limpiar_input = 'd-flex';//muestro porque es 'editar'
             break;
 
@@ -165,13 +158,7 @@ function buildCliente(cliente_action = null){
 
                 </span><!--/.detalles_inner-->
             </p>
-        </div>
-
-        <div class="parte_lista d-none">
-            <p class="p_sm ${cl_id_cliente}">Id: <b>${id_cliente_val}</b></p>
-            <p class="p_sm">Fecha: <b>${diaSemana_val} ${fecha_val}</b></p>
-        </div>
-        
+        </div>        
 
         ${(comentario_val) ? comentario_detalles.outerHTML : '' }
         
@@ -285,14 +272,6 @@ function buildCliente(cliente_action = null){
                     <input id="saldo" type="text" name="saldo" required="" placeholder=" " value="${saldo_val}">
                     <label for="saldo">Saldo</label>
                 </div>
-               
-                
-               
-                <!-- fecha - aki no muestro! -->
-                <div class="form_group wr_fecha d-none">
-                    <input type="date" id="fecha" name="fecha" required="" placeholder=" " value="${fecha_val}">
-                    <label for="fecha">Fecha</label>
-                </div>
 
                 <!-- comentario -->
                 <div class="form_group">
@@ -364,14 +343,11 @@ async function guardarCliente(event, modo_guardar = 'normal'){
         let precio_fijo_dtf = form_cliente?.querySelector('#precio_fijo_dtf').value.trim();
         let precio_fijo_uv = form_cliente?.querySelector('#precio_fijo_uv').value.trim();
         let saldo = form_cliente?.querySelector('#saldo').value.trim();
-
     
         let errors = [];
 
         if(modo_guardar === 'fast'){
-            nombre = objLista.nombre;
-            // fecha = objLista.fecha;
-            // notes = objLista.notes;    
+            nombre = objCliente.nombre;
         }
 
         if(telefono == ''){
@@ -448,55 +424,60 @@ async function guardarCliente(event, modo_guardar = 'normal'){
                 console.log('id_cliente: ', data.id_cliente);
                 id_cliente = data.id_cliente;//guardo el id del cliente recién creada
 
-                //Cojo datos de la song de la lista desde BD
+                //Cojo datos del cliente desde BD
                 objCliente = await getDataClienteFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objCliente: ', objCliente);
 
                 const itemClienteUpdate = objDataClientes.arr_data?.find(item => item.id_cliente == id_cliente);
                 if (itemClienteUpdate) {//es update del cliente existente
+    
                     Object.assign(itemClienteUpdate, objCliente);
                     // el objeto dentro de arr_data ya está actualizado
+
+                    //Actualizo d_art 
+                    pintClienteActiveSoloDatos();//en el contenedor_clientes
+
                 } else {//es insert del cliente nuevo
+    
                     console.warn('No encontrado objCliente.id_cliente en objDataClientes.arr_data');
                     //entonces es un cliente nuevo que se crea
 
-                    //1.debo añadir objCliente en objDataClientes.arr_data al inicio
-                    objDataClientes.arr_data.unshift(objCliente);
+                    //1.debo añadir objCliente en objDataClientes.arr_data al inicio (si existe!)
+                    objDataClientes?.arr_data?.unshift(objCliente);
 
-                    //2.debo aumentar el numero de total clientes
-                    objDataClientes.totalRows++;
+                    //2.debo aumentar el numero de total clientes (si existe!)
+                    if (objDataClientes?.totalRows != null){
+                        objDataClientes.totalRows++;
+                    }
 
-                    //3.debo pintar d_cliente en el top del contenedor
-                    pintClienteOne(objCliente, 'arriba');//div de cliente se pinta al inicio (arriba)
-
+                    //3. old -> debo pintar d_cliente en el top del contenedor
+                    //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
+                    //pintClienteOne(objCliente, 'arriba');//div de cliente se pinta al inicio (arriba)
+                    loadClientesAll();
                 }
-
-                //Actualizo d_art 
-                pintClienteActiveSoloDatos();//en el contenedor_clientes
 
                 closeModal(null,true);
             }
            
         }else{
-            console.log(`Error al guardar el cliente.`);
-            
-            //"Error al añadir la lista.";
+
+            let text_show = 'Error al guardar el cliente.';
+            console.log(text_show);
             console.error('data.error: ', data.error);
 
-            let text_show = 'Error al añadir la lista.';  
-
             showToast('error', text_show, 5000);
+
         }
     
     } catch (error) {
         // Código a realizar cuando se rechaza la promesa
-        console.error('guardarLista. error: ',error);
+        console.error('guardarCliente(). error: ',error);
     }
 
 }
 
 async function insertarClienteDatos(objCliente) {
-    console.log('=== function insertarListaDatos(objCliente) ===');
+    console.log('=== function insertarClienteDatos(objCliente) ===');
 
     try {
         
@@ -648,17 +629,19 @@ async function deleteCliente(event){
                 id_cliente = null;
                 objCliente = {};//reseteo objeto song
 
+                //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
+                loadClientesAll();
+
                 showToast('ok', text_show, 5000);
             }
             
         }else{
-            console.log(`Error al eliminar el cliente.`);
             
+            console.log(`Error al eliminar el cliente.`);
             console.error('data.error: ', data.error);
             console.error('data.dic_code: ',data.dic_code);
 
             let text_error = data.error;
-            
             showToast('error', text_error, 500,'center');
 
         }
@@ -777,7 +760,7 @@ async function loadClientesAll(){
     
     const objDataPint = {
         f_frase: '(Todos clientes)',
-        f_num: objDataClientes.totalRows,
+        f_num: objDataClientes?.totalRows || 0,
         element_inner: wr_filtros_aplicados_inner,
     }
 
@@ -806,7 +789,7 @@ async function pintClientesAll(){//pintar todos los div de clientes, o al load o
         //eid_sp_icon_filtro.classList.remove('d-none');//oculto el boton de filtro ya que no hay nada para filtrar
 
         eid_contenedor_clientes.innerHTML = `
-            <p class="prim">No existe ningún cliente en la base de datos.</p>
+            <p class="prim">No existe ningún registro de cliente en la base de datos.</p>
         `;
     }
 
@@ -1267,7 +1250,7 @@ function buildBuscarCliente(){
                     type="text"
                     placeholder="Introduce una palabra o frase para buscar..."
                     data-dic=""
-                    value="${objFindParamsCliente.words_input || ''}">
+                    value="${objFindParamsCliente?.words_input || ''}">
                 <div class="clear_inpt" onclick="clear_inpt('find_cliente')">&times;</div>
             </div>
 
@@ -1333,7 +1316,7 @@ function buildBuscarCliente(){
     const eid_modo_exp_ej = wr_args_busqueda.querySelector('#modo_exp_ej');
 
     //hago seleccionado opcion segun el parametros guardados en objFindParamsCliente
-    eid_modo_cliente.value = objFindParamsCliente.modo;
+    eid_modo_cliente.value = objFindParamsCliente?.modo || 1 ;
 
     eid_modo_cliente.onchange = async (e) => {
         findWordsCliente();
@@ -1361,7 +1344,7 @@ function buildBuscarCliente(){
     const eid_buscar_en_exp_ej = wr_args_busqueda.querySelector('#buscar_en_exp_ej');
     
     //hago seleccionado opcion segun el parametros guardados en objFindParamsCliente
-    eid_buscar_en_cliente.value = objFindParamsCliente.buscar_en;
+    eid_buscar_en_cliente.value = objFindParamsCliente?.buscar_en || 1 ;
     
     eid_buscar_en_exp_ej.onclick = (e) => {
         const tipo_btn = e.target.dataset.tipo_btn;
@@ -1396,9 +1379,10 @@ function buildBuscarCliente(){
     
         clearTimeout(timeoutFindCliente);
     
-        if(input_val.length < 3){
-            return;
-        }
+        //permito buscar incluso al teclear 1 carácter
+        // if(input_val.length < 3){
+        //     return;
+        // }
     
         timeoutFindCliente = setTimeout(async () => {
             await findWordsCliente();

@@ -88,49 +88,49 @@ let objBuscarEnBusquedaAlmacen = {
         n: 1,
         titulo: "1) Campos por defecto",
         desc_sm: "1) Todos los campos por defecto disponibles (rápido)",
-        desc_full: "Busca en todos los campos disponibles: ID, nombre, dirección, comentario y campo de búsqueda optimizado. <br><br> Es la opción recomendada para realizar una búsqueda general y rápida.",
+        desc_full: "Busca en todos los campos disponibles: <b>ID</b><br>, <b>nombre</b><br>, <b>dirección</b><br>, <b>comentario</b><br>, </b>campo de búsqueda optimizado</b>. <br><br> Es la opción recomendada para realizar una búsqueda general y rápida.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará simultáneamente en todos los campos disponibles. <br><br> Se mostrarán los registros que cumplan los criterios del modo de búsqueda seleccionado en cualquiera de estos campos."
     },
     buscar_en2: {
         n: 2,
         titulo: "2) Campos disponibles",
         desc_sm: "2) Todos los campos disponibles (lento)",
-        desc_full: "Busca en todos los campos disponibles del cliente, incluyendo ID, nombre, dirección, comentario. <br><br> Permite una búsqueda más amplia, pero puede ser más lenta.",
+        desc_full: "Busca en todos los campos disponibles del cliente: <b>ID</b><br>, <b>nombre</b><br>, <b>dirección</b><br>, <b>comentario</b>. <br><br> Permite una búsqueda más amplia, pero puede ser más lenta.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará en todos los campos disponibles del cliente y mostrará los registros que cumplan los criterios del modo de búsqueda seleccionado en cualquiera de ellos."
     },
     buscar_en3: {
         n: 3,
         titulo: "3) Campos de texto",
         desc_sm: "3) Todos los campos de texto disponibles",
-        desc_full: "Busca únicamente en los campos de texto del cliente: nombre, dirección, comentario. <br><br> No incluye otros campos como ID.",
+        desc_full: "Busca únicamente en los campos de texto del cliente: <b>nombre</b><br>, <b>dirección</b><br>, <b>comentario</b><br>. <br><br> No incluye otros campos numéricos.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará únicamente en los campos de nombre, dirección y comentario, aplicando el modo de búsqueda seleccionado."
     },
     buscar_en4: {
         n: 4,
         titulo: "4) Campos numéricos",
         desc_sm: "4) Todos los campos numéricos disponibles",
-        desc_full: "Busca en todos los campos numéricos disponibles del cliente: ID.",
+        desc_full: "Busca en todos los campos numéricos disponibles del cliente: <b>ID</b>.",
         ejemplo: "Al introducir «123», la búsqueda se realizará únicamente en los campos numéricos disponibles, aplicando el modo de búsqueda seleccionado."
     },
     buscar_en5: {
         n: 5,
         titulo: "5) Identificador",
         desc_sm: "5) Sólo el identificador de cliente",
-        desc_full: "Busca únicamente en el identificador del cliente (ID). No se tienen en cuenta ningún otro campo.",
+        desc_full: "Busca únicamente en el identificador del cliente (ID). No se tienen en cuenta otros campos.",
         ejemplo: "Al introducir «123», la búsqueda se realizará únicamente sobre el ID del almacen y no sobre el resto de sus datos."
     },
     buscar_en6: {
         n: 6,
         titulo: "6) Nombre",
         desc_sm: "6) Sólo el nombre",
-        desc_full: "Busca únicamente en el nombre del almacén. No se tienen en cuenta ningún otro campo.",
+        desc_full: "Busca únicamente en el nombre del almacén. No se tienen en cuenta otros campos.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará únicamente sobre el nombre del almacén, aplicando el modo de búsqueda seleccionado."
     },
     buscar_en7: {
         n: 7,
         titulo: "7) Dirección",
         desc_sm: "7) Sólo el dirección",
-        desc_full: "Busca únicamente en la dirección del almacén. No se tienen en cuenta ningún otro campo.",
+        desc_full: "Busca únicamente en la dirección del almacén. No se tienen en cuenta otros campos.",
         ejemplo: "Al introducir «Alcorcón», la búsqueda se realizará únicamente sobre la dirección del almacén, aplicando el modo de búsqueda seleccionado."
     },
 }

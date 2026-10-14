@@ -116,11 +116,12 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
         <!-- Puntos Menu - contenedor de menu desplegable... -->
         <div id="puntosMenu" class="">
             <ul>
-                <li onclick="showBlockName(this.dataset.block_name)" class="active" data-block_name="almacenes">Almacenes</li>
+                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="almacenes">Almacenes</li>
                 <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="clientes">Clientes</li>
                 <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="productos">Productos</li>
+                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="servicios">Servicios</li>
                 <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="pedidos">Pedidos</li>
-                <li on-click="" data-block_name="">Taquillas</li>
+                <li onclick="showBlockName(this.dataset.block_name)" class="active" data-block_name="taquillas">Taquillas</li>
                 <li on-click="" data-block_name="">Ingresos</li>
                 <li on-click="" data-block_name="">Gastos</li>
                 <li on-click="" data-block_name="">Usuarios</li>
@@ -138,7 +139,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
 
 
-        <div id="block_almacenes" class="main_block active">
+        <div id="block_almacenes" class="main_block">
             <div id="block_almacenes_inner" class="main_block_inner">
 
                 <div id="bl_buscar_almacenes" class="wr_bl_buscar">
@@ -225,7 +226,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
                 </div><!--/.wr_d_almacenes -->
 
-                <button id="btn_add_almacen" class="btn_add" onclick="openModal('full','Crear Almacen',null,'buildAlmacen',true, 'nuevo');">+</button>
+                <button id="btn_add_almacen" class="btn_add" onclick="openModal('full', 'Crear Almacen', null, 'buildAlmacen', true, 'nuevo');">+</button>
 
             </div><!--/#block_almacenes_inner -->
         </div><!--/#block_almacenes -->
@@ -290,7 +291,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
                     </div><!--/.wr_bl_buscar_body-->
 
-                </div>
+                </div><!--/#bl_buscar_clientes -->
 
                 <div id="contenedor_clientes" class="wr_d_clientes wr_d_arts">
 
@@ -319,9 +320,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                     </div>
 
 
-                </div><!--/.wr_d_clientes -->
+                </div><!--/#contenedor_clientes -->
 
-                <button id="btn_add_cliente" class="btn_add" onclick="openModal('full','Crear Cliente',null,'buildCliente',true, 'nuevo');">+</button>
+                <button id="btn_add_cliente" class="btn_add" onclick="openModal('full', 'Crear Cliente', null, 'buildCliente', true, 'nuevo');">+</button>
 
             </div><!--/#block_clientes_inner -->
         </div><!--/#block_clientes -->
@@ -330,62 +331,197 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
 
 
-
         <div id="block_productos" class="main_block">
             <div id="block_productos_inner" class="main_block_inner">
 
-                <h4>Productos</h4>
+                <div id="bl_buscar_productos" class="wr_bl_buscar">
 
-                <div class="wr_d_productos wr_d_arts">
-
-                    <div class="d_producto d_art">
-                        <div class="datos_producto datos_art">
-                            <div class="da_nombre">DTF Textil</div>
-                            <div class="da_com">DTF Textil por metros</div>
+                    <div class="wr_bl_buscar_head">
+                        <h4 onclick="loadProductosAll();">Productos</h4>
+                        <div class="wr_btn_img" onclick="openModal('full','Buscar Producto',null,'buildBuscarProducto', true, 'ver');">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
                         </div>
-                        <div class="art_col3">
-                            <div>10 €</div>
-                        </div>
-
-                        <div class="tres_puntos">
-                            <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
-                        </div>
-                        <div class="tres_puntos_menu">
-                            <div>ver 3</div>
-                            <div>editar</div>
-                            <div>eliminar</div>
-                        </div>
-
                     </div>
 
+                    <div class="wr_bl_buscar_body">
+                        <div class="find_result">
 
-                    <div class="d_producto d_art">
+                            <div class="find_text disp_flex">
+                                <span class="f_frase">(Todos registros)</span>
+                                <span class="f_num">--</span>
+                            </div>
+
+                            <div id="filtros_aplicados_productos" class="wr_filtros_aplicados">
+
+                                <div class="wr_filtros_aplicados_inner">
+                                    
+                                    <div class="fa_busqueda">
+                                        <span>Tu búsqueda:</span>
+                                    </div>
+                                    
+                                    <div class="fa_option fa_def fa_cursor" onclick="">
+                                        <span>Todos registros</span>
+                                    </div>
+
+                                    <div class="fa_option fa_def" onclick="">
+                                        <span>Productos</span>
+                                    </div>
+                                    
+                                    <div class="fa_option" data-cbox_id="cbox2">
+                                        <span>5) Frase exacta</span>
+                                        <span class="sp_close">✕</span>
+                                    </div>
+                                    
+                                    <div class="fa_option" data-cbox_id="cbox4">
+                                        <span>1) Campos por defecto</span>
+                                        <span class="sp_close">✕</span>
+                                    </div>
+                                
+                                </div><!--/.wr_filtros_aplicados_inner-->
+
+
+
+                            </div><!--/.wr_filtros_aplicados-->
+                        </div><!--/.find_result-->
+
+
+                    </div><!--/.wr_bl_buscar_body-->
+
+                </div><!--/#bl_buscar_productos -->
+
+                <div id="contenedor_productos" class="wr_d_productos wr_d_arts">
+
+                    <div class="d_producto d_art" data-tipo_art="producto" data-id_producto="5">
                         <div class="datos_producto datos_art">
-                            <div class="da_nombre">DTF Textil</div>
-                            <div class="da_com">DTF Textil por metros</div>
+                            <div class="da_nombre">Nombre Producto (Ejemplo)</div>
+                            <div class="da_com">descripcion aki...</div>
                         </div>
-                        <div class="art_col3">
+
+                        <div class="art_cols art_col3">
+                            <div>14 €</div>
+                        </div>
+
+                        <div class="art_cols art_col4">
                             <div>24 €</div>
                         </div>
 
+
                         <div class="tres_puntos">
                             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
                         </div>
                         <div class="tres_puntos_menu">
-                            <div>ver 3</div>
-                            <div>editar</div>
-                            <div>eliminar</div>
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'ver');">
+                                <img class="img_acts img_ver" src="./images/img_ver_white_24x24.png">
+                            </div>
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'editar');">
+                                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+                            </div>
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'eliminar');">
+                                <img class="img_acts img_eliminar" src="./images/img_eliminar_white_24x24.png">
+                            </div>
                         </div>
 
                     </div>
 
+                </div><!--/#contenedor_productos -->
 
-                </div><!--/.wr_d_productos -->
-
-                <button id="btn_add_producto" class="btn_add">+</button>
+                <button id="btn_add_producto" class="btn_add" onclick="openModal('full', 'Crear Producto', null, 'buildProducto', true, 'nuevo');">+</button>
 
             </div><!--/#block_productos_inner -->
         </div><!--/#block_productos -->
+
+
+
+
+
+        <div id="block_taquillas" class="main_block active">
+            <div id="block_taquillas_inner" class="main_block_inner">
+
+                <div id="bl_buscar_taquillas" class="wr_bl_buscar">
+
+                    <div class="wr_bl_buscar_head">
+                        <h4 onclick="loadTaquillasAll();">Taquillas</h4>
+                        <div class="wr_btn_img" onclick="openModal('full','Buscar Taquilla',null,'buildBuscarTaquilla', true, 'ver');">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                        </div>
+                    </div>
+
+                    <div class="wr_bl_buscar_body">
+                        <div class="find_result">
+
+                            <div class="find_text disp_flex">
+                                <span class="f_frase">(Todos registros)</span>
+                                <span class="f_num">--</span>
+                            </div>
+
+                            <div id="filtros_aplicados_taquillas" class="wr_filtros_aplicados">
+
+                                <div class="wr_filtros_aplicados_inner">
+                                    
+                                    <div class="fa_busqueda">
+                                        <span>Tu búsqueda:</span>
+                                    </div>
+                                    
+                                    <div class="fa_option fa_def fa_cursor" onclick="">
+                                        <span>Todos registros</span>
+                                    </div>
+
+                                    <div class="fa_option fa_def" onclick="">
+                                        <span>Productos</span>
+                                    </div>
+                                    
+                                    <div class="fa_option" data-cbox_id="cbox2">
+                                        <span>5) Frase exacta</span>
+                                        <span class="sp_close">✕</span>
+                                    </div>
+                                    
+                                    <div class="fa_option" data-cbox_id="cbox4">
+                                        <span>1) Campos por defecto</span>
+                                        <span class="sp_close">✕</span>
+                                    </div>
+                                
+                                </div><!--/.wr_filtros_aplicados_inner-->
+
+
+
+                            </div><!--/.wr_filtros_aplicados-->
+                        </div><!--/.find_result-->
+
+
+                    </div><!--/.wr_bl_buscar_body-->
+
+                </div><!--/#bl_buscar_taquillas -->
+
+                <div id="contenedor_taquillas" class="wr_d_taquillas wr_d_arts">
+
+                    <div class="d_taquilla d_art" data-tipo_art="taquilla" data-id_taquilla="5">
+                        <div class="datos_taquilla datos_art">
+                            <div class="da_nombre">Nombre Taquilla (Ejemplo)</div>
+                        </div>
+
+                        <div class="tres_puntos">
+                            <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
+                        </div>
+                        <div class="tres_puntos_menu">
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'ver');">
+                                <img class="img_acts img_ver" src="./images/img_ver_white_24x24.png">
+                            </div>
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'editar');">
+                                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+                            </div>
+                            <div onclick="openModal('full','Producto actual',null,'buildProducto',true, 'eliminar');">
+                                <img class="img_acts img_eliminar" src="./images/img_eliminar_white_24x24.png">
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div><!--/#contenedor_taquillas -->
+
+                <button id="btn_add_taquilla" class="btn_add" onclick="openModal('full', 'Crear Taquilla', null, 'buildTaquilla', true, 'nuevo');">+</button>
+
+            </div><!--/#block_taquillas_inner -->
+        </div><!--/#block_taquillas -->
 
 
 
@@ -406,10 +542,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                             <div class="da_fecha">28.09.2026</div>
                             <div class="da_hora">15:45</div>
                         </div>
-                        <div class="art_col2">
+                        <div class="art_cols art_col2">
                             <div>100m</div>
                         </div>
-                        <div class="art_col3">
+                        <div class="art_cols art_col3">
                             <div>150 €</div>
                         </div>
 
@@ -431,10 +567,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                             <div class="da_fecha">28.09.2026</div>
                             <div class="da_hora">15:45</div>
                         </div>
-                        <div class="art_col2">
+                        <div class="art_cols art_col2">
                             <div>200m</div>
                         </div>
-                        <div class="art_col3">
+                        <div class="art_cols art_col3">
                             <div>550 €</div>
                         </div>
 
@@ -560,16 +696,21 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     
     <script src="js/a_config_almacen.js"></script>
     <script src="js/a_config_cliente.js"></script>
+    <script src="js/a_config_producto.js"></script>
+    <script src="js/a_config_taquilla.js"></script>
 
     <script src="js/a_app.js"></script>
     
     <script src="js/a_almacen.js"></script>
     <script src="js/a_cliente.js"></script>
+    <script src="js/a_producto.js"></script>
+    <script src="js/a_taquilla.js"></script>
     
     <script src="js/a_modal.js"></script>
     <script src="js/a_listen.js"></script>
     <script src="js/a_new.js"></script>
     <script src="js/a_new2.js"></script>
+
     <script src="js/a_test.js"></script>
 
 </body>

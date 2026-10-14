@@ -11,7 +11,7 @@ echo json_encode([
     'valorCampo' => 'no_tiene_datos',
     'error' => 'No hay todos los parametros necesarios.',
     'dic_code' => 'd251'
-]);
+],JSON_UNESCAPED_UNICODE);
 exit;
 */
 
@@ -42,58 +42,53 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             exit;
         }
 
-        $id_lista = $datos['id_lista'];
+        $id_taquilla = $datos['id_taquilla'];
     } 
 
-    if($_SERVER['REQUEST_METHOD'] === 'GET'){//para hacer test...
-        // Obtener usuario y contraseña del cuerpo de la solicitud
-        $id_lista = isset($_GET['id_lista']) ? $_GET['id_lista'] : null ;
-
-        if ($id_lista === null /*|| $campo === null */) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'valorData' => 'no_tiene_datos',
-                'error' => 'No hay todos los parametros necesarios.',
-                'dic_code' => 'd251'
-            ],JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        
-        //para que los datos sean iguales como en POST
-        $datos['id_lista'] = $id_lista;
-    }
 }
 
 
 
 include('includes/connect_db.php');
 
-$id_lista = $conn->real_escape_string($datos['id_lista']);//aki importante
+$id_taquilla = $datos['id_taquilla'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
+
+$id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 //echo_json_x($datos, 'datos');
+
+//luego añadire comprobacion de permisos de usuario para eliminar taquillas
+//por ahora lo comento...!
+// if(/*!$_SESSION['id_user'] || */ $_SESSION['email'] != 'sergiokovalchuk@gmail.com'){
+//     echo json_encode([
+//         'success' => false,
+//         'valorData' => '80.no_tiene_datos',
+//         'error' => 'El usuario no tiene permisos para eliminar taquillas.',
+//         'dic_code' => 'd...'
+//     ],JSON_UNESCAPED_UNICODE);
+//     exit;
+// }
 
 
 //busco si hay registro
 // Preparar y ejecutar la consulta
 $sql_init = "SELECT 
-                id_lista, 
-                title, 
-                arr_lista_ids, 
-                notes, 
-                fecha, 
+                id_taquilla, 
+                nombre, 
+                comentario, 
+                codigo_taquilla,
+                codigo_apertura,
+                estado,
                 created_at, 
-                updated_at  
-            FROM listas 
-            WHERE id_lista = '$id_lista'
+                updated_at
+                
+            FROM taquillas 
+            WHERE id_taquilla = ?
 ";
-//-- AND id_lista = '$id_lista'
-//$sql_prep = "SELECT $campo 
-//            FROM $tabla 
-//            WHERE id_user = '$id_user_logged' 
-//";
-//$arr_params = [$campo, $tabla, $id_user_logged];
-//$sql_preparada = prepararQuery($conn, $sql_prep, $arr_params);
-$result = $conn->query($sql_init);
+$stmt = $conn->prepare($sql_init);
+$stmt->bind_param("i", $id_taquilla);
+$stmt->execute();
+$result = $stmt->get_result();
+
 //echo_json_x($sql_init, 'sql');
 //debug_x($sql_init, 'sql');
 
@@ -102,23 +97,28 @@ if($result->num_rows > 0){
     $row = $result->fetch_assoc();
     //echo_json_x($row, 'row']);
     
-    $id_lista_bd = $row['id_lista'];
-    $title_bd = $row['title'];
+    $id_taquilla_bd = $row['id_taquilla'];
     $data = [
         'success' => true,
-        'id_lista' => $row['id_lista'],
-        'title' => $row['title'],
-        'arr_lista_ids' => $row['arr_lista_ids'],
-        'notes' => $row['notes'],
-        'fecha' => $row['fecha'],
+        'id_taquilla' => $row['id_taquilla'],
+        'nombre' => $row['nombre'],
+        'comentario' => $row['comentario'],
+        'codigo_taquilla' => $row['codigo_taquilla'],
+        'codigo_apertura' => $row['codigo_apertura'],
+        'estado' => $row['estado'],
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
         'valorData' => 'hay_datos'
     ];
 
     //consulta para eliminar
-    $sql_delete = "DELETE FROM listas WHERE id_lista = '$id_lista_bd'";
-    $result_delete = $conn->query($sql_delete);
+    $sql_delete = "DELETE FROM 
+                    taquillas 
+                   WHERE id_taquilla = ?
+    ";
+    $stmt = $conn->prepare($sql_delete);
+    $stmt->bind_param("i", $id_taquilla_bd);
+    $result_delete = $stmt->execute();
 
     // Obtener la fecha y hora actual
     $fechaHoraActual = date("Y-m-d H:i:s");
@@ -126,7 +126,7 @@ if($result->num_rows > 0){
 
     if($result_delete === TRUE){
         $data['success'] = true;
-        $data['valorData'] = 'cancion_eliminada';
+        $data['valorData'] = 'registro_eliminado';
         $data['fecha_hora'] = $fechaHoraActual;
     }
 
@@ -142,7 +142,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al taquilla en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

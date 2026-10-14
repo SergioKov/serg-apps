@@ -299,6 +299,31 @@ header:not(#myModal header) {
     position: relative;
     padding-bottom: 130px;
 }
+.wr_d_taquillas {
+    /* background: red; */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    overflow: hidden;
+    padding: 5px 5px 150px;
+    gap: 5px;
+}
+
+.grid_max_2_columns{
+    grid-template-columns: repeat(2, 1fr);
+}
+.grid_max_5_columns{
+    grid-template-columns: repeat(5, 1fr);
+}
+.grid_max_10_columns{
+    grid-template-columns: repeat(10, 1fr);
+}
+.grid_max_20_columns{
+    grid-template-columns: repeat(20, 1fr);
+}
+.d_taquilla {
+    min-height: 80px;
+}
 
 .d_art {
     display: flex;
@@ -313,7 +338,7 @@ header:not(#myModal header) {
     transition: 0.3s ease;
     cursor: pointer;
     position: relative;
-    gap: 10px;
+    gap: 20px;
 }
 .d_art:hover {
     background: #545454;
@@ -330,13 +355,22 @@ header:not(#myModal header) {
 
 .art_col2 {
     /* background: red; */
-    min-width: 50px;
-    text-align: center;
 }
+
 .art_col3 {
+    color:grey;
+}
+.art_col4 {
+    color:orange;
+}
+
+.art_cols {
     /* background: red; */
     min-width: 50px;
     text-align: center;
+}
+.art_cols div{
+    white-space: nowrap;
 }
 
 .da_nombre,
@@ -383,7 +417,6 @@ header:not(#myModal header) {
 }
 
 
-
 .tres_puntos {
     /* background: red; */
     padding: 5px;
@@ -416,6 +449,13 @@ header:not(#myModal header) {
     transform: scale3d(1, 1, 1);
     z-index: 1;
     cursor: default;
+}
+
+.d_taquilla .tres_puntos_menu {
+    top: 40px;
+    right: 0;
+    flex-direction: column;
+    transform-origin: top center;
 }
 
 .tres_puntos_menu div {
@@ -571,7 +611,7 @@ p.p_aviso a {
 .cl_campo {
     color: grey;
     font-size: 0.75rem;
-    min-width: 65px;
+    min-width: 85px;
     display: inline-block;
     text-align: justify;
 }
@@ -813,6 +853,19 @@ h5 {
     flex-direction: column;
     gap: 10px;
 }
+.wr_sel_opt_estado {
+    background: #414141;
+    /* border: 1px solid #858585; */
+    padding: 10px;
+    margin: 0 0 25px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.wr_sel_opt_estado h5 {
+    padding: 5px 0 0px;
+}
 
 .sel_opt_find {
     padding: 10px;
@@ -1041,4 +1094,33 @@ p.prim .btn.tres_puntos .btn_img {
 .btn_exp_ej {
     width: 100%;
     text-align: center;
+}
+
+.d_vacio {
+    /* background: red; */
+    padding: 5px;
+    margin: -5px -5px -5px;
+}
+.d_vacio div {
+    width: 20px;
+    height: 20px;
+}
+
+.d_taquilla .da_nombre {
+    text-align: center;
+    font-weight: bold;
+}
+
+.ocupado {
+    background: darkred !important;
+}
+.libre {
+    background: #015a01 !important;
+}
+
+.wr_sel_opt_estado.libre {
+    /* background: green; */
+}
+.wr_sel_opt_estado.ocupado {
+    /* background: darkred; */
 }

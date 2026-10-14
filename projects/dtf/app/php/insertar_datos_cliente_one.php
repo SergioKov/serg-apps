@@ -26,14 +26,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $jsonString = file_get_contents('php://input');//saco datos del cuerpo de la solicitud. 
         //debug($jsonString, 'jsonString');
-    } 
-
-    if($_SERVER['REQUEST_METHOD'] === 'GET'){//para hacer test...
-        $jsonString = $_GET['datos'];//saco datos del url.
-        //debug($jsonString, 'jsonString');
-        //echo_json_x($jsonString, 'jsonString');
-    } 
-    
+    }    
     
     // Recuperar datos JSON
     $datos = json_decode($jsonString, true);
@@ -45,7 +38,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     // Validar si la decodificación fue exitosa
     if (json_last_error() === JSON_ERROR_NONE) {
         // Validar estructura y contenido del JSON
-        if (isset($datos['telefono']) ) {
+        if (isset($datos['telefono']) ) {//campo obligatorio para rellenar en formulario
             //echo "JSON es válido y contiene las claves esperadas.";
             //sigo adelante...
         } else {

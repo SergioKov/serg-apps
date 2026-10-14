@@ -118,6 +118,7 @@ $sql_init = "SELECT
 
                 a.created_at, 
                 a.updated_at
+                
             FROM almacenes a
             
             WHERE $where

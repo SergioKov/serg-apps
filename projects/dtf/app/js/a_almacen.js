@@ -10,11 +10,6 @@ function buildAlmacen(almacen_action = null){
 
     eid_bl_modalFullInner.innerHTML = '';//reset
 
-    // Formato YYYY-MM-DD que necesita <input type="date">
-    const fecha_hoy = new Date().toISOString().split("T")[0];
-    let diaSemana_val = '';
-    let fecha_val = fecha_hoy;
-
     //campos de input
     let id_almacen_val = '';
     let nombre_val = '';
@@ -40,7 +35,7 @@ function buildAlmacen(almacen_action = null){
                 <p class="p_aviso">No has seleccionado ningún almacen.</p>
                 <p class="p_aviso">Crea un almacen pulsando "+".</p>
             `;
-            openModal('center','Aviso Lista',aviso_outer,'showAviso2');
+            openModal('center','Aviso Almacén',aviso_outer,'showAviso2');
             return; // <- se detiene aquí si no hay id_almacen
         } 
         id_almacen_val = objAlmacen.id_almacen;
@@ -49,10 +44,19 @@ function buildAlmacen(almacen_action = null){
         comentario_val = escaparHTML(objAlmacen.comentario) || '';
     }
 
+    //si es ver o editar, muestro id
+    if(['ver','editar'].includes(almacen_action)){
+        mensaje_html = `
+            <span class="sp_id">
+                <span>Id: <b class="c_green">${id_almacen}</b></span>
+            </span>
+        `;
+    }
+
     switch (almacen_action) {
         case 'nuevo'://Nuevo Almacen
             mensaje_html = `
-                <span>Rellena los campos del formulario con los datos del almacen <b class="c_blue">NUEVO</b>.</span>
+                <span>Rellena los campos del formulario con los datos de un almacen <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_almacen
             if(id_almacen){
@@ -72,12 +76,6 @@ function buildAlmacen(almacen_action = null){
             break;
 
         case 'editar'://Editar Almacen - FORMULARIO
-            mensaje_html = `
-                <span class="sp_id">
-                    <span>Id: <b class="c_green">${id_almacen}</b></span>
-                    <span><b class="actual">(ACTUAL)</b></span>
-                </span>
-            `;
             cl_d_limpiar_input = 'd-flex';//muestro porque es 'editar'
             break;
 
@@ -132,7 +130,7 @@ function buildAlmacen(almacen_action = null){
                         <span>${nombre_val}</span>
                     </span>
                     <span class="linea_fx ${!direccion_val ? 'd-none' : ''}">
-                        <span class="cl_campo">dirección:</span>
+                        <span class="cl_campo">Dirección:</span>
                         <span>${direccion_val}</span>
                     </span>
                 </span><!--/.detalles_inner-->
@@ -296,50 +294,53 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                 console.log('id_almacen: ', data.id_almacen);
                 id_almacen = data.id_almacen;//guardo el id del cliente recién creada
 
-                //Cojo datos de la song de la lista desde BD
+                //Cojo datos del almacen desde BD
                 objAlmacen = await getDataAlmacenFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objAlmacen: ', objAlmacen);
 
                 const itemAlmacenUpdate = objDataAlmacenes.arr_data?.find(item => item.id_almacen == id_almacen);
                 if (itemAlmacenUpdate) {//es update del cliente existente
+                    
                     Object.assign(itemAlmacenUpdate, objAlmacen);
                     // el objeto dentro de arr_data ya está actualizado
+
+                    //Actualizo d_art 
+                    pintAlmacenActiveSoloDatos();//en el contenedor_almacens
+
                 } else {//es insert del cliente nuevo
+                    
                     console.warn('No encontrado objAlmacen.id_almacen en objDataAlmacenes.arr_data');
                     //entonces es un cliente nuevo que se crea
 
-                    if(objDataAlmacenes.arr_data){                    
-                        //1.debo añadir objAlmacen en objDataAlmacenes.arr_data al inicio
-                        objDataAlmacenes.arr_data.unshift(objAlmacen);
-                    }
+                    //1.debo añadir objAlmacen en objDataAlmacenes.arr_data al inicio (si existe!)
+                    objDataAlmacenes?.arr_data?.unshift(objAlmacen);
 
-                    //2.debo aumentar el numero de total clientes
-                    objDataAlmacenes.totalRows++;
+                    //2.debo aumentar el numero de total almacenes (si existe!)
+                    if (objDataAlmacenes?.totalRows != null){
+                        objDataAlmacenes.totalRows++;
+                    } 
 
-                    //3.debo pintar d_almacen en el top del contenedor
-                    pintAlmacenOne(objAlmacen, 'arriba');//div de cliente se pinta al inicio (arriba)
-                }
-
-                //Actualizo d_art 
-                pintAlmacenActiveSoloDatos();//en el contenedor_almacens
+                    //3. old -> debo pintar d_almacen en el top del contenedor
+                    //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
+                    //pintAlmacenOne(objAlmacen, 'arriba');//div de cliente se pinta al inicio (arriba)
+                    loadAlmacenesAll();
+                }                
 
                 closeModal(null,true);
             }
            
         }else{
-            console.log(`Error al guardar el cliente.`);
-            
-            //"Error al añadir la lista.";
-            console.error('data.error: ', data.error);
 
-            let text_show = 'Error al añadir la lista.';  
+            let text_show = 'Error al guardar el almacen.';  
+            console.log(text_show);
+            console.error('data.error: ', data.error);
 
             showToast('error', text_show, 5000);
         }
     
     } catch (error) {
         // Código a realizar cuando se rechaza la promesa
-        console.error('guardarLista. error: ',error);
+        console.error('guardarAlmacen(). error: ',error);
     }
 
 }
@@ -497,17 +498,19 @@ async function deleteAlmacen(event){
                 id_almacen = null;
                 objAlmacen = {};//reseteo objeto song
 
+                //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
+                loadAlmacenesAll();
+
                 showToast('ok', text_show, 5000);
             }
             
         }else{
-            console.log(`Error al eliminar el almacen.`);
-            
+
+            console.log(`Error al eliminar el almacen.`);            
             console.error('data.error: ', data.error);
             console.error('data.dic_code: ',data.dic_code);
 
-            let text_error = data.error;
-            
+            let text_error = data.error;            
             showToast('error', text_error, 500,'center');
 
         }
@@ -626,7 +629,7 @@ async function loadAlmacenesAll(){
     
     const objDataPint = {
         f_frase: '(Todos almacenes)',
-        f_num: objDataAlmacenes.totalRows,
+        f_num: objDataAlmacenes?.totalRows || 0,
         element_inner: wr_filtros_aplicados_inner,
     }
 
@@ -655,7 +658,7 @@ async function pintAlmacenesAll(){//pintar todos los div de almacenes, o al load
         //eid_sp_icon_filtro.classList.remove('d-none');//oculto el boton de filtro ya que no hay nada para filtrar
 
         eid_contenedor_almacenes.innerHTML = `
-            <p class="prim">No existe ningún almacén en la base de datos.</p>
+            <p class="prim">No existe ningún registro de almacén en la base de datos.</p>
         `;
     }
 
@@ -1113,7 +1116,7 @@ function buildBuscarAlmacen(){
                     type="text"
                     placeholder="Introduce una palabra o frase para buscar..."
                     data-dic=""
-                    value="${objFindParamsAlmacen.words_input || ''}">
+                    value="${objFindParamsAlmacen?.words_input || ''}">
                 <div class="clear_inpt" onclick="clear_inpt('find_almacen')">&times;</div>
             </div>
 
@@ -1179,7 +1182,7 @@ function buildBuscarAlmacen(){
     const eid_modo_exp_ej = wr_args_busqueda.querySelector('#modo_exp_ej');
 
     //hago seleccionado opcion segun el parametros guardados en objFindParamsAlmacen
-    eid_modo_almacen.value = objFindParamsAlmacen.modo;
+    eid_modo_almacen.value = objFindParamsAlmacen?.modo || 1;
 
     eid_modo_almacen.onchange = async (e) => {
         findWordsAlmacen();
@@ -1207,7 +1210,7 @@ function buildBuscarAlmacen(){
     const eid_buscar_en_exp_ej = wr_args_busqueda.querySelector('#buscar_en_exp_ej');
     
     //hago seleccionado opcion segun el parametros guardados en objFindParamsAlmacen
-    eid_buscar_en_almacen.value = objFindParamsAlmacen.buscar_en;
+    eid_buscar_en_almacen.value = objFindParamsAlmacen?.buscar_en || 1;
     
     eid_buscar_en_exp_ej.onclick = (e) => {
         const tipo_btn = e.target.dataset.tipo_btn;
@@ -1242,9 +1245,10 @@ function buildBuscarAlmacen(){
     
         clearTimeout(timeoutFindCliente);
     
-        if(input_val.length < 3){
-            return;
-        }
+        //permito buscar incluso al teclear 1 carácter
+        // if(input_val.length < 3){
+        //     return;
+        // }
     
         timeoutFindCliente = setTimeout(async () => {
             await findWordsAlmacen();

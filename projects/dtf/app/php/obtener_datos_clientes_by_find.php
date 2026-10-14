@@ -125,6 +125,7 @@ $sql_init = "SELECT
 
                 c.created_at, 
                 c.updated_at
+                
             FROM clientes c
             
             WHERE $where
@@ -150,16 +151,6 @@ $stmt = $conn->prepare($sql_init);
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
-
-
-//-- AND id_cliente = '$id_cliente'
-//$sql_prep = "SELECT $campo 
-//            FROM $tabla 
-//            WHERE id_user = '$id_user_logged' 
-//";
-//$arr_params = [$campo, $tabla, $id_user_logged];
-//$sql_preparada = prepararQuery($conn, $sql_prep, $arr_params);
-//$result = $conn->query($sql_init);
 //echo_json_x($sql_init, 'sql');
 //debug_x($sql_init, 'sql');
 

@@ -77,7 +77,8 @@ $sql_init = "SELECT
                 telefono, 
                 comentario, 
                 created_at, 
-                updated_at  
+                updated_at
+                  
             FROM clientes 
             WHERE id_cliente = ?
 ";

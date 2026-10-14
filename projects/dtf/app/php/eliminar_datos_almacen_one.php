@@ -77,7 +77,8 @@ $sql_init = "SELECT
                 direccion, 
                 comentario, 
                 created_at, 
-                updated_at  
+                updated_at
+
             FROM almacenes 
             WHERE id_almacen = ?
 ";

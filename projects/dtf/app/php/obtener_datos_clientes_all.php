@@ -59,6 +59,7 @@ $sql_init = "SELECT
 
                 c.created_at, 
                 c.updated_at
+                
             FROM clientes c
             
             WHERE c.is_deleted = 0
