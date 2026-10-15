@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -51,7 +53,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
 $words_input = $datos['words_input'];
@@ -74,32 +76,32 @@ $arr_campos = [];
 switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
     default:
-        //'c.cliente_search' -> campo optimizado para busquedas con indice fulltext 
-        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario', 'c.cliente_search'];
+        //'t.taquilla_search' -> campo optimizado para busquedas con indice fulltext 
+        $arr_campos = ['t.id_taquilla', 't.nombre', 't.comentario', 't.taquilla_search'];
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario', 'c.cliente_search', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
+        $arr_campos = ['t.id_taquilla', 't.nombre', 't.comentario', 't.taquilla_search', 't.codigo_taquilla', 't.codigo_apertura', 't.estado'];
         break;
     
     case '3'://Todos los campos de texto disponibles
-        $arr_campos = ['c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario'];
+        $arr_campos = ['t.nombre', 't.comentario'];
         break;
 
     case '4'://Todos los campos de números disponibles
-        $arr_campos = ['c.id_cliente', 'c.telefono', 'c.codigo_cliente', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
+        $arr_campos = ['t.id_taquilla', 't.codigo_taquilla', 't.codigo_apertura'];
         break;
 
-    case '5'://Sólo el identificador de cliente
-        $arr_campos = ['c.id_cliente'];
+    case '5'://Sólo el identificador de taquilla
+        $arr_campos = ['t.id_taquilla'];
         break;
 
     case '6'://Sólo el nombre
-        $arr_campos = ['c.nombre'];
+        $arr_campos = ['t.nombre'];
         break;
 
-    case '7'://Sólo el teléfono
-        $arr_campos = ['c.telefono'];
+    case '7'://Sólo el comentario
+        $arr_campos = ['t.comentario'];
         break;
 }
 
@@ -111,25 +113,21 @@ $where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
 
 //test modos de where
 $sql_init = "SELECT 
-                c.id_cliente, 
-                c.nombre, 
-                c.telefono, 
-                c.codigo_cliente, 
-                c.comentario, 
+                t.id_taquilla,
+                t.nombre, 
+                t.comentario, 
 
-                c.taquilla,
-                c.descuento,
-                c.precio_fijo_dtf,
-                c.precio_fijo_uv,
-                c.saldo,
+                t.codigo_taquilla,
+                t.codigo_apertura,
+                t.estado,
 
-                c.created_at, 
-                c.updated_at
-                
-            FROM clientes c
+                t.created_at, 
+                t.updated_at
+
+            FROM taquillas t
             
             WHERE $where
-            ORDER BY c.id_cliente DESC, c.nombre, c.telefono, c.comentario
+            ORDER BY t.id_taquilla DESC, t.nombre, t.comentario
 ";
 
 
@@ -181,22 +179,18 @@ if($result->num_rows > 0){
     //recorrer los registros de canciones encontrados
     while ($row = $result->fetch_assoc()) {
 
-        $id_cliente_bd = $row['id_cliente'];
+        $id_taquilla_bd = $row['id_taquilla'];
 
         $data = [
             'success' => true,
 
-            'id_cliente' => $row['id_cliente'],
+            'id_taquilla' => $row['id_taquilla'],
             'nombre' => $row['nombre'],
-            'telefono' => $row['telefono'],
-            'codigo_cliente' => $row['codigo_cliente'],
             'comentario' => $row['comentario'],
 
-            'taquilla' => $row['taquilla'],
-            'descuento' => $row['descuento'],
-            'precio_fijo_dtf' => $row['precio_fijo_dtf'],
-            'precio_fijo_uv' => $row['precio_fijo_uv'],
-            'saldo' => $row['saldo'],
+            'codigo_taquilla' => $row['codigo_taquilla'],
+            'codigo_apertura' => $row['codigo_apertura'],
+            'estado' => $row['estado'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
@@ -219,7 +213,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al taquilla en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($result_data,JSON_UNESCAPED_UNICODE);
 

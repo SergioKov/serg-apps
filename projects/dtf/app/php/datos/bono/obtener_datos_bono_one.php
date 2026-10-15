@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 /*
@@ -44,7 +46,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }
 
         //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
-        $id_almacen = $datos['id_almacen'];
+        $id_bono = $datos['id_bono'];
     } 
 
 }
@@ -53,26 +55,31 @@ $id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
-//Consula el clientes por su id 
+//Consula el bonos por su id 
 $sql = "SELECT
-            a.id_almacen, 
-            a.nombre, 
-            a.direccion, 
-            a.comentario, 
+            b.id_bono, 
+            b.nombre, 
+            b.descripcion, 
 
-            a.created_at, 
-            a.updated_at
+            b.longitud_m,
+            b.longitud_bonificada_m,
 
-        FROM almacenes a
+            b.envio_gratis,
+            b.precio,
 
-        WHERE a.id_almacen = ?
+            b.created_at, 
+            b.updated_at
+
+        FROM bonos b
+
+        WHERE b.id_bono = ?
 ";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
     "i",
-    $id_almacen
+    $id_bono
 );
 $stmt->execute();
 $result = $stmt->get_result();
@@ -86,10 +93,15 @@ if($row){
     $data = [
         'success' => true,
 
-        'id_almacen' => $row['id_almacen'],
+        'id_bono' => $row['id_bono'],
         'nombre' => $row['nombre'],
-        'direccion' => $row['direccion'],
-        'comentario' => $row['comentario'],
+        'descripcion' => $row['descripcion'],
+
+        'longitud_m' => $row['longitud_m'],
+        'longitud_bonificada_m' => $row['longitud_bonificada_m'],
+        
+        'envio_gratis' => $row['envio_gratis'],
+        'precio' => $row['precio'],
 
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
@@ -109,7 +121,7 @@ if($row){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al bono en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

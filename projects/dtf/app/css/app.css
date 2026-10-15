@@ -365,9 +365,9 @@ header:not(#myModal header) {
 }
 
 .art_cols {
-    /* background: red; */
-    min-width: 50px;
-    text-align: center;
+    /* background: #c50707; */
+    min-width: 65px;
+    text-align: right;
 }
 .art_cols div{
     white-space: nowrap;
@@ -790,7 +790,7 @@ p.p_aviso a {
 
 
 .wr_bl_buscar h4 {
-    color: #414141;
+    color: #af8839;
     /* text-align: center; */
     cursor: pointer;
     transition: 0.3s ease;
@@ -1111,10 +1111,14 @@ p.prim .btn.tres_puntos .btn_img {
     font-weight: bold;
 }
 
-.ocupado {
+.ocupado,
+.marcado_no 
+{
     background: darkred !important;
 }
-.libre {
+.libre,
+.marcado_si
+ {
     background: #015a01 !important;
 }
 

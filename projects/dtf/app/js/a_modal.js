@@ -252,6 +252,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+                case 'buildBono':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBono()');
+                    let bono_action = args;
+                    console.log('bono_action:', bono_action);
+                    buildBono(bono_action);
+                    break;
+
+
                 case 'buildTaquilla':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
@@ -316,6 +332,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     let producto_action2 = args;
                     console.log('producto_action2:', producto_action2);
                     buildBuscarProducto();
+                    break;
+
+
+                case 'buildBuscarBono':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarBono()');
+                    let bono_action2 = args;
+                    console.log('bono_action2:', bono_action2);
+                    buildBuscarBono();
                     break;
 
 

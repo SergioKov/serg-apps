@@ -151,6 +151,12 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },
+    objFindParamsBono: {
+        words_input: "5",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
     objFindParamsTaquilla: {
         words_input: "1",
         modo: 3,
@@ -185,8 +191,12 @@ let {
     objFindParamsAlmacen,
     objFindParamsCliente,
     objFindParamsProducto,
+    objFindParamsBono,
     objFindParamsTaquilla
 } = obj_ajustes;
 
 localStorage.setItem('obj_ajustes', JSON.stringify(obj_ajustes));
+
+//Block Activo
+let BlockNameActive = localStorage.getItem('BlockNameActive') || 'almacenes';//default
 

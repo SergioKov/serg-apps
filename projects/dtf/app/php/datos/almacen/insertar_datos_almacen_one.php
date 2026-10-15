@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 
@@ -105,21 +107,23 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     }
 	//echo_json_x($id_user_logged, 'id_user_logged');
 
-    include('includes/connect_db.php');
+    include($niveles_para_subir . 'includes/connect_db.php');
 
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
-    $id_producto = $datos['id_producto'];
+    $id_almacen = $datos['id_almacen'];
     $nombre = $datos['nombre'];
-    $descripcion = $datos['descripcion'];
-    $precio_compra = ($datos['precio_compra'] === '') ? null : $datos['precio_compra'];//si viene vacio => null
-    $precio_venta = ($datos['precio_venta'] === '') ? null : $datos['precio_venta'];//si viene vacio => null
+    $direccion = $datos['direccion'];
+    $comentario = $datos['comentario'];
     
     //variables de busqueda
-    $producto_search = normalizeSearchText($nombre ?? '');
+    $almacen_search = normalizeSearchText($nombre ?? '');
     
-    if($descripcion){
-        $producto_search .= ' __|__ ' . normalizeSearchText($descripcion ?? '');
+    if($direccion){
+        $almacen_search .= ' __|__ ' . normalizeSearchText($direccion ?? '');
+    }
+    if($comentario){
+        $almacen_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
     }
 
 
@@ -133,15 +137,15 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
 
     //busco si hay registro en la tabla a donde insertar array
-    $sql_prep = "SELECT id_producto 
-                FROM productos 
-                WHERE id_producto = ? 
+    $sql_prep = "SELECT id_almacen 
+                FROM almacenes 
+                WHERE id_almacen = ? 
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
         die("Error SQL");
     }
-    $stmt->bind_param("i", $id_producto);
+    $stmt->bind_param("i", $id_almacen);
     $stmt->execute();
     $result = $stmt->get_result();
     //debug_x($sql_preparada, 'sql_preparada');
@@ -149,38 +153,36 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     if($result->num_rows > 0){
         $row = $result->fetch_assoc();
 		//echo_json_x($row,'row');		
-        $stored_id_producto = $row["id_producto"];//1
-        $hay_id_producto_en_tabla = true;
+        $stored_id_almacen = $row["id_almacen"];//1
+        $hay_id_almacen_en_tabla = true;
     }else{
-        $hay_id_producto_en_tabla = false;
+        $hay_id_almacen_en_tabla = false;
     }
-
-	//echo_json_x($hay_id_producto_en_tabla, 'hay_id_producto_en_tabla');
+	//echo_json_x($hay_id_almacen_en_tabla, 'hay_id_almacen_en_tabla');
 
 
 
     //===============================================================//
     // start - UPSERT
     //===============================================================//
-    $action_tipo = ($hay_id_producto_en_tabla)
-        ? 'is_update_producto' 
-        : 'is_insert_producto';
+    $action_tipo = ($hay_id_almacen_en_tabla)
+        ? 'is_update_almacen' 
+        : 'is_insert_almacen';
 
-    $id_producto_upsert = ($hay_id_producto_en_tabla)
-        ? $id_producto
+    $id_almacen_upsert = ($hay_id_almacen_en_tabla)
+        ? $id_almacen
         : null;
 
     //consulta UPSERT
-    $sql2_upsert = "INSERT INTO productos
+    $sql2_upsert = "INSERT INTO almacenes
                     (
-                        id_producto,
+                        id_almacen,
                     
                         nombre,
-                        producto_search,
-                        descripcion,
+                        almacen_search,
                     
-                        precio_compra,
-                        precio_venta,
+                        direccion,
+                        comentario,
                     
                         created_at
                     )        
@@ -188,21 +190,20 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     (
                         ?,
                     
-                        ?, ?, ?,
-                        
                         ?, ?, 
-                    
+                        
+                        ?, ?,
+                                        
                         NOW()
                     )
                     
                     ON DUPLICATE KEY UPDATE
                     
                         nombre = VALUES(nombre),
-                        producto_search = VALUES(producto_search),
-                        descripcion = VALUES(descripcion),                    
+                        almacen_search = VALUES(almacen_search),
                     
-                        precio_compra = VALUES(precio_compra),
-                        precio_venta = VALUES(precio_venta),
+                        direccion = VALUES(direccion),
+                        comentario = VALUES(comentario),
                     
                         updated_at = NOW()
     ";
@@ -215,20 +216,19 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
     $nombre = str_replace(["\r\n", "\r"], "\n", $nombre);
-    $descripcion = str_replace(["\r\n", "\r"], "\n", $descripcion);
+    $direccion = str_replace(["\r\n", "\r"], "\n", $direccion);
+    $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "isssdd",
+        "issss",
     
-        $id_producto_upsert,
+        $id_almacen_upsert,
     
         $nombre,
-        $producto_search,
+        $almacen_search,
     
-        $descripcion,
-    
-        $precio_compra,
-        $precio_venta
+        $direccion,
+        $comentario,
     );
     $result2 = $stmt->execute();
     //===============================================================//
@@ -239,21 +239,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Update o insert datos en la tabla $tabla
     if($result2 === TRUE) {
 
-        if($hay_id_producto_en_tabla){//si es update, id_producto ya lo tengo
+        if($hay_id_almacen_en_tabla){//si es update, id_almacen ya lo tengo
             $action_val = 'is_update';
-            $action_tipo = 'is_update_producto';
-            $id_producto_val = $stored_id_producto;
+            $action_tipo = 'is_update_almacen';
+            $id_almacen_val = $stored_id_almacen;
             $mensaje_val = 'Datos actualizados correctamente.';
         }else{//es insert
             $action_val = 'is_insert';
-            $action_tipo = 'is_insert_producto';
-            $id_producto_val = $conn->insert_id;//es id insertado del producto nuevo de esta $conn
+            $action_tipo = 'is_insert_almacen';
+            $id_almacen_val = $conn->insert_id;//es id insertado del almacen nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 
         $respuesta = [
             'success' => true,
-            'id_producto' => $id_producto_val,
+            'id_almacen' => $id_almacen_val,
             'action' => $action_val,
             'action_tipo' => $action_tipo,
             'mensaje' => $mensaje_val
@@ -261,7 +261,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
     }else{
 
-        if($hay_id_producto_en_tabla){
+        if($hay_id_almacen_en_tabla){
             $error_text = 'Error al actualizar datos: ';
         }else{
             $error_text = 'Error al insertar datos: ';
@@ -278,7 +278,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Cierro conexion con bd
     $conn->close();	
 
-    // Enviar respuesta al producto en formato JSON
+    // Enviar respuesta al cliente en formato JSON
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($respuesta,JSON_UNESCAPED_UNICODE);	
 }

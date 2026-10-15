@@ -202,6 +202,7 @@ function buildTaquilla(taquilla_action = null){
                     <label for="codigo_apertura">Código apertura</label>
                 </div>
 
+                <!-- estado -->
                 <div id="wr_estado" class="wr_sel_opt_estado ${objTaquilla?.estado || ''}">
                     <h5>Estado:</h5>
                     <select id="estado" class="sel_opt_find">
@@ -251,6 +252,7 @@ function buildTaquilla(taquilla_action = null){
 }
 
 function pintContenedorEstado(contenedor, estado_val){
+    
     if(!contenedor){
         return;
     }
@@ -435,7 +437,7 @@ async function insertarTaquillaDatos(objTaquilla) {
 
         const nombre_fichero = 'insertar_datos_taquilla_one.php';
 
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/taquilla/${nombre_fichero}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -599,7 +601,7 @@ async function deleteTaquillaFromBd(){
 
         const nombre_fichero = 'eliminar_datos_taquilla_one.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/taquilla/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1108,7 +1110,7 @@ async function getDataTaquillasAllFromBd(){//sacar TODOS los taquillas para rell
 
         const nombre_fichero = 'obtener_datos_taquillas_all.php';
         
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/taquilla/${nombre_fichero}`, {
             method: 'POST' //usare POST. no mando ningun dato. no hay que poner ni headers, ni body
         });
 
@@ -1345,7 +1347,7 @@ async function getDataTaquillasFromBdByFind(objFindParamsTaquilla){
 
         const nombre_fichero = 'obtener_datos_taquillas_by_find.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/taquilla/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1476,7 +1478,7 @@ async function getDataTaquillaFromBd(){
 
         const nombre_fichero = 'obtener_datos_taquilla_one.php';
      
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/taquilla/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON

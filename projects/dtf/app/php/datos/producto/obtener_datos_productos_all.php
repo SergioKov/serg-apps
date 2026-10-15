@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -34,7 +36,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 
 //echo_json_x($datos, 'datos');
@@ -43,23 +45,25 @@ include('includes/connect_db.php');
 
 
 
-//Consula todos los clientes no eliminados 
+//Consula todos los productos no eliminados 
 $sql_init = "SELECT 
-                a.id_almacen, 
-                a.nombre, 
-                a.direccion, 
-                a.comentario, 
+                p.id_producto, 
+                p.nombre, 
+                p.descripcion, 
 
-                a.created_at, 
-                a.updated_at
+                p.precio_compra,
+                p.precio_venta,
+
+                p.created_at, 
+                p.updated_at
                 
-            FROM almacenes a
+            FROM productos p
             
-            WHERE a.is_deleted = 0
-            ORDER BY a.id_almacen DESC, a.nombre, a.direccion, a.comentario
+            WHERE p.is_deleted = 0
+            ORDER BY p.id_producto DESC, p.nombre, p.descripcion
 ";
 $stmt = $conn->prepare($sql_init);
-//$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_almacen);
+//$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_producto);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -85,16 +89,18 @@ if($result->num_rows > 0){
         'arr_data' => []
     ];
 
-    //recorrer los registros de clientes encontrados
+    //recorrer los registros de productos encontrados
     while ($row = $result->fetch_assoc()) {
 
         $data = [
             'success' => true,
 
-            'id_almacen' => $row['id_almacen'],
+            'id_producto' => $row['id_producto'],
             'nombre' => $row['nombre'],
-            'direccion' => $row['direccion'],
-            'comentario' => $row['comentario'],
+            'descripcion' => $row['descripcion'],
+
+            'precio_compra' => $row['precio_compra'],
+            'precio_venta' => $row['precio_venta'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
@@ -117,7 +123,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al producto en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($result_data,JSON_UNESCAPED_UNICODE);
 

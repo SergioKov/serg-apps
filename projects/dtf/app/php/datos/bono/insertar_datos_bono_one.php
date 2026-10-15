@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 
@@ -105,25 +107,18 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     }
 	//echo_json_x($id_user_logged, 'id_user_logged');
 
-    include('includes/connect_db.php');
+    include($niveles_para_subir . 'includes/connect_db.php');
 
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
-    $id_taquilla = $datos['id_taquilla'];
+    $id_bono = $datos['id_bono'];
     $nombre = $datos['nombre'];
-    $comentario = $datos['comentario'];
-    $codigo_taquilla = ($datos['codigo_taquilla'] === '') ? null : $datos['codigo_taquilla'];//si viene vacio => null
-    $codigo_apertura = ($datos['codigo_apertura'] === '') ? null : $datos['codigo_apertura'];//si viene vacio => null
-    $estado = ($datos['estado'] === '') ? null : $datos['estado'];//si viene vacio => null
+    $descripcion = $datos['descripcion'];
+    $longitud_m = $datos['longitud_m'];
+    $longitud_bonificada_m = $datos['longitud_bonificada_m'];
+    $envio_gratis = ($datos['envio_gratis'] === '') ? null : $datos['envio_gratis'];//si viene vacio => null
+    $precio = ($datos['precio'] === '') ? null : $datos['precio'];//si viene vacio => null
     
-    //variables de busqueda
-    $taquilla_search = normalizeSearchText($nombre ?? '');
-    
-    if($comentario){
-        $taquilla_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
-    }
-
-
     //debug($title);
     //debug($arr, 'arr');
     //echo_json_x($arr_lista, 'arr_lista');
@@ -134,15 +129,15 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
 
     //busco si hay registro en la tabla a donde insertar array
-    $sql_prep = "SELECT id_taquilla 
-                FROM taquillas 
-                WHERE id_taquilla = ? 
+    $sql_prep = "SELECT id_bono 
+                FROM bonos 
+                WHERE id_bono = ? 
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
         die("Error SQL");
     }
-    $stmt->bind_param("i", $id_taquilla);
+    $stmt->bind_param("i", $id_bono);
     $stmt->execute();
     $result = $stmt->get_result();
     //debug_x($sql_preparada, 'sql_preparada');
@@ -150,39 +145,40 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     if($result->num_rows > 0){
         $row = $result->fetch_assoc();
 		//echo_json_x($row,'row');		
-        $stored_id_taquilla = $row["id_taquilla"];//1
-        $hay_id_taquilla_en_tabla = true;
+        $stored_id_bono = $row["id_bono"];//1
+        $hay_id_bono_en_tabla = true;
     }else{
-        $hay_id_taquilla_en_tabla = false;
+        $hay_id_bono_en_tabla = false;
     }
 
-	//echo_json_x($hay_id_taquilla_en_tabla, 'hay_id_taquilla_en_tabla');
+	//echo_json_x($hay_id_bono_en_tabla, 'hay_id_bono_en_tabla');
 
 
 
     //===============================================================//
     // start - UPSERT
     //===============================================================//
-    $action_tipo = ($hay_id_taquilla_en_tabla)
-        ? 'is_update_taquilla' 
-        : 'is_insert_taquilla';
+    $action_tipo = ($hay_id_bono_en_tabla)
+        ? 'is_update_bono' 
+        : 'is_insert_bono';
 
-    $id_taquilla_upsert = ($hay_id_taquilla_en_tabla)
-        ? $id_taquilla
+    $id_bono_upsert = ($hay_id_bono_en_tabla)
+        ? $id_bono
         : null;
 
     //consulta UPSERT
-    $sql2_upsert = "INSERT INTO taquillas
+    $sql2_upsert = "INSERT INTO bonos
                     (
-                        id_taquilla,
+                        id_bono,
                     
                         nombre,
-                        taquilla_search,
-                        comentario,
+                        descripcion,
+
+                        longitud_m,
+                        longitud_bonificada_m,
                     
-                        codigo_taquilla,
-                        codigo_apertura,
-                        estado,
+                        envio_gratis,
+                        precio,
                     
                         created_at
                     )        
@@ -190,9 +186,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     (
                         ?,
                     
-                        ?, ?, ?,
+                        ?, ?,
+
+                        ?, ?,
                         
-                        ?, ?, ?,
+                        ?, ?, 
                     
                         NOW()
                     )
@@ -200,12 +198,13 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     ON DUPLICATE KEY UPDATE
                     
                         nombre = VALUES(nombre),
-                        taquilla_search = VALUES(taquilla_search),
-                        comentario = VALUES(comentario),                    
-                    
-                        codigo_taquilla = VALUES(codigo_taquilla),
-                        codigo_apertura = VALUES(codigo_apertura),
-                        estado = VALUES(estado),
+                        descripcion = VALUES(descripcion),                    
+
+                        longitud_m = VALUES(longitud_m),
+                        longitud_bonificada_m = VALUES(longitud_bonificada_m),
+                        
+                        envio_gratis = VALUES(envio_gratis),
+                        precio = VALUES(precio),
                     
                         updated_at = NOW()
     ";
@@ -218,21 +217,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
     $nombre = str_replace(["\r\n", "\r"], "\n", $nombre);
-    $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
+    $descripcion = str_replace(["\r\n", "\r"], "\n", $descripcion);
 
     $stmt->bind_param(
-        "isssdds",
+        "issddid",
     
-        $id_taquilla_upsert,
+        $id_bono_upsert,
     
         $nombre,
-        $taquilla_search,
+        $descripcion,
+        
+        $longitud_m,
+        $longitud_bonificada_m,
     
-        $comentario,
-    
-        $codigo_taquilla,
-        $codigo_apertura,
-        $estado
+        $envio_gratis,
+        $precio
     );
     $result2 = $stmt->execute();
     //===============================================================//
@@ -243,21 +242,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Update o insert datos en la tabla $tabla
     if($result2 === TRUE) {
 
-        if($hay_id_taquilla_en_tabla){//si es update, id_taquilla ya lo tengo
+        if($hay_id_bono_en_tabla){//si es update, id_bono ya lo tengo
             $action_val = 'is_update';
-            $action_tipo = 'is_update_taquilla';
-            $id_taquilla_val = $stored_id_taquilla;
+            $action_tipo = 'is_update_bono';
+            $id_bono_val = $stored_id_bono;
             $mensaje_val = 'Datos actualizados correctamente.';
         }else{//es insert
             $action_val = 'is_insert';
-            $action_tipo = 'is_insert_taquilla';
-            $id_taquilla_val = $conn->insert_id;//es id insertado del taquilla nuevo de esta $conn
+            $action_tipo = 'is_insert_bono';
+            $id_bono_val = $conn->insert_id;//es id insertado del bono nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 
         $respuesta = [
             'success' => true,
-            'id_taquilla' => $id_taquilla_val,
+            'id_bono' => $id_bono_val,
             'action' => $action_val,
             'action_tipo' => $action_tipo,
             'mensaje' => $mensaje_val
@@ -265,7 +264,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
     }else{
 
-        if($hay_id_taquilla_en_tabla){
+        if($hay_id_bono_en_tabla){
             $error_text = 'Error al actualizar datos: ';
         }else{
             $error_text = 'Error al insertar datos: ';
@@ -282,7 +281,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Cierro conexion con bd
     $conn->close();	
 
-    // Enviar respuesta al taquilla en formato JSON
+    // Enviar respuesta al bono en formato JSON
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($respuesta,JSON_UNESCAPED_UNICODE);	
 }

@@ -9,7 +9,10 @@ async function init() {
     await loadAlmacenesAll();   
     await loadClientesAll();   
     await loadProductosAll();   
-    await loadTaquillasAll();   
+    await loadBonosAll();   
+    await loadTaquillasAll(); 
+    
+    showBlockName(BlockNameActive);
 }
 
 function hideShowPuntosMenu(){
@@ -116,6 +119,8 @@ function showBlockName(blockName){
     });
 
     closePuntosMenu();
+
+    localStorage.setItem('BlockNameActive', blockName);
 }
 
 

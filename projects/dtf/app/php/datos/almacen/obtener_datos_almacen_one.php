@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 /*
@@ -44,7 +46,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }
 
         //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
-        $id_taquilla = $datos['id_taquilla'];
+        $id_almacen = $datos['id_almacen'];
     } 
 
 }
@@ -53,29 +55,26 @@ $id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
-//Consula el taquillas por su id 
+//Consula el clientes por su id 
 $sql = "SELECT
-            t.id_taquilla, 
-            t.nombre, 
-            t.comentario, 
+            a.id_almacen, 
+            a.nombre, 
+            a.direccion, 
+            a.comentario, 
 
-            t.codigo_taquilla,
-            t.codigo_apertura,
-            t.estado,
+            a.created_at, 
+            a.updated_at
 
-            t.created_at, 
-            t.updated_at
+        FROM almacenes a
 
-        FROM taquillas t
-
-        WHERE t.id_taquilla = ?
+        WHERE a.id_almacen = ?
 ";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
     "i",
-    $id_taquilla
+    $id_almacen
 );
 $stmt->execute();
 $result = $stmt->get_result();
@@ -89,13 +88,10 @@ if($row){
     $data = [
         'success' => true,
 
-        'id_taquilla' => $row['id_taquilla'],
+        'id_almacen' => $row['id_almacen'],
         'nombre' => $row['nombre'],
+        'direccion' => $row['direccion'],
         'comentario' => $row['comentario'],
-
-        'codigo_taquilla' => $row['codigo_taquilla'],
-        'codigo_apertura' => $row['codigo_apertura'],
-        'estado' => $row['estado'],
 
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
@@ -115,7 +111,7 @@ if($row){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al taquilla en formato JSON
+// Enviar respuesta al cliente en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

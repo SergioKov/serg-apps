@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -34,7 +36,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 
 //echo_json_x($datos, 'datos');
@@ -43,30 +45,28 @@ include('includes/connect_db.php');
 
 
 
-//Consula todos los clientes no eliminados 
+//Consula todos los bonos no eliminados 
 $sql_init = "SELECT 
-                c.id_cliente, 
-                c.nombre, 
-                c.telefono, 
-                c.codigo_cliente, 
-                c.comentario, 
+                b.id_bono, 
+                b.nombre, 
+                b.descripcion, 
 
-                c.taquilla,
-                c.descuento,
-                c.precio_fijo_dtf,
-                c.precio_fijo_uv,
-                c.saldo,
-
-                c.created_at, 
-                c.updated_at
+                b.longitud_m,
+                b.longitud_bonificada_m,
                 
-            FROM clientes c
+                b.envio_gratis,
+                b.precio,
+
+                b.created_at, 
+                b.updated_at
+                
+            FROM bonos b
             
-            WHERE c.is_deleted = 0
-            ORDER BY c.id_cliente DESC, c.nombre, c.telefono, c.comentario
+            WHERE b.is_deleted = 0
+            ORDER BY b.id_bono DESC, b.nombre, b.descripcion
 ";
 $stmt = $conn->prepare($sql_init);
-//$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_cliente);
+//$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_bono);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -92,23 +92,21 @@ if($result->num_rows > 0){
         'arr_data' => []
     ];
 
-    //recorrer los registros de clientes encontrados
+    //recorrer los registros de bonos encontrados
     while ($row = $result->fetch_assoc()) {
 
         $data = [
             'success' => true,
 
-            'id_cliente' => $row['id_cliente'],
+            'id_bono' => $row['id_bono'],
             'nombre' => $row['nombre'],
-            'telefono' => $row['telefono'],
-            'codigo_cliente' => $row['codigo_cliente'],
-            'comentario' => $row['comentario'],
+            'descripcion' => $row['descripcion'],
 
-            'taquilla' => $row['taquilla'],
-            'descuento' => $row['descuento'],
-            'precio_fijo_dtf' => $row['precio_fijo_dtf'],
-            'precio_fijo_uv' => $row['precio_fijo_uv'],
-            'saldo' => $row['saldo'],
+            'longitud_m' => $row['longitud_m'],
+            'longitud_bonificada_m' => $row['longitud_bonificada_m'],
+            
+            'envio_gratis' => $row['envio_gratis'],
+            'precio' => $row['precio'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
@@ -131,7 +129,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al bono en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($result_data,JSON_UNESCAPED_UNICODE);
 

@@ -368,7 +368,7 @@ async function insertarAlmacenDatos(objAlmacen) {
 
         const nombre_fichero = 'insertar_datos_almacen_one.php';
 
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/almacen/${nombre_fichero}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -533,7 +533,7 @@ async function deleteAlmacenFromBd(){
 
         const nombre_fichero = 'eliminar_datos_almacen_one.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/almacen/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1037,7 +1037,7 @@ async function getDataAlmacenesAllFromBd(){//sacar TODOS los clientes para relle
 
         const nombre_fichero = 'obtener_datos_almacenes_all.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/almacen/${nombre_fichero}`, {
             method: 'POST' //usare POST. no mando ningun dato. no hay que poner ni headers, ni body
         });
 
@@ -1274,7 +1274,7 @@ async function getDataAlmacenesFromBdByFind(objFindParamsAlmacen){
 
         const nombre_fichero = 'obtener_datos_almacenes_by_find.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/almacen/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1386,7 +1386,7 @@ async function getDataAlmacenFromBd(){
 
         const nombre_fichero = 'obtener_datos_almacen_one.php';
      
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/almacen/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON

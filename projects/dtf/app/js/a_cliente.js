@@ -499,7 +499,7 @@ async function insertarClienteDatos(objCliente) {
 
         const nombre_fichero = 'insertar_datos_cliente_one.php';
 
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/cliente/${nombre_fichero}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -664,7 +664,7 @@ async function deleteClienteFromBd(){
 
         const nombre_fichero = 'eliminar_datos_cliente_one.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/cliente/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1171,7 +1171,7 @@ async function getDataClientesAllFromBd(){//sacar TODOS los clientes para rellen
 
         const nombre_fichero = 'obtener_datos_clientes_all.php';
         
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/cliente/${nombre_fichero}`, {
             method: 'POST' //usare POST. no mando ningun dato. no hay que poner ni headers, ni body
         });
 
@@ -1408,7 +1408,7 @@ async function getDataClientesFromBdByFind(objFindParamsCliente){
 
         const nombre_fichero = 'obtener_datos_clientes_by_find.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/cliente/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1520,7 +1520,7 @@ async function getDataClienteFromBd(){
 
         const nombre_fichero = 'obtener_datos_cliente_one.php';
      
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/cliente/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON

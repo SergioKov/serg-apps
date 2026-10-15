@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 /*
@@ -44,7 +46,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }
 
         //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
-        $id_cliente = $datos['id_cliente'];
+        $id_taquilla = $datos['id_taquilla'];
     } 
 
 }
@@ -53,33 +55,29 @@ $id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
-//Consula el clientes por su id 
+//Consula el taquillas por su id 
 $sql = "SELECT
-            c.id_cliente, 
-            c.nombre, 
-            c.telefono, 
-            c.codigo_cliente, 
-            c.comentario, 
+            t.id_taquilla, 
+            t.nombre, 
+            t.comentario, 
 
-            c.taquilla,
-            c.descuento,
-            c.precio_fijo_dtf,
-            c.precio_fijo_uv,
-            c.saldo,
+            t.codigo_taquilla,
+            t.codigo_apertura,
+            t.estado,
 
-            c.created_at, 
-            c.updated_at
+            t.created_at, 
+            t.updated_at
 
-        FROM clientes c
+        FROM taquillas t
 
-        WHERE c.id_cliente = ?
+        WHERE t.id_taquilla = ?
 ";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
     "i",
-    $id_cliente
+    $id_taquilla
 );
 $stmt->execute();
 $result = $stmt->get_result();
@@ -93,17 +91,13 @@ if($row){
     $data = [
         'success' => true,
 
-        'id_cliente' => $row['id_cliente'],
+        'id_taquilla' => $row['id_taquilla'],
         'nombre' => $row['nombre'],
-        'telefono' => $row['telefono'],
-        'codigo_cliente' => $row['codigo_cliente'],
         'comentario' => $row['comentario'],
 
-        'taquilla' => $row['taquilla'],
-        'descuento' => $row['descuento'],
-        'precio_fijo_dtf' => $row['precio_fijo_dtf'],
-        'precio_fijo_uv' => $row['precio_fijo_uv'],
-        'saldo' => $row['saldo'],
+        'codigo_taquilla' => $row['codigo_taquilla'],
+        'codigo_apertura' => $row['codigo_apertura'],
+        'estado' => $row['estado'],
 
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
@@ -123,7 +117,7 @@ if($row){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al taquilla en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

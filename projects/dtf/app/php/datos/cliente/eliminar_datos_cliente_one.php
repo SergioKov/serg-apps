@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -42,27 +44,27 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             exit;
         }
 
-        $id_producto = $datos['id_producto'];
+        $id_cliente = $datos['id_cliente'];
     } 
 
 }
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
-$id_producto = $datos['id_producto'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
+$id_cliente = $datos['id_cliente'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
 
 $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 //echo_json_x($datos, 'datos');
 
-//luego añadire comprobacion de permisos de usuario para eliminar productos
+//luego añadire comprobacion de permisos de usuario para eliminar clientes
 //por ahora lo comento...!
 // if(/*!$_SESSION['id_user'] || */ $_SESSION['email'] != 'sergiokovalchuk@gmail.com'){
 //     echo json_encode([
 //         'success' => false,
 //         'valorData' => '80.no_tiene_datos',
-//         'error' => 'El usuario no tiene permisos para eliminar productos.',
+//         'error' => 'El usuario no tiene permisos para eliminar clientes.',
 //         'dic_code' => 'd...'
 //     ],JSON_UNESCAPED_UNICODE);
 //     exit;
@@ -72,19 +74,18 @@ $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 //busco si hay registro
 // Preparar y ejecutar la consulta
 $sql_init = "SELECT 
-                id_producto, 
+                id_cliente, 
                 nombre, 
-                descripcion, 
-                precio_compra,
-                precio_venta,
+                telefono, 
+                comentario, 
                 created_at, 
                 updated_at
-                
-            FROM productos 
-            WHERE id_producto = ?
+                  
+            FROM clientes 
+            WHERE id_cliente = ?
 ";
 $stmt = $conn->prepare($sql_init);
-$stmt->bind_param("i", $id_producto);
+$stmt->bind_param("i", $id_cliente);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -96,14 +97,13 @@ if($result->num_rows > 0){
     $row = $result->fetch_assoc();
     //echo_json_x($row, 'row']);
     
-    $id_producto_bd = $row['id_producto'];
+    $id_cliente_bd = $row['id_cliente'];
     $data = [
         'success' => true,
-        'id_producto' => $row['id_producto'],
+        'id_cliente' => $row['id_cliente'],
         'nombre' => $row['nombre'],
-        'descripcion' => $row['descripcion'],
-        'precio_compra' => $row['precio_compra'],
-        'precio_venta' => $row['precio_venta'],
+        'telefono' => $row['telefono'],
+        'comentario' => $row['comentario'],
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
         'valorData' => 'hay_datos'
@@ -111,11 +111,11 @@ if($result->num_rows > 0){
 
     //consulta para eliminar
     $sql_delete = "DELETE FROM 
-                    productos 
-                   WHERE id_producto = ?
+                    clientes 
+                   WHERE id_cliente = ?
     ";
     $stmt = $conn->prepare($sql_delete);
-    $stmt->bind_param("i", $id_producto_bd);
+    $stmt->bind_param("i", $id_cliente_bd);
     $result_delete = $stmt->execute();
 
     // Obtener la fecha y hora actual
@@ -140,7 +140,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al producto en formato JSON
+// Enviar respuesta al cliente en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

@@ -16,7 +16,9 @@ function buildProducto(producto_action = null){
     let descripcion_val = '';
 
     let precio_compra_val = '';
+    let precio_compra_text = '';
     let precio_venta_val = '';
+    let precio_venta_text = '';
         
     //otras vars
     let mensaje_html = '';
@@ -46,8 +48,12 @@ function buildProducto(producto_action = null){
         id_producto_val = objProducto.id_producto;
         nombre_val = escaparHTML(objProducto.nombre) || '';
         descripcion_val = escaparHTML(objProducto.descripcion) || '';
-        precio_compra_val = escaparHTML(objProducto.precio_compra) || '';
-        precio_venta_val = escaparHTML(objProducto.precio_venta) || '';
+        
+        precio_compra_val = (objProducto.precio_compra) ? escaparHTML(objProducto.precio_compra) : '';
+        precio_compra_text = (objProducto.precio_compra) ? `${precio_compra_val} €` : '--';
+        
+        precio_venta_val = (objProducto.precio_venta) ? escaparHTML(objProducto.precio_venta) : '';
+        precio_venta_text = (objProducto.precio_venta) ? `${precio_venta_val} €` : '--';
     }
 
     //si es ver o editar, muestro id
@@ -139,11 +145,11 @@ function buildProducto(producto_action = null){
                     </span>
                     <span class="linea_fx ${!precio_compra_val ? 'd-none' : ''}">
                         <span class="cl_campo">Precio compra:</span>
-                        <span>${precio_compra_val}</span>
+                        <span>${precio_compra_text}</span>
                     </span>
                     <span class="linea_fx ${!precio_venta_val ? 'd-none' : ''}">
                         <span class="cl_campo">Precio venta:</span>
-                        <span>${precio_venta_val}</span>
+                        <span>${precio_venta_text}</span>
                     </span>
 
                 </span><!--/.detalles_inner-->
@@ -392,7 +398,7 @@ async function insertarProductoDatos(objProducto) {
 
         const nombre_fichero = 'insertar_datos_producto_one.php';
 
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/producto/${nombre_fichero}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -556,7 +562,7 @@ async function deleteProductoFromBd(){
 
         const nombre_fichero = 'eliminar_datos_producto_one.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/producto/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -745,7 +751,10 @@ function pintProductoOne(objProductoOne, lugar_de_pintar = 'abajo'){//pintar sol
         return;
     }
     
-    let cl_da_comm = (objProductoOne.descripcion) ? '' : 'd-none';//si no hay título, lo oculto 
+    let cl_da_comm = (objProductoOne.descripcion) ? '' : 'd-none';//si no hay título, lo oculto
+    
+    const precio_compra_text = (objProductoOne.precio_compra) ? `${objProductoOne.precio_compra} €` : '--' ;
+    const precio_venta_text = (objProductoOne.precio_venta) ? `${objProductoOne.precio_venta} €` : '--' ;
 
     const d_producto = document.createElement('div');
     d_producto.className = 'd_producto d_art';
@@ -757,10 +766,10 @@ function pintProductoOne(objProductoOne, lugar_de_pintar = 'abajo'){//pintar sol
             <div class="da_com ${cl_da_comm}">${escaparHTML(objProductoOne.descripcion) || '(sin descripcion)'}</div>
         </div>
         <div class="art_cols art_col3">
-            <div class="da_precio_compra">${objProductoOne.precio_compra} €</div>
+            <div class="da_precio_compra">${precio_compra_text}</div>
         </div>
         <div class="art_cols art_col4">
-            <div class="da_precio_venta">${objProductoOne.precio_venta} €</div>
+            <div class="da_precio_venta">${precio_venta_text}</div>
         </div>
 
 
@@ -1069,7 +1078,7 @@ async function getDataProductosAllFromBd(){//sacar TODOS los productos para rell
 
         const nombre_fichero = 'obtener_datos_productos_all.php';
         
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/producto/${nombre_fichero}`, {
             method: 'POST' //usare POST. no mando ningun dato. no hay que poner ni headers, ni body
         });
 
@@ -1306,7 +1315,7 @@ async function getDataProductosFromBdByFind(objFindParamsProducto){
 
         const nombre_fichero = 'obtener_datos_productos_by_find.php';
                
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/producto/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
@@ -1392,16 +1401,20 @@ function pintProductoActiveSoloDatos(){
     const div_da_precio_compra = d_producto.querySelector('.da_precio_compra');
     const div_da_precio_venta = d_producto.querySelector('.da_precio_venta');
 
+    const precio_compra_text = (objProducto.precio_compra) ? `${objProducto.precio_compra} €` : '--' ;
+    const precio_venta_text = (objProducto.precio_venta) ? `${objProducto.precio_venta} €` : '--' ;
+
+
     //nombre
     div_da_nombre.textContent = objProducto.nombre || '(nombre no asignado)';
     div_da_nombre.classList.remove('d-none');//muestro tenga o no el nombre
 
     //precio_compra
-    div_da_precio_compra.textContent = objProducto.precio_compra || '(valor no asignado)';
+    div_da_precio_compra.textContent = precio_compra_text;
     div_da_precio_compra.classList.remove('d-none');//muestro tenga o no el precio
 
     //precio_venta
-    div_da_precio_venta.textContent = objProducto.precio_venta || '(valor no asignado)';
+    div_da_precio_venta.textContent = precio_venta_text;
     div_da_precio_venta.classList.remove('d-none');//muestro tenga o no el precio
 
     //descripcion
@@ -1423,7 +1436,7 @@ async function getDataProductoFromBd(){
 
         const nombre_fichero = 'obtener_datos_producto_one.php';
      
-        const response = await fetch(`../app/php/${nombre_fichero}`, {
+        const response = await fetch(`../app/php/datos/producto/${nombre_fichero}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON

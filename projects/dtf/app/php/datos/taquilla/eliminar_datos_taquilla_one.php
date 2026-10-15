@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -42,27 +44,27 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             exit;
         }
 
-        $id_almacen = $datos['id_almacen'];
+        $id_taquilla = $datos['id_taquilla'];
     } 
 
 }
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
-$id_almacen = $datos['id_almacen'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
+$id_taquilla = $datos['id_taquilla'];//aki no hace falta $conn->real_escape_string(...) ya que uso consultas preparadas
 
 $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 //echo_json_x($datos, 'datos');
 
-//luego añadire comprobacion de permisos de usuario para eliminar almacenes
+//luego añadire comprobacion de permisos de usuario para eliminar taquillas
 //por ahora lo comento...!
 // if(/*!$_SESSION['id_user'] || */ $_SESSION['email'] != 'sergiokovalchuk@gmail.com'){
 //     echo json_encode([
 //         'success' => false,
 //         'valorData' => '80.no_tiene_datos',
-//         'error' => 'El usuario no tiene permisos para eliminar almacenes.',
+//         'error' => 'El usuario no tiene permisos para eliminar taquillas.',
 //         'dic_code' => 'd...'
 //     ],JSON_UNESCAPED_UNICODE);
 //     exit;
@@ -72,18 +74,20 @@ $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 //busco si hay registro
 // Preparar y ejecutar la consulta
 $sql_init = "SELECT 
-                id_almacen, 
+                id_taquilla, 
                 nombre, 
-                direccion, 
                 comentario, 
+                codigo_taquilla,
+                codigo_apertura,
+                estado,
                 created_at, 
                 updated_at
-
-            FROM almacenes 
-            WHERE id_almacen = ?
+                
+            FROM taquillas 
+            WHERE id_taquilla = ?
 ";
 $stmt = $conn->prepare($sql_init);
-$stmt->bind_param("i", $id_almacen);
+$stmt->bind_param("i", $id_taquilla);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -95,13 +99,15 @@ if($result->num_rows > 0){
     $row = $result->fetch_assoc();
     //echo_json_x($row, 'row']);
     
-    $id_almacen_bd = $row['id_almacen'];
+    $id_taquilla_bd = $row['id_taquilla'];
     $data = [
         'success' => true,
-        'id_almacen' => $row['id_almacen'],
+        'id_taquilla' => $row['id_taquilla'],
         'nombre' => $row['nombre'],
-        'direccion' => $row['direccion'],
         'comentario' => $row['comentario'],
+        'codigo_taquilla' => $row['codigo_taquilla'],
+        'codigo_apertura' => $row['codigo_apertura'],
+        'estado' => $row['estado'],
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
         'valorData' => 'hay_datos'
@@ -109,11 +115,11 @@ if($result->num_rows > 0){
 
     //consulta para eliminar
     $sql_delete = "DELETE FROM 
-                    almacenes 
-                   WHERE id_almacen = ?
+                    taquillas 
+                   WHERE id_taquilla = ?
     ";
     $stmt = $conn->prepare($sql_delete);
-    $stmt->bind_param("i", $id_almacen_bd);
+    $stmt->bind_param("i", $id_taquilla_bd);
     $result_delete = $stmt->execute();
 
     // Obtener la fecha y hora actual
@@ -138,7 +144,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al taquilla en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data,JSON_UNESCAPED_UNICODE);
 

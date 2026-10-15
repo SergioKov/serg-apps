@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 /*
@@ -53,7 +55,7 @@ $id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 //Consula el productos por su id 
 $sql = "SELECT

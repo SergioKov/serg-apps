@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 
@@ -105,23 +107,22 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     }
 	//echo_json_x($id_user_logged, 'id_user_logged');
 
-    include('includes/connect_db.php');
+    include($niveles_para_subir . 'includes/connect_db.php');
 
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
-    $id_almacen = $datos['id_almacen'];
+    $id_taquilla = $datos['id_taquilla'];
     $nombre = $datos['nombre'];
-    $direccion = $datos['direccion'];
     $comentario = $datos['comentario'];
+    $codigo_taquilla = ($datos['codigo_taquilla'] === '') ? null : $datos['codigo_taquilla'];//si viene vacio => null
+    $codigo_apertura = ($datos['codigo_apertura'] === '') ? null : $datos['codigo_apertura'];//si viene vacio => null
+    $estado = ($datos['estado'] === '') ? null : $datos['estado'];//si viene vacio => null
     
     //variables de busqueda
-    $almacen_search = normalizeSearchText($nombre ?? '');
+    $taquilla_search = normalizeSearchText($nombre ?? '');
     
-    if($direccion){
-        $almacen_search .= ' __|__ ' . normalizeSearchText($direccion ?? '');
-    }
     if($comentario){
-        $almacen_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
+        $taquilla_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
     }
 
 
@@ -135,15 +136,15 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
 
     //busco si hay registro en la tabla a donde insertar array
-    $sql_prep = "SELECT id_almacen 
-                FROM almacenes 
-                WHERE id_almacen = ? 
+    $sql_prep = "SELECT id_taquilla 
+                FROM taquillas 
+                WHERE id_taquilla = ? 
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
         die("Error SQL");
     }
-    $stmt->bind_param("i", $id_almacen);
+    $stmt->bind_param("i", $id_taquilla);
     $stmt->execute();
     $result = $stmt->get_result();
     //debug_x($sql_preparada, 'sql_preparada');
@@ -151,36 +152,39 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     if($result->num_rows > 0){
         $row = $result->fetch_assoc();
 		//echo_json_x($row,'row');		
-        $stored_id_almacen = $row["id_almacen"];//1
-        $hay_id_almacen_en_tabla = true;
+        $stored_id_taquilla = $row["id_taquilla"];//1
+        $hay_id_taquilla_en_tabla = true;
     }else{
-        $hay_id_almacen_en_tabla = false;
+        $hay_id_taquilla_en_tabla = false;
     }
-	//echo_json_x($hay_id_almacen_en_tabla, 'hay_id_almacen_en_tabla');
+
+	//echo_json_x($hay_id_taquilla_en_tabla, 'hay_id_taquilla_en_tabla');
 
 
 
     //===============================================================//
     // start - UPSERT
     //===============================================================//
-    $action_tipo = ($hay_id_almacen_en_tabla)
-        ? 'is_update_almacen' 
-        : 'is_insert_almacen';
+    $action_tipo = ($hay_id_taquilla_en_tabla)
+        ? 'is_update_taquilla' 
+        : 'is_insert_taquilla';
 
-    $id_almacen_upsert = ($hay_id_almacen_en_tabla)
-        ? $id_almacen
+    $id_taquilla_upsert = ($hay_id_taquilla_en_tabla)
+        ? $id_taquilla
         : null;
 
     //consulta UPSERT
-    $sql2_upsert = "INSERT INTO almacenes
+    $sql2_upsert = "INSERT INTO taquillas
                     (
-                        id_almacen,
+                        id_taquilla,
                     
                         nombre,
-                        almacen_search,
-                    
-                        direccion,
+                        taquilla_search,
                         comentario,
+                    
+                        codigo_taquilla,
+                        codigo_apertura,
+                        estado,
                     
                         created_at
                     )        
@@ -188,20 +192,22 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     (
                         ?,
                     
-                        ?, ?, 
+                        ?, ?, ?,
                         
-                        ?, ?,
-                                        
+                        ?, ?, ?,
+                    
                         NOW()
                     )
                     
                     ON DUPLICATE KEY UPDATE
                     
                         nombre = VALUES(nombre),
-                        almacen_search = VALUES(almacen_search),
+                        taquilla_search = VALUES(taquilla_search),
+                        comentario = VALUES(comentario),                    
                     
-                        direccion = VALUES(direccion),
-                        comentario = VALUES(comentario),
+                        codigo_taquilla = VALUES(codigo_taquilla),
+                        codigo_apertura = VALUES(codigo_apertura),
+                        estado = VALUES(estado),
                     
                         updated_at = NOW()
     ";
@@ -214,19 +220,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
     $nombre = str_replace(["\r\n", "\r"], "\n", $nombre);
-    $direccion = str_replace(["\r\n", "\r"], "\n", $direccion);
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "issss",
+        "isssdds",
     
-        $id_almacen_upsert,
+        $id_taquilla_upsert,
     
         $nombre,
-        $almacen_search,
+        $taquilla_search,
     
-        $direccion,
         $comentario,
+    
+        $codigo_taquilla,
+        $codigo_apertura,
+        $estado
     );
     $result2 = $stmt->execute();
     //===============================================================//
@@ -237,21 +245,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Update o insert datos en la tabla $tabla
     if($result2 === TRUE) {
 
-        if($hay_id_almacen_en_tabla){//si es update, id_almacen ya lo tengo
+        if($hay_id_taquilla_en_tabla){//si es update, id_taquilla ya lo tengo
             $action_val = 'is_update';
-            $action_tipo = 'is_update_almacen';
-            $id_almacen_val = $stored_id_almacen;
+            $action_tipo = 'is_update_taquilla';
+            $id_taquilla_val = $stored_id_taquilla;
             $mensaje_val = 'Datos actualizados correctamente.';
         }else{//es insert
             $action_val = 'is_insert';
-            $action_tipo = 'is_insert_almacen';
-            $id_almacen_val = $conn->insert_id;//es id insertado del almacen nuevo de esta $conn
+            $action_tipo = 'is_insert_taquilla';
+            $id_taquilla_val = $conn->insert_id;//es id insertado del taquilla nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 
         $respuesta = [
             'success' => true,
-            'id_almacen' => $id_almacen_val,
+            'id_taquilla' => $id_taquilla_val,
             'action' => $action_val,
             'action_tipo' => $action_tipo,
             'mensaje' => $mensaje_val
@@ -259,7 +267,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
     }else{
 
-        if($hay_id_almacen_en_tabla){
+        if($hay_id_taquilla_en_tabla){
             $error_text = 'Error al actualizar datos: ';
         }else{
             $error_text = 'Error al insertar datos: ';
@@ -276,7 +284,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Cierro conexion con bd
     $conn->close();	
 
-    // Enviar respuesta al cliente en formato JSON
+    // Enviar respuesta al taquilla en formato JSON
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($respuesta,JSON_UNESCAPED_UNICODE);	
 }

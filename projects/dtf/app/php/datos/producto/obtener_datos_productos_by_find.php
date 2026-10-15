@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -51,7 +53,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
 $words_input = $datos['words_input'];

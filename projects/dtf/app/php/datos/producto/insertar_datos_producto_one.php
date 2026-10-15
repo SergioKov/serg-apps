@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 
 
@@ -38,7 +40,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     // Validar si la decodificación fue exitosa
     if (json_last_error() === JSON_ERROR_NONE) {
         // Validar estructura y contenido del JSON
-        if (isset($datos['telefono']) ) {//campo obligatorio para rellenar en formulario
+        if (isset($datos['nombre']) ) {//campo obligatorio para rellenar en formulario
             //echo "JSON es válido y contiene las claves esperadas.";
             //sigo adelante...
         } else {
@@ -105,29 +107,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     }
 	//echo_json_x($id_user_logged, 'id_user_logged');
 
-    include('includes/connect_db.php');
+    include($niveles_para_subir . 'includes/connect_db.php');
 
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
-    $id_cliente = $datos['id_cliente'];
+    $id_producto = $datos['id_producto'];
     $nombre = $datos['nombre'];
-    $telefono = $datos['telefono'];
-    $codigo_cliente = ($datos['codigo_cliente'] === '') ? null : $datos['codigo_cliente'];//si viene vacio => null
-    $comentario = $datos['comentario'];
-    $taquilla = ($datos['taquilla'] === '') ? null : $datos['taquilla'];//si viene vacio => null
-    $descuento = ($datos['descuento'] === '') ? null : $datos['descuento'];//si viene vacio => null
-    $precio_fijo_dtf = ($datos['precio_fijo_dtf'] === '') ? null : $datos['precio_fijo_dtf'];//si viene vacio => null
-    $precio_fijo_uv = ($datos['precio_fijo_uv'] === '') ? null : $datos['precio_fijo_uv'];//si viene vacio => null
-    $saldo = ($datos['saldo'] === '') ? null : $datos['saldo'];//si viene vacio => null
+    $descripcion = $datos['descripcion'];
+    $precio_compra = ($datos['precio_compra'] === '') ? null : $datos['precio_compra'];//si viene vacio => null
+    $precio_venta = ($datos['precio_venta'] === '') ? null : $datos['precio_venta'];//si viene vacio => null
     
     //variables de busqueda
-    $cliente_search = normalizeSearchText($nombre ?? '');
+    $producto_search = normalizeSearchText($nombre ?? '');
     
-    if($telefono){
-        $cliente_search .= ' __|__ ' . normalizeSearchText($telefono ?? '');
-    }
-    if($comentario){
-        $cliente_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
+    if($descripcion){
+        $producto_search .= ' __|__ ' . normalizeSearchText($descripcion ?? '');
     }
 
 
@@ -141,15 +135,15 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
 
     //busco si hay registro en la tabla a donde insertar array
-    $sql_prep = "SELECT id_cliente 
-                FROM clientes 
-                WHERE id_cliente = ? 
+    $sql_prep = "SELECT id_producto 
+                FROM productos 
+                WHERE id_producto = ? 
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
         die("Error SQL");
     }
-    $stmt->bind_param("i", $id_cliente);
+    $stmt->bind_param("i", $id_producto);
     $stmt->execute();
     $result = $stmt->get_result();
     //debug_x($sql_preparada, 'sql_preparada');
@@ -157,45 +151,38 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     if($result->num_rows > 0){
         $row = $result->fetch_assoc();
 		//echo_json_x($row,'row');		
-        $stored_id_cliente = $row["id_cliente"];//1
-        $hay_id_cliente_en_tabla = true;
+        $stored_id_producto = $row["id_producto"];//1
+        $hay_id_producto_en_tabla = true;
     }else{
-        $hay_id_cliente_en_tabla = false;
+        $hay_id_producto_en_tabla = false;
     }
 
-	//echo_json_x($hay_id_cliente_en_tabla, 'hay_id_cliente_en_tabla');
+	//echo_json_x($hay_id_producto_en_tabla, 'hay_id_producto_en_tabla');
 
 
 
     //===============================================================//
     // start - UPSERT
     //===============================================================//
-    $action_tipo = ($hay_id_cliente_en_tabla)
-        ? 'is_update_cliente' 
-        : 'is_insert_cliente';
+    $action_tipo = ($hay_id_producto_en_tabla)
+        ? 'is_update_producto' 
+        : 'is_insert_producto';
 
-    $id_cliente_upsert = ($hay_id_cliente_en_tabla)
-        ? $id_cliente
+    $id_producto_upsert = ($hay_id_producto_en_tabla)
+        ? $id_producto
         : null;
 
     //consulta UPSERT
-    $sql2_upsert = "INSERT INTO clientes
+    $sql2_upsert = "INSERT INTO productos
                     (
-                        id_cliente,
+                        id_producto,
                     
                         nombre,
-                        cliente_search,
-
-                        telefono,
-                        codigo_cliente,
+                        producto_search,
+                        descripcion,
                     
-                        comentario,
-                        taquilla,
-                        descuento,
-                    
-                        precio_fijo_dtf,
-                        precio_fijo_uv,
-                        saldo,
+                        precio_compra,
+                        precio_venta,
                     
                         created_at
                     )        
@@ -203,13 +190,9 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     (
                         ?,
                     
-                        ?, ?, 
+                        ?, ?, ?,
                         
-                        ?, ?,
-                    
-                        ?, ?, ?,
-
-                        ?, ?, ?,
+                        ?, ?, 
                     
                         NOW()
                     )
@@ -217,18 +200,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     ON DUPLICATE KEY UPDATE
                     
                         nombre = VALUES(nombre),
-                        cliente_search = VALUES(cliente_search),
+                        producto_search = VALUES(producto_search),
+                        descripcion = VALUES(descripcion),                    
                     
-                        telefono = VALUES(telefono),
-                        codigo_cliente = VALUES(codigo_cliente),
-
-                        comentario = VALUES(comentario),
-                        taquilla = VALUES(taquilla),
-                        descuento = VALUES(descuento),
-                    
-                        precio_fijo_dtf = VALUES(precio_fijo_dtf),
-                        precio_fijo_uv = VALUES(precio_fijo_uv),
-                        saldo = VALUES(saldo),
+                        precio_compra = VALUES(precio_compra),
+                        precio_venta = VALUES(precio_venta),
                     
                         updated_at = NOW()
     ";
@@ -241,26 +217,20 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
     $nombre = str_replace(["\r\n", "\r"], "\n", $nombre);
-    $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
+    $descripcion = str_replace(["\r\n", "\r"], "\n", $descripcion);
 
     $stmt->bind_param(
-        "issssssiddd",
+        "isssdd",
     
-        $id_cliente_upsert,
+        $id_producto_upsert,
     
         $nombre,
-        $cliente_search,
-
-        $telefono,
-        $codigo_cliente,
+        $producto_search,
     
-        $comentario,
-        $taquilla,
-        $descuento,
+        $descripcion,
     
-        $precio_fijo_dtf,
-        $precio_fijo_uv,
-        $saldo
+        $precio_compra,
+        $precio_venta
     );
     $result2 = $stmt->execute();
     //===============================================================//
@@ -271,21 +241,21 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Update o insert datos en la tabla $tabla
     if($result2 === TRUE) {
 
-        if($hay_id_cliente_en_tabla){//si es update, id_cliente ya lo tengo
+        if($hay_id_producto_en_tabla){//si es update, id_producto ya lo tengo
             $action_val = 'is_update';
-            $action_tipo = 'is_update_cliente';
-            $id_cliente_val = $stored_id_cliente;
+            $action_tipo = 'is_update_producto';
+            $id_producto_val = $stored_id_producto;
             $mensaje_val = 'Datos actualizados correctamente.';
         }else{//es insert
             $action_val = 'is_insert';
-            $action_tipo = 'is_insert_cliente';
-            $id_cliente_val = $conn->insert_id;//es id insertado del cliente nuevo de esta $conn
+            $action_tipo = 'is_insert_producto';
+            $id_producto_val = $conn->insert_id;//es id insertado del producto nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 
         $respuesta = [
             'success' => true,
-            'id_cliente' => $id_cliente_val,
+            'id_producto' => $id_producto_val,
             'action' => $action_val,
             'action_tipo' => $action_tipo,
             'mensaje' => $mensaje_val
@@ -293,7 +263,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
     }else{
 
-        if($hay_id_cliente_en_tabla){
+        if($hay_id_producto_en_tabla){
             $error_text = 'Error al actualizar datos: ';
         }else{
             $error_text = 'Error al insertar datos: ';
@@ -310,7 +280,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //Cierro conexion con bd
     $conn->close();	
 
-    // Enviar respuesta al cliente en formato JSON
+    // Enviar respuesta al producto en formato JSON
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($respuesta,JSON_UNESCAPED_UNICODE);	
 }

@@ -1,7 +1,9 @@
 <?php
-include('includes/config.php');
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
 session_start();//importante para ver al usuario logueado
-include('functions.php');
+include($niveles_para_subir . 'functions.php');
 
 /*
 //HACER PRUEBAS...
@@ -51,7 +53,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-include('includes/connect_db.php');
+include($niveles_para_subir . 'includes/connect_db.php');
 
 //aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
 $words_input = $datos['words_input'];
@@ -74,32 +76,32 @@ $arr_campos = [];
 switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
     default:
-        //'a.almacen_search' -> campo optimizado para busquedas con indice fulltext 
-        $arr_campos = ['a.id_almacen', 'a.nombre', 'a.comentario', 'a.almacen_search'];
+        //'b.bono_search' -> campo optimizado para busquedas con indice fulltext //aki no hace falta
+        $arr_campos = ['b.id_bono', 'b.nombre', 'b.descripcion'];
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['a.id_almacen', 'a.nombre', 'a.direccion', 'a.comentario', 'a.almacen_search'];
+        $arr_campos = ['b.id_bono', 'b.nombre', 'b.descripcion',  'b.longitud_m', 'b.longitud_bonificada_m', 'b.envio_gratis', 'b.precio'];
         break;
     
     case '3'://Todos los campos de texto disponibles
-        $arr_campos = ['a.nombre', 'a.direccion', 'a.comentario'];
+        $arr_campos = ['b.nombre', 'b.descripcion'];
         break;
 
     case '4'://Todos los campos de números disponibles
-        $arr_campos = ['a.id_almacen', 'a.direccion'];
+        $arr_campos = ['b.id_bono', 'b.longitud_m', 'b.longitud_bonificada_m', 'b.envio_gratis', 'b.precio'];
         break;
 
-    case '5'://Sólo el identificador de almacen
-        $arr_campos = ['a.id_almacen'];
+    case '5'://Sólo el identificador de bono
+        $arr_campos = ['b.id_bono'];
         break;
 
     case '6'://Sólo el nombre
-        $arr_campos = ['a.nombre'];
+        $arr_campos = ['b.nombre'];
         break;
 
-    case '7'://Sólo la dirección
-        $arr_campos = ['a.direccion'];
+    case '7'://Sólo el descripcion
+        $arr_campos = ['b.descripcion'];
         break;
 }
 
@@ -111,18 +113,23 @@ $where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
 
 //test modos de where
 $sql_init = "SELECT 
-                a.id_almacen, 
-                a.nombre, 
-                a.direccion, 
-                a.comentario, 
+                b.id_bono,
+                b.nombre, 
+                b.descripcion, 
 
-                a.created_at, 
-                a.updated_at
+                b.longitud_m,
+                b.longitud_bonificada_m,
+
+                b.envio_gratis,
+                b.precio,
+
+                b.created_at, 
+                b.updated_at
                 
-            FROM almacenes a
+            FROM bonos b
             
             WHERE $where
-            ORDER BY a.id_almacen DESC, a.nombre, a.direccion, a.comentario
+            ORDER BY b.id_bono DESC, b.nombre, b.descripcion
 ";
 
 
@@ -144,6 +151,9 @@ $stmt = $conn->prepare($sql_init);
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
+//echo_json_x($sql_init, 'sql');
+//debug_x($sql_init, 'sql');
+
 
 
 //hacer test en HOSTALIA
@@ -171,15 +181,20 @@ if($result->num_rows > 0){
     //recorrer los registros de canciones encontrados
     while ($row = $result->fetch_assoc()) {
 
-        $id_almacen_bd = $row['id_almacen'];
+        $id_bono_bd = $row['id_bono'];
 
         $data = [
             'success' => true,
 
-            'id_almacen' => $row['id_almacen'],
+            'id_bono' => $row['id_bono'],
             'nombre' => $row['nombre'],
-            'direccion' => $row['direccion'],
-            'comentario' => $row['comentario'],
+            'descripcion' => $row['descripcion'],
+
+            'longitud_m' => $row['longitud_m'],
+            'longitud_bonificada_m' => $row['longitud_bonificada_m'],
+
+            'envio_gratis' => $row['envio_gratis'],
+            'precio' => $row['precio'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
@@ -202,7 +217,7 @@ if($result->num_rows > 0){
 //Cierro conexion con bd
 $conn->close();
 
-// Enviar respuesta al cliente en formato JSON
+// Enviar respuesta al bono en formato JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($result_data,JSON_UNESCAPED_UNICODE);
 
