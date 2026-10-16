@@ -24,7 +24,7 @@ let objBonoDef = {
     id_bono: 1,
     nombre: "Bono 5m",
     descripcion: "es un bono fiable!...",
-    longitud: 1,
+    cantidad: 1,
     precio: 25,
     created_at: "2026/09/29 16:20:05",
     updated_at: "2026/09/29 16:20:05",

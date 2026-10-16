@@ -114,8 +114,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $id_bono = $datos['id_bono'];
     $nombre = $datos['nombre'];
     $descripcion = $datos['descripcion'];
-    $longitud_m = $datos['longitud_m'];
-    $longitud_bonificada_m = $datos['longitud_bonificada_m'];
+    $cantidad = $datos['cantidad'];
+    $cantidad_bonificada = $datos['cantidad_bonificada'];
     $envio_gratis = ($datos['envio_gratis'] === '') ? null : $datos['envio_gratis'];//si viene vacio => null
     $precio = ($datos['precio'] === '') ? null : $datos['precio'];//si viene vacio => null
     
@@ -174,8 +174,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         nombre,
                         descripcion,
 
-                        longitud_m,
-                        longitud_bonificada_m,
+                        cantidad,
+                        cantidad_bonificada,
                     
                         envio_gratis,
                         precio,
@@ -200,8 +200,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         nombre = VALUES(nombre),
                         descripcion = VALUES(descripcion),                    
 
-                        longitud_m = VALUES(longitud_m),
-                        longitud_bonificada_m = VALUES(longitud_bonificada_m),
+                        cantidad = VALUES(cantidad),
+                        cantidad_bonificada = VALUES(cantidad_bonificada),
                         
                         envio_gratis = VALUES(envio_gratis),
                         precio = VALUES(precio),
@@ -227,8 +227,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $nombre,
         $descripcion,
         
-        $longitud_m,
-        $longitud_bonificada_m,
+        $cantidad,
+        $cantidad_bonificada,
     
         $envio_gratis,
         $precio

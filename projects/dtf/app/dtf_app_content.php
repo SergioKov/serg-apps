@@ -116,16 +116,15 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
         <!-- Puntos Menu - contenedor de menu desplegable... -->
         <div id="puntosMenu" class="">
             <ul>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="almacenes">Almacenes</li>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="clientes">Clientes</li>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="productos">Productos</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="almacenes">Almacenes</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="clientes">Clientes</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="productos">Productos</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="servicios">Servicios</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="bonos">Bonos</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="tarifas">Tarifas</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="taquillas">Taquillas</li>
 
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="bonos">Bonos</li>
-
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="servicios">Servicios</li>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="tarifas">Tarifas</li>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="pedidos">Pedidos</li>
-                <li onclick="showBlockName(this.dataset.block_name)" class="" data-block_name="taquillas">Taquillas</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="pedidos">Pedidos</li>
                 <li on-click="" data-block_name="">Ingresos</li>
                 <li on-click="" data-block_name="">Gastos</li>
                 <li on-click="" data-block_name="">Usuarios</li>
@@ -146,11 +145,17 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
         <?php include __DIR__ . '/includes/block_clientes.php'; ?>
 
         <?php include __DIR__ . '/includes/block_productos.php'; ?>
+
+        <?php include __DIR__ . '/includes/block_servicios.php'; ?>
         
         <?php include __DIR__ . '/includes/block_bonos.php'; ?>
+        
+        <?php include __DIR__ . '/includes/block_tarifas.php'; ?>
 
         <?php include __DIR__ . '/includes/block_taquillas.php'; ?>
 
+
+        <!-- pendiente de hacer... -->
         <?php include __DIR__ . '/includes/block_pedidos.php'; ?>
 
 
@@ -250,7 +255,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_config_almacen.js"></script>
     <script src="js/a_config_cliente.js"></script>
     <script src="js/a_config_producto.js"></script>
+    <script src="js/a_config_servicio.js"></script>
     <script src="js/a_config_bono.js"></script>
+    <script src="js/a_config_tarifa.js"></script>
     <script src="js/a_config_taquilla.js"></script>
 
     <script src="js/a_app.js"></script>
@@ -258,7 +265,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_almacen.js"></script>
     <script src="js/a_cliente.js"></script>
     <script src="js/a_producto.js"></script>
+    <script src="js/a_servicio.js"></script>
     <script src="js/a_bono.js"></script>
+    <script src="js/a_tarifa.js"></script>
     <script src="js/a_taquilla.js"></script>
     
     <script src="js/a_modal.js"></script>

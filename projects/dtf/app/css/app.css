@@ -682,6 +682,22 @@ p.p_aviso a {
     padding: 0px 1px 3px 2px;
 }
 
+.wr_img_editar_en_ver {
+    /* background: red; */
+    padding: 5px;
+    border-radius: 2px;
+    opacity: 0.5;
+    margin: 0 -7px -5px 0;
+    position: absolute;
+    top: -7px;
+    right: 0px;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.wr_img_editar_en_ver:hover {
+    opacity: 1;
+}
+
 .btn_img {
     width: 24px;
     height: 24px;

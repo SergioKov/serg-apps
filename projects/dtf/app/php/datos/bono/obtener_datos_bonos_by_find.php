@@ -81,7 +81,7 @@ switch ($buscar_en) {
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['b.id_bono', 'b.nombre', 'b.descripcion',  'b.longitud_m', 'b.longitud_bonificada_m', 'b.envio_gratis', 'b.precio'];
+        $arr_campos = ['b.id_bono', 'b.nombre', 'b.descripcion',  'b.cantidad', 'b.cantidad_bonificada', 'b.envio_gratis', 'b.precio'];
         break;
     
     case '3'://Todos los campos de texto disponibles
@@ -89,7 +89,7 @@ switch ($buscar_en) {
         break;
 
     case '4'://Todos los campos de números disponibles
-        $arr_campos = ['b.id_bono', 'b.longitud_m', 'b.longitud_bonificada_m', 'b.envio_gratis', 'b.precio'];
+        $arr_campos = ['b.id_bono', 'b.cantidad', 'b.cantidad_bonificada', 'b.envio_gratis', 'b.precio'];
         break;
 
     case '5'://Sólo el identificador de bono
@@ -117,8 +117,8 @@ $sql_init = "SELECT
                 b.nombre, 
                 b.descripcion, 
 
-                b.longitud_m,
-                b.longitud_bonificada_m,
+                b.cantidad,
+                b.cantidad_bonificada,
 
                 b.envio_gratis,
                 b.precio,
@@ -190,8 +190,8 @@ if($result->num_rows > 0){
             'nombre' => $row['nombre'],
             'descripcion' => $row['descripcion'],
 
-            'longitud_m' => $row['longitud_m'],
-            'longitud_bonificada_m' => $row['longitud_bonificada_m'],
+            'cantidad' => $row['cantidad'],
+            'cantidad_bonificada' => $row['cantidad_bonificada'],
 
             'envio_gratis' => $row['envio_gratis'],
             'precio' => $row['precio'],

@@ -16,6 +16,10 @@ const eid_contenedor_almacenes = document.getElementById('contenedor_almacenes')
 
 let id_almacen = null;//id actual
 let objAlmacen = {};//de solo un cliente
+
+//no se si hace falta...
+//let arrAlmacenesObj = [];//array de todos los clientes como objetos [{...},{...},]
+
 let objDataAlmacenesBd = {};//objeto con datos de BD de todos los almacenes 
 let objDataAlmacenes = {};//objeto con datos de todos los almacenes general
 let objDataAlmacenesFinded = {};//objeto con datos de todos los almacenes encontrados en 'Buscar' 

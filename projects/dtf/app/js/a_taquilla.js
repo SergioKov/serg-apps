@@ -17,9 +17,12 @@ function buildTaquilla(taquilla_action = null){
 
     let codigo_taquilla_val = '';
     let codigo_apertura_val = '';
+
+    //elemento de título en el top
+    const p_mensaje = document.createElement('p');
+    p_mensaje.className = 'mensaje';
         
     //otras vars
-    let mensaje_html = '';
     let cl_id_taquilla = 'd-none';//oculto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
@@ -52,16 +55,25 @@ function buildTaquilla(taquilla_action = null){
 
     //si es ver o editar, muestro id
     if(['ver','editar'].includes(taquilla_action)){
-        mensaje_html = `
+        p_mensaje.innerHTML = `
             <span class="sp_id">
                 <span>Id: <b class="c_green">${id_taquilla}</b></span>
             </span>
         `;
+
+        if(taquilla_action == 'ver'){
+            const wr_img_editar_en_ver = document.createElement('span');
+            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+            wr_img_editar_en_ver.innerHTML = `
+                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+            `;
+            p_mensaje.append(wr_img_editar_en_ver);
+        }
     }
 
     switch (taquilla_action) {
         case 'nuevo'://Nueva Taquilla
-            mensaje_html = `
+            p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de una taquilla <b class="c_blue">NUEVA</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_taquilla
@@ -170,9 +182,9 @@ function buildTaquilla(taquilla_action = null){
         <div class="form_container">
             <form>
                 
-                <p class="mensaje" data-dic="">
-                    ${mensaje_html}
-                </p>
+                <!-- titulo -->
+                ${p_mensaje.outerHTML}
+
 
                 <!-- nombre -->
                 <div class="form_group wr_input_general">
@@ -193,6 +205,7 @@ function buildTaquilla(taquilla_action = null){
                     <label for="codigo_taquilla">Código taquilla (identificación)</label>
                 </div>
 
+
                 <!-- codigo_apertura -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#codigo_apertura')">
@@ -201,6 +214,7 @@ function buildTaquilla(taquilla_action = null){
                     <input id="codigo_apertura" type="text" name="codigo_apertura" required="" placeholder=" " value="${codigo_apertura_val}">
                     <label for="codigo_apertura">Código apertura</label>
                 </div>
+
 
                 <!-- estado -->
                 <div id="wr_estado" class="wr_sel_opt_estado ${objTaquilla?.estado || ''}">
@@ -215,9 +229,13 @@ function buildTaquilla(taquilla_action = null){
 
                 <!-- comentario -->
                 <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#comentario')">
+                        <img src="images/x_white.png">
+                    </div>
                     <textarea id="comentario" name="comentario" rows="4" required="" placeholder=" ">${comentario_val}</textarea>
                     <label class="lab_textarea" for="comentario">Comentario</label>
                 </div>
+
 
                 ${ (['nuevo','editar'].includes(taquilla_action)) ? wr_btns_form.outerHTML : '' }
 
@@ -225,16 +243,21 @@ function buildTaquilla(taquilla_action = null){
         </div>     
     `;
 
+    //añado action onclick a wr_img_editar_en_ver
+    const element_wr_img_editar_en_ver = form_taquilla.querySelector('.wr_img_editar_en_ver');
+    if(element_wr_img_editar_en_ver){
+        element_wr_img_editar_en_ver.onclick = () => {
+            openModal('full','Editar Taquilla actual',null,'buildTaquilla',true,'editar');
+        }
+    }
+
     //estado
     const eid_estado = form_taquilla.querySelector('#estado');
     const eid_wr_estado = form_taquilla.querySelector('#wr_estado');
-
     eid_estado.value = objTaquilla?.estado || '';
-
     eid_estado.onchange = async (e) => {
         pintContenedorEstado(eid_wr_estado, eid_estado.value);
     }
-
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(taquilla_action)){ 

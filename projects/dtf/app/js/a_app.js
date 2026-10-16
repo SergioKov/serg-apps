@@ -9,7 +9,9 @@ async function init() {
     await loadAlmacenesAll();   
     await loadClientesAll();   
     await loadProductosAll();   
+    await loadServiciosAll();   
     await loadBonosAll();   
+    await loadTarifasAll();   
     await loadTaquillasAll(); 
     
     showBlockName(BlockNameActive);

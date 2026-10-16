@@ -15,6 +15,7 @@ function buildCliente(cliente_action = null){
     let nombre_val = '';
     let telefono_val = '';
     let codigo_cliente_val = '';
+    let direccion_val = '';
     let comentario_val = '';
 
     let taquilla_val = '';
@@ -23,8 +24,11 @@ function buildCliente(cliente_action = null){
     let precio_fijo_uv_val = '';
     let saldo_val = '';
         
+    //elemento de título en el top
+    const p_mensaje = document.createElement('p');
+    p_mensaje.className = 'mensaje';
+    
     //otras vars
-    let mensaje_html = '';
     let cl_id_cliente = 'd-none';//oculto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
@@ -53,6 +57,7 @@ function buildCliente(cliente_action = null){
         nombre_val = escaparHTML(objCliente.nombre) || '';
         telefono_val = escaparHTML(objCliente.telefono) || '';
         codigo_cliente_val = escaparHTML(objCliente.codigo_cliente) || '';
+        direccion_val = escaparHTML(objCliente.direccion) || '';
         comentario_val = escaparHTML(objCliente.comentario) || '';
         taquilla_val = escaparHTML(objCliente.taquilla) || '';
         descuento_val = escaparHTML(objCliente.descuento) || '';
@@ -63,16 +68,26 @@ function buildCliente(cliente_action = null){
 
     //si es ver o editar, muestro id
     if(['ver','editar'].includes(cliente_action)){
-        mensaje_html = `
+        
+        p_mensaje.innerHTML = `
             <span class="sp_id">
                 <span>Id: <b class="c_green">${id_cliente}</b></span>
             </span>
         `;
+
+        if(cliente_action == 'ver'){
+            const wr_img_editar_en_ver = document.createElement('span');
+            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+            wr_img_editar_en_ver.innerHTML = `
+                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+            `;
+            p_mensaje.append(wr_img_editar_en_ver);
+        }
     }
 
     switch (cliente_action) {
         case 'nuevo'://Nueva Cliente
-            mensaje_html = `
+            p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un cliente <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_cliente
@@ -180,9 +195,9 @@ function buildCliente(cliente_action = null){
         <div class="form_container">
             <form>
                 
-                <p class="mensaje" data-dic="">
-                    ${mensaje_html}
-                </p>
+                <!-- titulo -->
+                ${p_mensaje.outerHTML}
+
 
                 <!-- nombre -->
                 <div class="form_group wr_input_general">
@@ -193,6 +208,7 @@ function buildCliente(cliente_action = null){
                     <label for="nombre">Nombre del cliente</label>
                 </div>
                
+
                 <!-- telefono -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#telefono')">
@@ -210,6 +226,7 @@ function buildCliente(cliente_action = null){
                     <label for="telefono">Teléfono (obligatorio)</label>
                 </div>
 
+
                 <!-- codigo_cliente -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#codigo_cliente')">
@@ -218,9 +235,6 @@ function buildCliente(cliente_action = null){
                     <input id="codigo_cliente" type="text" name="codigo_cliente" required="" placeholder=" " value="${codigo_cliente_val}">
                     <label for="codigo_cliente">Código (4 últ. números)</label>
                 </div>
-               
-
-
 
 
                 <!-- taquilla -->
@@ -230,10 +244,7 @@ function buildCliente(cliente_action = null){
                     </div>
                     <input id="taquilla" type="text" name="taquilla" required="" placeholder=" " value="${taquilla_val}">
                     <label for="taquilla">Taquilla</label>
-                </div>
-               
-
-                
+                </div>                
                 
                 
                 <!-- descuento -->
@@ -255,6 +266,7 @@ function buildCliente(cliente_action = null){
                     <label for="precio_fijo_dtf">Precio fijo DTF</label>
                 </div>
 
+
                 <!-- precio_fijo_uv -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#precio_fijo_uv')">
@@ -263,6 +275,7 @@ function buildCliente(cliente_action = null){
                     <input id="precio_fijo_uv" type="text" name="precio_fijo_uv" required="" placeholder=" " value="${precio_fijo_uv_val}">
                     <label for="precio_fijo_uv">Precio fijo UV</label>
                 </div>
+
 
                 <!-- saldo -->
                 <div class="form_group wr_input_general">
@@ -273,17 +286,40 @@ function buildCliente(cliente_action = null){
                     <label for="saldo">Saldo</label>
                 </div>
 
+
+                <!-- direccion -->
+                <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#direccion')">
+                        <img src="images/x_white.png">
+                    </div>            
+                    <textarea id="direccion" name="direccion" class="min_2_rows" rows="1" required="" placeholder=" ">${direccion_val}</textarea>
+                    <label class="lab_textarea" for="direccion">Dirección</label>
+                </div>
+
+
                 <!-- comentario -->
                 <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#comentario')">
+                        <img src="images/x_white.png">
+                    </div>
                     <textarea id="comentario" name="comentario" rows="4" required="" placeholder=" ">${comentario_val}</textarea>
                     <label class="lab_textarea" for="comentario">Comentario</label>
                 </div>
+
 
                 ${ (['nuevo','editar'].includes(cliente_action)) ? wr_btns_form.outerHTML : '' }
 
             </form>
         </div>     
     `;
+
+    //añado action onclick a wr_img_editar_en_ver
+    const element_wr_img_editar_en_ver = form_cliente.querySelector('.wr_img_editar_en_ver');
+    if(element_wr_img_editar_en_ver){
+        element_wr_img_editar_en_ver.onclick = () => {
+            openModal('full','Editar Cliente actual',null,'buildCliente',true,'editar');
+        }
+    }
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(cliente_action)){ 
@@ -295,17 +331,6 @@ function buildCliente(cliente_action = null){
         }
         //pintGruposOptionsEnSelect(contenedor.querySelector('.d_grupos_select'), id_grupo_val);//relleno select de grupos
     }
-
-    /*
-    if(cliente_action == 'sort'){
-        buildListaSort(contenedor.querySelector('.d_canciones_lista'), arr_lista_bucle); 
-        setTimeout(() => {
-            contenedor.querySelector('.d_aviso_sort').classList.remove('shown');
-        }, 4000);
-    }else{
-        buildListaSoloSongs(contenedor.querySelector('.d_canciones_lista'), arr_lista_bucle);        
-    }
-    */
 
     eid_bl_modalFullInner.append(contenedor);
 
@@ -338,6 +363,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
         let telefono = form_cliente?.querySelector('#telefono').value.trim();
         let codigo_cliente = form_cliente?.querySelector('#codigo_cliente').value.trim();
         let taquilla = form_cliente?.querySelector('#taquilla').value.trim();
+        let direccion = form_cliente?.querySelector('#direccion').value.trim();
         let comentario = form_cliente?.querySelector('#comentario').value.trim();
         let descuento = form_cliente?.querySelector('#descuento').value.trim();
         let precio_fijo_dtf = form_cliente?.querySelector('#precio_fijo_dtf').value.trim();
@@ -387,6 +413,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
             nombre,
             telefono,
             codigo_cliente,
+            direccion,
             comentario,
             taquilla,
             descuento,

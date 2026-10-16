@@ -15,9 +15,12 @@ function buildAlmacen(almacen_action = null){
     let nombre_val = '';
     let direccion_val = '';
     let comentario_val = '';
-        
+    
+    //elemento de título en el top
+    const p_mensaje = document.createElement('p');
+    p_mensaje.className = 'mensaje';
+    
     //otras vars
-    let mensaje_html = '';
     let cl_id_almacen = 'd-none';//oculto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
@@ -46,16 +49,26 @@ function buildAlmacen(almacen_action = null){
 
     //si es ver o editar, muestro id
     if(['ver','editar'].includes(almacen_action)){
-        mensaje_html = `
+
+        p_mensaje.innerHTML = `
             <span class="sp_id">
                 <span>Id: <b class="c_green">${id_almacen}</b></span>
             </span>
         `;
+
+        if(almacen_action == 'ver'){
+            const wr_img_editar_en_ver = document.createElement('span');
+            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+            wr_img_editar_en_ver.innerHTML = `
+                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+            `;
+            p_mensaje.append(wr_img_editar_en_ver);
+        }
     }
 
     switch (almacen_action) {
         case 'nuevo'://Nuevo Almacen
-            mensaje_html = `
+            p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un almacen <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_almacen
@@ -157,9 +170,9 @@ function buildAlmacen(almacen_action = null){
         <div class="form_container">
             <form>
                 
-                <p class="mensaje" data-dic="">
-                    ${mensaje_html}
-                </p>
+                <!-- titulo -->
+                ${p_mensaje.outerHTML}
+
 
                 <!-- nombre -->
                 <div class="form_group wr_input_general">
@@ -170,27 +183,40 @@ function buildAlmacen(almacen_action = null){
                     <label for="nombre">Nombre del almacén</label>
                 </div>
                
+
                 <!-- direccion -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#direccion')">
                         <img src="images/x_white.png">
                     </div>
-                    <input id="direccion" type="text" name="direccion" required="" placeholder=" " value="${direccion_val}">
-                    <label for="direccion">Dirección</label>
+                    <textarea id="direccion" name="direccion" class="min_2_rows" rows="1" required="" placeholder=" ">${direccion_val}</textarea>
+                    <label class="lab_textarea" for="direccion">Dirección</label>
                 </div>
 
 
                 <!-- comentario -->
                 <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#comentario')">
+                        <img src="images/x_white.png">
+                    </div>
                     <textarea id="comentario" name="comentario" rows="4" required="" placeholder=" ">${comentario_val}</textarea>
                     <label class="lab_textarea" for="comentario">Comentario</label>
                 </div>
+
 
                 ${ (['nuevo','editar'].includes(almacen_action)) ? wr_btns_form.outerHTML : '' }
 
             </form>
         </div>     
     `;
+
+    //añado action onclick a wr_img_editar_en_ver
+    const element_wr_img_editar_en_ver = form_almacen.querySelector('.wr_img_editar_en_ver');
+    if(element_wr_img_editar_en_ver){
+        element_wr_img_editar_en_ver.onclick = () => {
+            openModal('full','Editar Almacen actual',null,'buildAlmacen',true,'editar');
+        }
+    }
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(almacen_action)){ 

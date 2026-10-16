@@ -25,6 +25,7 @@ let objClienteDef = {
     nombre: "Juan",
     telefono: "622315345",
     codigo_cliente: "5345",
+    direccion: "Calle a especificar...",
     comentario: "es un cliente fiable!...",
     taquilla: "5",
     descuento: "20%",
@@ -94,14 +95,14 @@ let objBuscarEnBusquedaCliente = {
         n: 1,
         titulo: "1) Campos por defecto",
         desc_sm: "1) Todos los campos por defecto disponibles (rápido)",
-        desc_full: "Busca en todos los campos disponibles: <b>ID</b><br>, <b>nombre</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>comentario</b><br>, <b>campo de búsqueda optimizado</b>. <br><br> Es la opción recomendada para realizar una búsqueda general y rápida.",
+        desc_full: "Busca en todos los campos disponibles: <b>ID</b><br>, <b>nombre</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>dirección</b><br>, <b>comentario</b><br>, <b>campo de búsqueda optimizado</b>. <br><br> Es la opción recomendada para realizar una búsqueda general y rápida.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará simultáneamente en todos los campos disponibles. <br><br> Se mostrarán los registros que cumplan los criterios del modo de búsqueda seleccionado en cualquiera de estos campos."
     },
     buscar_en2: {
         n: 2,
         titulo: "2) Campos disponibles",
         desc_sm: "2) Todos los campos disponibles (lento)",
-        desc_full: "Busca en todos los campos disponibles del cliente: <b>ID</b><br>, <b>nombre</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>comentario</b><br>, <b>taquilla</b><br>, <b>descuento</b><br>, <b>precios</b><br>, <b>saldo</b>. <br><br> Permite una búsqueda más amplia, pero puede ser más lenta.",
+        desc_full: "Busca en todos los campos disponibles del cliente: <b>ID</b><br>, <b>nombre</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>dirección</b><br>, <b>comentario</b><br>, <b>taquilla</b><br>, <b>descuento</b><br>, <b>precios</b><br>, <b>saldo</b>. <br><br> Permite una búsqueda más amplia, pero puede ser más lenta.",
         ejemplo: "Al introducir «naz rom», la búsqueda se realizará en todos los campos disponibles del cliente y mostrará los registros que cumplan los criterios del modo de búsqueda seleccionado en cualquiera de ellos."
     },
     buscar_en3: {
@@ -115,7 +116,7 @@ let objBuscarEnBusquedaCliente = {
         n: 4,
         titulo: "4) Campos numéricos",
         desc_sm: "4) Todos los campos numéricos disponibles",
-        desc_full: "Busca en todos los campos numéricos disponibles del cliente: <b>ID</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>comentario</b><br>, <b>taquilla</b><br>, <b>descuento</b><br>, <b>precios</b><br>, <b>saldo</b>.",
+        desc_full: "Busca en todos los campos numéricos disponibles del cliente: <b>ID</b><br>, <b>teléfono</b><br>, <b>código de cliente</b><br>, <b>dirección</b><br>, <b>comentario</b><br>, <b>taquilla</b><br>, <b>descuento</b><br>, <b>precios</b><br>, <b>saldo</b>.",
         ejemplo: "Al introducir «123», la búsqueda se realizará únicamente en los campos numéricos disponibles, aplicando el modo de búsqueda seleccionado."
     },
     buscar_en5: {

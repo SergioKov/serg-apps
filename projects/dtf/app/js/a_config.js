@@ -151,8 +151,20 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },
+    objFindParamsServicio: {
+        words_input: "10",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },    
     objFindParamsBono: {
         words_input: "5",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
+    objFindParamsTarifa: {
+        words_input: "10",
         modo: 3,
         buscar_en: 1,
         findedRows: 0,
@@ -163,6 +175,12 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },
+    objFindParamsPedido: {
+        words_input: "10",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },    
 }
 
 let obj_ajustes = {};
@@ -191,8 +209,12 @@ let {
     objFindParamsAlmacen,
     objFindParamsCliente,
     objFindParamsProducto,
+    objFindParamsServicio,
     objFindParamsBono,
-    objFindParamsTaquilla
+    objFindParamsTarifa,
+    objFindParamsTaquilla,
+    objFindParamsPedido
+
 } = obj_ajustes;
 
 localStorage.setItem('obj_ajustes', JSON.stringify(obj_ajustes));

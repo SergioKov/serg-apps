@@ -15,20 +15,23 @@ function buildBono(bono_action = null){
     let nombre_val = '';
     let descripcion_val = '';
 
-    let longitud_m_val = '';
-    let longitud_m_text = '';
+    let cantidad_val = '';
+    let cantidad_text = '';
 
-    let longitud_bonificada_m_val = '';
-    let longitud_bonificada_m_text = '';
+    let cantidad_bonificada_val = '';
+    let cantidad_bonificada_text = '';
 
     let envio_gratis_val = '';
     let envio_gratis_text = '';
 
     let precio_val = '';
     let precio_text = '';
-        
+
+    //elemento de título en el top
+    const p_mensaje = document.createElement('p');
+    p_mensaje.className = 'mensaje';
+    
     //otras vars
-    let mensaje_html = '';
     let cl_id_bono = 'd-none';//oculto
     let cl_envio_gratis = (objBono?.envio_gratis) ? 'marcado_si' : 'marcado_no';//oculto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
@@ -57,11 +60,11 @@ function buildBono(bono_action = null){
         nombre_val = escaparHTML(objBono.nombre) || '';
         descripcion_val = escaparHTML(objBono.descripcion) || '';
         
-        longitud_m_val = (objBono.longitud_m) ? escaparHTML(objBono.longitud_m) : '';
-        longitud_m_text = (objBono.longitud_m) ? `${longitud_m_val} m` : '--';
+        cantidad_val = (objBono.cantidad) ? escaparHTML(objBono.cantidad) : '';
+        cantidad_text = (objBono.cantidad) ? `${cantidad_val} m` : '--';
         
-        longitud_bonificada_m_val = (objBono.longitud_bonificada_m) ? escaparHTML(objBono.longitud_bonificada_m) : '';
-        longitud_bonificada_m_text = (objBono.longitud_bonificada_m) ? `${longitud_bonificada_m_val} m` : '--';
+        cantidad_bonificada_val = (objBono.cantidad_bonificada) ? escaparHTML(objBono.cantidad_bonificada) : '';
+        cantidad_bonificada_text = (objBono.cantidad_bonificada) ? `${cantidad_bonificada_val} m` : '--';
         
         envio_gratis_val = (objBono.envio_gratis) ? escaparHTML(objBono.envio_gratis) : '';
         envio_gratis_text = (objBono.envio_gratis) ? 'Sí' : 'No';
@@ -72,16 +75,26 @@ function buildBono(bono_action = null){
 
     //si es ver o editar, muestro id
     if(['ver','editar'].includes(bono_action)){
-        mensaje_html = `
+        
+        p_mensaje.innerHTML = `
             <span class="sp_id">
                 <span>Id: <b class="c_green">${id_bono}</b></span>
             </span>
         `;
+
+        if(bono_action == 'ver'){
+            const wr_img_editar_en_ver = document.createElement('span');
+            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+            wr_img_editar_en_ver.innerHTML = `
+                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+            `;
+            p_mensaje.append(wr_img_editar_en_ver);
+        }
     }
 
     switch (bono_action) {
         case 'nuevo'://Nueva Bono
-            mensaje_html = `
+            p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un bono <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_bono
@@ -157,9 +170,9 @@ function buildBono(bono_action = null){
                         <span class="cl_campo">Nombre:</span>
                         <span>${nombre_val}</span>
                     </span>
-                    <span class="linea_fx ${!longitud_m_val ? 'd-none' : ''}">
-                        <span class="cl_campo">Longitud:</span>
-                        <span>${longitud_m_text}</span>
+                    <span class="linea_fx ${!cantidad_val ? 'd-none' : ''}">
+                        <span class="cl_campo">Cantidad:</span>
+                        <span>${cantidad_text}</span>
                     </span>
                     <span class="linea_fx ${!precio_val ? 'd-none' : ''}">
                         <span class="cl_campo">Precio:</span>
@@ -190,9 +203,9 @@ function buildBono(bono_action = null){
         <div class="form_container">
             <form>
                 
-                <p class="mensaje" data-dic="">
-                    ${mensaje_html}
-                </p>
+                <!-- titulo -->
+                ${p_mensaje.outerHTML}
+
 
                 <!-- nombre -->
                 <div class="form_group wr_input_general">
@@ -204,23 +217,23 @@ function buildBono(bono_action = null){
                 </div>
                
 
-                <!-- longitud_m -->
+                <!-- cantidad -->
                 <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#longitud_m')">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#cantidad')">
                         <img src="images/x_white.png">
                     </div>
-                    <input id="longitud_m" type="text" name="longitud_m" required="" placeholder=" " value="${longitud_m_val}">
-                    <label for="longitud_m">Longitud (metros)</label>
+                    <input id="cantidad" type="text" name="cantidad" required="" placeholder=" " value="${cantidad_val}">
+                    <label for="cantidad">Cantidad (metros)</label>
                 </div>
                
 
-                <!-- longitud_bonificada_m -->
+                <!-- cantidad_bonificada -->
                 <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#longitud_bonificada_m')">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#cantidad_bonificada')">
                         <img src="images/x_white.png">
                     </div>
-                    <input id="longitud_bonificada_m" type="text" name="longitud_bonificada_m" required="" placeholder=" " value="${longitud_bonificada_m_val}">
-                    <label for="longitud_bonificada_m">Longitud bonificada (metros)</label>
+                    <input id="cantidad_bonificada" type="text" name="cantidad_bonificada" required="" placeholder=" " value="${cantidad_bonificada_val}">
+                    <label for="cantidad_bonificada">Cantidad bonificada (metros)</label>
                 </div>
 
 
@@ -246,22 +259,32 @@ function buildBono(bono_action = null){
 
                 <!-- descripcion -->
                 <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#descripcion')">
+                        <img src="images/x_white.png">
+                    </div>
                     <textarea id="descripcion" name="descripcion" rows="4" required="" placeholder=" ">${descripcion_val}</textarea>
                     <label class="lab_textarea" for="descripcion">Descripción</label>
                 </div>
+                
 
                 ${ (['nuevo','editar'].includes(bono_action)) ? wr_btns_form.outerHTML : '' }
 
             </form>
         </div>     
     `;
+    
+    //añado action onclick a wr_img_editar_en_ver
+    const element_wr_img_editar_en_ver = form_bono.querySelector('.wr_img_editar_en_ver');
+    if(element_wr_img_editar_en_ver){
+        element_wr_img_editar_en_ver.onclick = () => {
+            openModal('full','Editar Bono actual',null,'buildBono',true,'editar');
+        }
+    }
 
     //envio_gratis
     const eid_envio_gratis = form_bono.querySelector('#envio_gratis');
     const eid_wr_envio_gratis = form_bono.querySelector('#wr_envio_gratis');
-
     eid_envio_gratis.value = objBono?.envio_gratis || 0;
-
     eid_envio_gratis.onchange = async (e) => {
         pintContenedorEnvioGratis(eid_wr_envio_gratis, eid_envio_gratis.value);
     }
@@ -326,8 +349,8 @@ async function guardarBono(event, modo_guardar = 'normal'){
 
         let nombre = form_bono?.querySelector('#nombre').value.trim();
         let descripcion = form_bono?.querySelector('#descripcion').value.trim();
-        let longitud_m = form_bono?.querySelector('#longitud_m').value.trim();
-        let longitud_bonificada_m = form_bono?.querySelector('#longitud_bonificada_m').value.trim();
+        let cantidad = form_bono?.querySelector('#cantidad').value.trim();
+        let cantidad_bonificada = form_bono?.querySelector('#cantidad_bonificada').value.trim();
         let envio_gratis = form_bono?.querySelector('#envio_gratis').value.trim();
         let precio = form_bono?.querySelector('#precio').value.trim();
     
@@ -340,8 +363,8 @@ async function guardarBono(event, modo_guardar = 'normal'){
         if(nombre == ''){
             errors.push('Nombre del bono');
         }
-        if(longitud_m == ''){
-            errors.push('Longitud del bono en metros');
+        if(cantidad == ''){
+            errors.push('Cantidad del bono en metros');
         }
         if(precio == ''){
             errors.push('Precio del bono');
@@ -365,8 +388,8 @@ async function guardarBono(event, modo_guardar = 'normal'){
             id_bono: id_bono || null, //ya que se añade un nuevo bono, entonces no hay id_bono
             nombre,
             descripcion,
-            longitud_m,
-            longitud_bonificada_m,
+            cantidad,
+            cantidad_bonificada,
             envio_gratis,
             precio,
         }
@@ -830,7 +853,7 @@ function pintBonoOne(objBonoOne, lugar_de_pintar = 'abajo'){//pintar solo un div
     
     let cl_da_comm = (objBonoOne.descripcion) ? '' : 'd-none';//si no hay título, lo oculto
     
-    const longitud_m_text = (objBonoOne.longitud_m) ? `${objBonoOne.longitud_m} m` : '--' ;
+    const cantidad_text = (objBonoOne.cantidad) ? `${objBonoOne.cantidad} m` : '--' ;
     const precio_text = (objBonoOne.precio) ? `${objBonoOne.precio} €` : '--' ;
 
     const d_bono = document.createElement('div');
@@ -843,7 +866,7 @@ function pintBonoOne(objBonoOne, lugar_de_pintar = 'abajo'){//pintar solo un div
             <div class="da_com ${cl_da_comm}">${escaparHTML(objBonoOne.descripcion) || '(sin descripcion)'}</div>
         </div>
         <div class="art_cols art_col3">
-            <div class="da_longitud_m">${longitud_m_text}</div>
+            <div class="da_cantidad">${cantidad_text}</div>
         </div>
         <div class="art_cols art_col4">
             <div class="da_precio">${precio_text}</div>
@@ -1475,10 +1498,10 @@ function pintBonoActiveSoloDatos(){
 
     const div_da_nombre = d_bono.querySelector('.da_nombre');
     const div_da_com = d_bono.querySelector('.da_com');
-    const div_da_longitud_m = d_bono.querySelector('.da_longitud_m');
+    const div_da_cantidad = d_bono.querySelector('.da_cantidad');
     const div_da_precio = d_bono.querySelector('.da_precio');
 
-    const longitud_m_text = (objBono.longitud_m) ? `${objBono.longitud_m} m` : '--' ;
+    const cantidad_text = (objBono.cantidad) ? `${objBono.cantidad} m` : '--' ;
     const precio_text = (objBono.precio) ? `${objBono.precio} €` : '--' ;
 
 
@@ -1486,9 +1509,9 @@ function pintBonoActiveSoloDatos(){
     div_da_nombre.textContent = objBono.nombre || '(nombre no asignado)';
     div_da_nombre.classList.remove('d-none');//muestro tenga o no el nombre
 
-    //longitud_m
-    div_da_longitud_m.textContent = longitud_m_text;
-    div_da_longitud_m.classList.remove('d-none');//muestro tenga o no el precio
+    //cantidad
+    div_da_cantidad.textContent = cantidad_text;
+    div_da_cantidad.classList.remove('d-none');//muestro tenga o no el precio
 
     //precio
     div_da_precio.textContent = precio_text;

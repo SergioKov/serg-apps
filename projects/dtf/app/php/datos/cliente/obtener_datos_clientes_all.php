@@ -51,6 +51,7 @@ $sql_init = "SELECT
                 c.nombre, 
                 c.telefono, 
                 c.codigo_cliente, 
+                c.direccion,
                 c.comentario, 
 
                 c.taquilla,
@@ -104,6 +105,7 @@ if($result->num_rows > 0){
             'nombre' => $row['nombre'],
             'telefono' => $row['telefono'],
             'codigo_cliente' => $row['codigo_cliente'],
+            'direccion' => $row['direccion'],
             'comentario' => $row['comentario'],
 
             'taquilla' => $row['taquilla'],

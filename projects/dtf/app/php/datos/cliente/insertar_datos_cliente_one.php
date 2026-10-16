@@ -115,6 +115,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $nombre = $datos['nombre'];
     $telefono = $datos['telefono'];
     $codigo_cliente = ($datos['codigo_cliente'] === '') ? null : $datos['codigo_cliente'];//si viene vacio => null
+    $direccion = $datos['direccion'];
     $comentario = $datos['comentario'];
     $taquilla = ($datos['taquilla'] === '') ? null : $datos['taquilla'];//si viene vacio => null
     $descuento = ($datos['descuento'] === '') ? null : $datos['descuento'];//si viene vacio => null
@@ -191,6 +192,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         telefono,
                         codigo_cliente,
                     
+                        direccion,
                         comentario,
                         taquilla,
                         descuento,
@@ -209,7 +211,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         
                         ?, ?,
                     
-                        ?, ?, ?,
+                        ?, ?, ?, ?,
 
                         ?, ?, ?,
                     
@@ -224,6 +226,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         telefono = VALUES(telefono),
                         codigo_cliente = VALUES(codigo_cliente),
 
+                        direccion = VALUES(direccion),
                         comentario = VALUES(comentario),
                         taquilla = VALUES(taquilla),
                         descuento = VALUES(descuento),
@@ -243,10 +246,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
     $nombre = str_replace(["\r\n", "\r"], "\n", $nombre);
+    $direccion = str_replace(["\r\n", "\r"], "\n", $direccion);
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "issssssiddd",
+        "isssssssiddd",
     
         $id_cliente_upsert,
     
@@ -256,6 +260,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $telefono,
         $codigo_cliente,
     
+        $direccion,
         $comentario,
         $taquilla,
         $descuento,

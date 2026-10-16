@@ -226,7 +226,6 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
         $nombre,
         $producto_search,
-    
         $descripcion,
     
         $precio_compra,

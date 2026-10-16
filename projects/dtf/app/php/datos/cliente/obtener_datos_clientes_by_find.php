@@ -77,15 +77,15 @@ switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
     default:
         //'c.cliente_search' -> campo optimizado para busquedas con indice fulltext 
-        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario', 'c.cliente_search'];
+        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.direccion', 'c.comentario', 'c.cliente_search'];
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario', 'c.cliente_search', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
+        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.direccion', 'c.comentario', 'c.cliente_search', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
         break;
     
     case '3'://Todos los campos de texto disponibles
-        $arr_campos = ['c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.comentario'];
+        $arr_campos = ['c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.direccion', 'c.comentario'];
         break;
 
     case '4'://Todos los campos de números disponibles
@@ -117,6 +117,7 @@ $sql_init = "SELECT
                 c.nombre, 
                 c.telefono, 
                 c.codigo_cliente, 
+                c.direccion, 
                 c.comentario, 
 
                 c.taquilla,
@@ -192,6 +193,7 @@ if($result->num_rows > 0){
             'nombre' => $row['nombre'],
             'telefono' => $row['telefono'],
             'codigo_cliente' => $row['codigo_cliente'],
+            'direccion' => $row['direccion'],
             'comentario' => $row['comentario'],
 
             'taquilla' => $row['taquilla'],

@@ -63,6 +63,7 @@ $sql = "SELECT
             c.nombre, 
             c.telefono, 
             c.codigo_cliente, 
+            c.direccion, 
             c.comentario, 
 
             c.taquilla,
@@ -99,6 +100,7 @@ if($row){
         'nombre' => $row['nombre'],
         'telefono' => $row['telefono'],
         'codigo_cliente' => $row['codigo_cliente'],
+        'direccion' => $row['direccion'],
         'comentario' => $row['comentario'],
 
         'taquilla' => $row['taquilla'],

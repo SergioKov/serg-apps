@@ -19,9 +19,12 @@ function buildProducto(producto_action = null){
     let precio_compra_text = '';
     let precio_venta_val = '';
     let precio_venta_text = '';
-        
+
+    //elemento de título en el top
+    const p_mensaje = document.createElement('p');
+    p_mensaje.className = 'mensaje';
+    
     //otras vars
-    let mensaje_html = '';
     let cl_id_producto = 'd-none';//oculto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
@@ -58,16 +61,26 @@ function buildProducto(producto_action = null){
 
     //si es ver o editar, muestro id
     if(['ver','editar'].includes(producto_action)){
-        mensaje_html = `
+        
+        p_mensaje.innerHTML = `
             <span class="sp_id">
                 <span>Id: <b class="c_green">${id_producto}</b></span>
             </span>
         `;
+
+        if(producto_action == 'ver'){
+            const wr_img_editar_en_ver = document.createElement('span');
+            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+            wr_img_editar_en_ver.innerHTML = `
+                <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
+            `;
+            p_mensaje.append(wr_img_editar_en_ver);
+        }
     }
 
     switch (producto_action) {
         case 'nuevo'://Nueva Producto
-            mensaje_html = `
+            p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un producto <b class="c_blue">NUEVO</b>.</span>
             `;
             // si antes fue seleccionada una lista, entonces reseteo id_producto
@@ -176,9 +189,9 @@ function buildProducto(producto_action = null){
         <div class="form_container">
             <form>
                 
-                <p class="mensaje" data-dic="">
-                    ${mensaje_html}
-                </p>
+                <!-- titulo -->
+                ${p_mensaje.outerHTML}
+
 
                 <!-- nombre -->
                 <div class="form_group wr_input_general">
@@ -199,6 +212,7 @@ function buildProducto(producto_action = null){
                     <label for="precio_compra">Precio compra</label>
                 </div>
 
+
                 <!-- precio_venta -->
                 <div class="form_group wr_input_general">
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#precio_venta')">
@@ -211,15 +225,27 @@ function buildProducto(producto_action = null){
 
                 <!-- descripcion -->
                 <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#descripcion')">
+                        <img src="images/x_white.png">
+                    </div>
                     <textarea id="descripcion" name="descripcion" rows="4" required="" placeholder=" ">${descripcion_val}</textarea>
                     <label class="lab_textarea" for="descripcion">Descripción</label>
                 </div>
+
 
                 ${ (['nuevo','editar'].includes(producto_action)) ? wr_btns_form.outerHTML : '' }
 
             </form>
         </div>     
     `;
+
+    //añado action onclick a wr_img_editar_en_ver
+    const element_wr_img_editar_en_ver = form_producto.querySelector('.wr_img_editar_en_ver');
+    if(element_wr_img_editar_en_ver){
+        element_wr_img_editar_en_ver.onclick = () => {
+            openModal('full','Editar Producto actual',null,'buildProducto',true,'editar');
+        }
+    }
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(producto_action)){ 

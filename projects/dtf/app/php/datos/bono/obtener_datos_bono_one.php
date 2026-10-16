@@ -63,8 +63,8 @@ $sql = "SELECT
             b.nombre, 
             b.descripcion, 
 
-            b.longitud_m,
-            b.longitud_bonificada_m,
+            b.cantidad,
+            b.cantidad_bonificada,
 
             b.envio_gratis,
             b.precio,
@@ -97,8 +97,8 @@ if($row){
         'nombre' => $row['nombre'],
         'descripcion' => $row['descripcion'],
 
-        'longitud_m' => $row['longitud_m'],
-        'longitud_bonificada_m' => $row['longitud_bonificada_m'],
+        'cantidad' => $row['cantidad'],
+        'cantidad_bonificada' => $row['cantidad_bonificada'],
         
         'envio_gratis' => $row['envio_gratis'],
         'precio' => $row['precio'],

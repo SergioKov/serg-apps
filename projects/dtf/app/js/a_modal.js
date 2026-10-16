@@ -204,6 +204,10 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+
+                //========================================//
+                //build...
+                //========================================//
                 case 'buildAlmacen':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
@@ -268,6 +272,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+                case 'buildTarifa':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildTarifa()');
+                    let tarifa_action = args;
+                    console.log('tarifa_action:', tarifa_action);
+                    buildTarifa(tarifa_action);
+                    break;
+
+
                 case 'buildTaquilla':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
@@ -284,9 +304,43 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+                case 'buildServicio':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildServicio()');
+                    let servicio_action = args;
+                    console.log('servicio_action:', servicio_action);
+                    buildServicio(servicio_action);
+                    break;                    
+
+
+                case 'buildPedido':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/login2_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildPedido()');
+                    let pedido_action = args;
+                    console.log('pedido_action:', pedido_action);
+                    buildPedido(pedido_action);
+                    break;                    
 
 
 
+                    
+                //========================================//
+                //buildBuscar...
+                //========================================//
                 case 'buildBuscarAlmacen':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
@@ -351,6 +405,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;
 
 
+                case 'buildBuscarTarifa':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarTarifa()');
+                    let tarifa_action2 = args;
+                    console.log('tarifa_action2:', tarifa_action2);
+                    buildBuscarTarifa();
+                    break;
+
+
                 case 'buildBuscarTaquilla':
                     eid_h4_text.innerHTML = `
                         <span class="dbtn_fx">
@@ -364,6 +434,38 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     let taquilla_action2 = args;
                     console.log('taquilla_action2:', taquilla_action2);
                     buildBuscarTaquilla();
+                    break;
+
+
+                case 'buildBuscarServicio':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarServicio()');
+                    let servicio_action2 = args;
+                    console.log('servicio_action2:', servicio_action2);
+                    buildBuscarServicio();
+                    break;
+
+
+                case 'buildBuscarPedido':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarPedido()');
+                    let pedido_action2 = args;
+                    console.log('pedido_action2:', pedido_action2);
+                    buildBuscarPedido();
                     break;
 
 
