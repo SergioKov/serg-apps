@@ -13,6 +13,7 @@ async function init() {
     await loadBonosAll();   
     await loadTarifasAll();   
     await loadTaquillasAll(); 
+    await loadPedidosAll(); 
     
     showBlockName(BlockNameActive);
 }
@@ -152,7 +153,7 @@ function hay_id(id, id_name, func_name = ''){
         showToast('info', text_aviso, 1000, 'center');
         return false;
     }
-    console.log(func_name + ' --- id_cliente: ', id_cliente);
+    console.log(func_name, ' --- id_name: ', id_name, ' --- id:', id);
 
     return true;  
 }
@@ -350,7 +351,7 @@ function normalize(str) {
 }
 
 
-function diaSemana(fechaStr) {
+function getDiaSemana(fechaStr) {
     // fechaStr viene en formato "aaaa-mm-dd"
     const fecha = new Date(fechaStr);
 

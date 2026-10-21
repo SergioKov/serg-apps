@@ -25,8 +25,8 @@ let objTaquillaDef = {
     nombre: "Nº1",
     codigo_taquilla: 1,
     codigo_apertura: 1234,
-    comentario: "es un taquilla fiable!...",
-    estado: 'ocupado',
+    comentario: "es un taquilla default fiable!...",
+    estado_taquilla: 'ocupado',
     created_at: "2026/09/29 16:20:05",
     updated_at: "2026/09/29 16:20:05",
 }    

@@ -323,28 +323,6 @@ function pintProductosOptionsEnSelect(selectElement, id_producto_selected = null
 }
 
 
-function pintContenedorEnvioGratis(contenedor, val){
-    
-    if(!contenedor){
-        return;
-    }
-
-    if(['0','1'].includes(val)){
-        if(val == '1'){
-            contenedor.classList.remove('marcado_no');
-            contenedor.classList.add('marcado_si');
-        }
-        else if(val == '0'){
-            contenedor.classList.remove('marcado_si');
-            contenedor.classList.add('marcado_no');
-        }
-    }else{
-        contenedor.classList.remove('marcado_si');
-        contenedor.classList.remove('marcado_no');
-    }
-}
-
-
 async function guardarTarifa(event, modo_guardar = 'normal'){
     //modo_guardar: 'normal' o 'fast' (para guardar rápido sin pasar por el formulario, 
     //solo con los datos actuales de objLista y arr_lista)
@@ -446,7 +424,7 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
                 objTarifa = await getDataTarifaFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objTarifa: ', objTarifa);
 
-                const itemTarifaUpdate = objDataTarifas.arr_data?.find(item => item.id_tarifa == id_tarifa);
+                const itemTarifaUpdate = objDataTarifas?.arr_data?.find(item => item.id_tarifa == id_tarifa);
                 if (itemTarifaUpdate) {//es update del tarifa existente
     
                     Object.assign(itemTarifaUpdate, objTarifa);

@@ -216,11 +216,10 @@ function buildTaquilla(taquilla_action = null){
                 </div>
 
 
-                <!-- estado -->
-                <div id="wr_estado" class="wr_sel_opt_estado ${objTaquilla?.estado || ''}">
+                <!-- estado_taquilla -->
+                <div id="wr_estado_taquilla" class="wr_sel_opt_estado ${objTaquilla?.estado_taquilla || ''}">
                     <h5>Estado:</h5>
-                    <select id="estado" class="sel_opt_find">
-                        <option value="">(no asignado)</option>
+                    <select id="estado_taquilla" class="sel_opt_find">
                         <option value="libre">Libre</option>
                         <option value="ocupado">Ocupado</option>
                     </select>
@@ -251,12 +250,12 @@ function buildTaquilla(taquilla_action = null){
         }
     }
 
-    //estado
-    const eid_estado = form_taquilla.querySelector('#estado');
-    const eid_wr_estado = form_taquilla.querySelector('#wr_estado');
-    eid_estado.value = objTaquilla?.estado || '';
-    eid_estado.onchange = async (e) => {
-        pintContenedorEstado(eid_wr_estado, eid_estado.value);
+    //estado_taquilla
+    const eid_estado_taquilla = form_taquilla.querySelector('#estado_taquilla');
+    const eid_wr_estado_taquilla = form_taquilla.querySelector('#wr_estado_taquilla');
+    eid_estado_taquilla.value = objTaquilla?.estado_taquilla || '';
+    eid_estado_taquilla.onchange = async (e) => {
+        pintContenedorEstado(eid_wr_estado_taquilla, eid_estado_taquilla.value);
     }
 
     //Reasigno el contenedor
@@ -272,27 +271,6 @@ function buildTaquilla(taquilla_action = null){
     eid_bl_modalFullInner.append(contenedor);
 
     console.log('fin func');
-}
-
-function pintContenedorEstado(contenedor, estado_val){
-    
-    if(!contenedor){
-        return;
-    }
-
-    if(['libre','ocupado'].includes(estado_val)){
-        if(estado_val == 'libre'){
-            contenedor.classList.remove('ocupado');
-            contenedor.classList.add('libre');
-        }
-        else if(estado_val == 'ocupado'){
-            contenedor.classList.remove('libre');
-            contenedor.classList.add('ocupado');
-        }
-    }else{
-        contenedor.classList.remove('libre');
-        contenedor.classList.remove('ocupado');
-    }
 }
 
 
@@ -321,7 +299,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
         let comentario = form_taquilla?.querySelector('#comentario').value.trim();
         let codigo_taquilla = form_taquilla?.querySelector('#codigo_taquilla').value.trim();
         let codigo_apertura = form_taquilla?.querySelector('#codigo_apertura').value.trim();
-        let estado = form_taquilla?.querySelector('#estado').value.trim();
+        let estado_taquilla = form_taquilla?.querySelector('#estado_taquilla').value.trim();
     
         let errors = [];
 
@@ -353,7 +331,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
             comentario,
             codigo_taquilla,
             codigo_apertura,
-            estado,
+            estado_taquilla,
         }
         console.log('objTaquillaToSend: ',objTaquillaToSend);
     
@@ -389,7 +367,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
                 objTaquilla = await getDataTaquillaFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objTaquilla: ', objTaquilla);
 
-                const itemTaquillaUpdate = objDataTaquillas.arr_data?.find(item => item.id_taquilla == id_taquilla);
+                const itemTaquillaUpdate = objDataTaquillas?.arr_data?.find(item => item.id_taquilla == id_taquilla);
                 if (itemTaquillaUpdate) {//es update del taquilla existente
     
                     Object.assign(itemTaquillaUpdate, objTaquilla);
@@ -816,7 +794,7 @@ function pintTaquillaOne(objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar sol
     let cl_da_comm = (objTaquillaOne.comentario) ? '' : 'd-none';//si no hay título, lo oculto 
 
     const d_taquilla = document.createElement('div');
-    d_taquilla.className = `d_taquilla d_art ${objTaquillaOne.estado || ''}`;
+    d_taquilla.className = `d_taquilla d_art ${objTaquillaOne.estado_taquilla || ''}`;
     d_taquilla.dataset.id_taquilla = objTaquillaOne.id_taquilla;
     d_taquilla.dataset.tipo_art = 'taquilla';
     d_taquilla.innerHTML = `
@@ -1451,12 +1429,12 @@ function pintTaquillaActiveSoloDatos(){
         return;
     }
 
-    if(objTaquilla.estado != ''){
-        if(objTaquilla.estado === 'libre'){
+    if(objTaquilla.estado_taquilla != ''){
+        if(objTaquilla.estado_taquilla === 'libre'){
             d_taquilla.classList.remove('ocupado');
             d_taquilla.classList.add('libre');
         } 
-        else if(objTaquilla.estado === 'ocupado'){
+        else if(objTaquilla.estado_taquilla === 'ocupado'){
             d_taquilla.classList.remove('libre');
             d_taquilla.classList.add('ocupado');
         }

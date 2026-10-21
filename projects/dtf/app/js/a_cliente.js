@@ -225,7 +225,7 @@ function buildCliente(cliente_action = null){
                     >
                     <label for="telefono">Teléfono (obligatorio)</label>
                 </div>
-
+                
 
                 <!-- codigo_cliente -->
                 <div class="form_group wr_input_general">
@@ -234,6 +234,16 @@ function buildCliente(cliente_action = null){
                     </div>
                     <input id="codigo_cliente" type="text" name="codigo_cliente" required="" placeholder=" " value="${codigo_cliente_val}">
                     <label for="codigo_cliente">Código (4 últ. números)</label>
+                </div>
+
+
+                <!-- direccion -->
+                <div class="form_group">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#direccion')">
+                        <img src="images/x_white.png">
+                    </div>            
+                    <textarea id="direccion" name="direccion" class="min_2_rows" rows="1" required="" placeholder=" ">${direccion_val}</textarea>
+                    <label class="lab_textarea" for="direccion">Dirección</label>
                 </div>
 
 
@@ -284,16 +294,6 @@ function buildCliente(cliente_action = null){
                     </div>
                     <input id="saldo" type="text" name="saldo" required="" placeholder=" " value="${saldo_val}">
                     <label for="saldo">Saldo</label>
-                </div>
-
-
-                <!-- direccion -->
-                <div class="form_group">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#direccion')">
-                        <img src="images/x_white.png">
-                    </div>            
-                    <textarea id="direccion" name="direccion" class="min_2_rows" rows="1" required="" placeholder=" ">${direccion_val}</textarea>
-                    <label class="lab_textarea" for="direccion">Dirección</label>
                 </div>
 
 
@@ -455,7 +455,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
                 objCliente = await getDataClienteFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objCliente: ', objCliente);
 
-                const itemClienteUpdate = objDataClientes.arr_data?.find(item => item.id_cliente == id_cliente);
+                const itemClienteUpdate = objDataClientes?.arr_data?.find(item => item.id_cliente == id_cliente);
                 if (itemClienteUpdate) {//es update del cliente existente
     
                     Object.assign(itemClienteUpdate, objCliente);
@@ -481,6 +481,21 @@ async function guardarCliente(event, modo_guardar = 'normal'){
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintClienteOne(objCliente, 'arriba');//div de cliente se pinta al inicio (arriba)
                     loadClientesAll();
+                }
+
+                //actualizo divs de pedidos si tienen los datos del cliente modificado 
+                const arr_itemsPedidosToUpdate = objDataPedidos?.arr_data?.filter(item => item.id_cliente == id_cliente);//devuelve muchos si hay
+                if (arr_itemsPedidosToUpdate.length > 0) {//es update del cliente existente
+    
+                    eid_contenedor_pedidos.querySelectorAll(`.d_pedido`).forEach(divPedido  => {
+                        const idCliente = divPedido.dataset.id_cliente;
+
+                        if (idCliente == id_cliente) {
+                            divPedido.querySelector('.da_nombre').textContent = objCliente.nombre || '(nombre no asignado)';
+                            divPedido.querySelector('.da_tel').textContent = objCliente.telefono;//telefono es obligatorio               
+                        }                   
+                    
+                    });
                 }
 
                 closeModal(null,true);

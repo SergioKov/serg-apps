@@ -33,7 +33,8 @@ function buildBono(bono_action = null){
     
     //otras vars
     let cl_id_bono = 'd-none';//oculto
-    let cl_envio_gratis = (objBono?.envio_gratis) ? 'marcado_si' : 'marcado_no';//oculto
+    //let cl_envio_gratis = (objBono?.envio_gratis) ? 'marcado_si' : 'marcado_no';//oculto
+    let cl_d_envio_gratis = '';
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
     
@@ -114,6 +115,7 @@ function buildBono(bono_action = null){
             //console.log('(editar) --- arr_lista_bucle: ', arr_lista_bucle);
             cl_id_bono = '';//muestro
             cl_d_limpiar_input = 'd-none';//oculto porque es 'ver'
+            cl_d_envio_gratis = 'solo_ver';//permito solo ver y no manejar el click
             break;
 
         case 'editar'://Editar Bono - FORMULARIO
@@ -238,12 +240,13 @@ function buildBono(bono_action = null){
 
 
                 <!-- envio_gratis -->
-                <div id="wr_envio_gratis" class="wr_sel_opt_estado ${cl_envio_gratis}">
-                    <h5>Envío gratis:</h5>
-                    <select id="envio_gratis" class="sel_opt_find">
-                        <option value="0">No</option>
-                        <option value="1">Sí</option>
-                    </select>
+                <div class="form_group wr_input_general">
+                    <label class="lab_varios_btns">Envío gratis:</label>
+                    <div id="d_envio_gratis" class="wr_varios_btns ${cl_d_envio_gratis}">
+                        <div class="dbtn dbtn_no" data-value="0">No</div>
+                        <div class="dbtn dbtn_si" data-value="1">Sí</div>
+                    </div>
+                    <input id="envio_gratis" type="hidden" name="envio_gratis" value="${envio_gratis_val}"> 
                 </div>
 
 
@@ -281,13 +284,36 @@ function buildBono(bono_action = null){
         }
     }
 
+    let anterior_val = objBono.envio_gratis;//por defecto
+
     //envio_gratis
-    const eid_envio_gratis = form_bono.querySelector('#envio_gratis');
-    const eid_wr_envio_gratis = form_bono.querySelector('#wr_envio_gratis');
-    eid_envio_gratis.value = objBono?.envio_gratis || 0;
-    eid_envio_gratis.onchange = async (e) => {
-        pintContenedorEnvioGratis(eid_wr_envio_gratis, eid_envio_gratis.value);
+    const eid_d_envio_gratis = form_bono.querySelector('#d_envio_gratis');
+    eid_d_envio_gratis.onclick = (e) => {
+        console.log('e.currentTarget: ', e.currentTarget);
+        console.log('e.target: ', e.target);
+
+        const contenedor_dbtns = e.currentTarget;
+        const btn = e.target;
+
+        if(contenedor_dbtns.classList.contains('solo_ver')){
+            return;//no dejo cambiar el valor si es form_ver
+        }
+
+        const envio_gratis_val = Number(btn.dataset.value);
+
+        if(envio_gratis_val == anterior_val){
+            console.log('es el click sobre el mismo valor. no hago nada');
+            return;
+        }
+
+        meterEnvioGratis(eid_d_envio_gratis, envio_gratis_val);
+        pintEnvioGratis(eid_d_envio_gratis, envio_gratis_val);
+
+        anterior_val = envio_gratis_val;
     }
+
+    pintEnvioGratis(eid_d_envio_gratis, objBono.envio_gratis);//para cambiar envio_gratis al cargar el form
+
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(bono_action)){ 
@@ -299,30 +325,52 @@ function buildBono(bono_action = null){
         }
     }
 
+    //añado al MODAL
     eid_bl_modalFullInner.append(contenedor);
 
     console.log('fin func');
 }
 
-function pintContenedorEnvioGratis(contenedor, val){
+
+function pintEnvioGratis(contenedor, envio_gratis_val){
     
     if(!contenedor){
         return;
     }
+    
+    const dbtn_si = contenedor.querySelector('.dbtn_si');
+    const dbtn_no = contenedor.querySelector('.dbtn_no');
 
-    if(['0','1'].includes(val)){
-        if(val == '1'){
-            contenedor.classList.remove('marcado_no');
-            contenedor.classList.add('marcado_si');
-        }
-        else if(val == '0'){
-            contenedor.classList.remove('marcado_si');
-            contenedor.classList.add('marcado_no');
-        }
-    }else{
-        contenedor.classList.remove('marcado_si');
-        contenedor.classList.remove('marcado_no');
+    if(envio_gratis_val === 1){
+        dbtn_si.classList.add('active');
+        dbtn_no.classList.remove('active');
     }
+    else if(envio_gratis_val === 0){
+        dbtn_si.classList.remove('active');
+        dbtn_no.classList.add('active');
+    }
+}
+
+function meterEnvioGratis(contenedor, valor){
+    console.log('=== function meterEnvioGratis() ===');
+    console.log('contenedor: ', contenedor);
+    console.log('valor: ', valor);
+
+    const dbtnAll = contenedor.querySelectorAll('.dbtn');
+    dbtnAll.forEach(dbtn => {
+        if(dbtn.dataset.value == valor){
+            dbtn.classList.add('active');
+        } else {
+            dbtn.classList.remove('active');
+        }
+    });
+
+    if(contenedor.id === 'd_envio_gratis'){
+        const input_envio_gratis = document.querySelector('#envio_gratis');
+        if(input_envio_gratis){
+            input_envio_gratis.value = valor;
+        }
+    }    
 }
 
 
@@ -427,7 +475,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
                 objBono = await getDataBonoFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objBono: ', objBono);
 
-                const itemBonoUpdate = objDataBonos.arr_data?.find(item => item.id_bono == id_bono);
+                const itemBonoUpdate = objDataBonos?.arr_data?.find(item => item.id_bono == id_bono);
                 if (itemBonoUpdate) {//es update del bono existente
     
                     Object.assign(itemBonoUpdate, objBono);

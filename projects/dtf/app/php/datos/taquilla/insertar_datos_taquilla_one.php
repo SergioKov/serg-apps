@@ -116,7 +116,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $comentario = $datos['comentario'];
     $codigo_taquilla = ($datos['codigo_taquilla'] === '') ? null : $datos['codigo_taquilla'];//si viene vacio => null
     $codigo_apertura = ($datos['codigo_apertura'] === '') ? null : $datos['codigo_apertura'];//si viene vacio => null
-    $estado = ($datos['estado'] === '') ? null : $datos['estado'];//si viene vacio => null
+    $estado_taquilla = ($datos['estado_taquilla'] === '') ? null : $datos['estado_taquilla'];//si viene vacio => null
     
     //variables de busqueda
     $taquilla_search = normalizeSearchText($nombre ?? '');
@@ -184,7 +184,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         codigo_taquilla,
                         codigo_apertura,
-                        estado,
+                        estado_taquilla,
                     
                         created_at
                     )        
@@ -207,7 +207,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         codigo_taquilla = VALUES(codigo_taquilla),
                         codigo_apertura = VALUES(codigo_apertura),
-                        estado = VALUES(estado),
+                        estado_taquilla = VALUES(estado_taquilla),
                     
                         updated_at = NOW()
     ";
@@ -234,7 +234,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
         $codigo_taquilla,
         $codigo_apertura,
-        $estado
+        $estado_taquilla
     );
     $result2 = $stmt->execute();
     //===============================================================//

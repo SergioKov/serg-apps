@@ -145,6 +145,12 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },
+    objFindParamsClienteSm: {
+        words_input: "demko",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
     objFindParamsProducto: {
         words_input: "dtf",
         modo: 3,
@@ -208,6 +214,7 @@ try {
 let {
     objFindParamsAlmacen,
     objFindParamsCliente,
+    objFindParamsClienteSm,//buscar cliente en crear pedido
     objFindParamsProducto,
     objFindParamsServicio,
     objFindParamsBono,

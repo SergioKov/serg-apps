@@ -53,7 +53,7 @@ $sql_init = "SELECT
 
                 t.codigo_taquilla,
                 t.codigo_apertura,
-                t.estado,
+                t.estado_taquilla,
 
                 t.created_at, 
                 t.updated_at
@@ -61,7 +61,7 @@ $sql_init = "SELECT
             FROM taquillas t
             
             WHERE t.is_deleted = 0
-            ORDER BY t.id_taquilla DESC, t.nombre, t.comentario
+            ORDER BY t.id_taquilla, t.nombre, t.comentario
 ";
 $stmt = $conn->prepare($sql_init);
 //$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_taquilla);
@@ -102,7 +102,7 @@ if($result->num_rows > 0){
             
             'codigo_taquilla' => $row['codigo_taquilla'],
             'codigo_apertura' => $row['codigo_apertura'],
-            'estado' => $row['estado'],
+            'estado_taquilla' => $row['estado_taquilla'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],

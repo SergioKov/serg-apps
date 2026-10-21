@@ -65,7 +65,7 @@ $sql = "SELECT
 
             t.codigo_taquilla,
             t.codigo_apertura,
-            t.estado,
+            t.estado_taquilla,
 
             t.created_at, 
             t.updated_at
@@ -97,7 +97,7 @@ if($row){
 
         'codigo_taquilla' => $row['codigo_taquilla'],
         'codigo_apertura' => $row['codigo_apertura'],
-        'estado' => $row['estado'],
+        'estado_taquilla' => $row['estado_taquilla'],
 
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],

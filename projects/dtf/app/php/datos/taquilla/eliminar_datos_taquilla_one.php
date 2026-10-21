@@ -79,7 +79,7 @@ $sql_init = "SELECT
                 comentario, 
                 codigo_taquilla,
                 codigo_apertura,
-                estado,
+                estado_taquilla,
                 created_at, 
                 updated_at
                 
@@ -107,7 +107,7 @@ if($result->num_rows > 0){
         'comentario' => $row['comentario'],
         'codigo_taquilla' => $row['codigo_taquilla'],
         'codigo_apertura' => $row['codigo_apertura'],
-        'estado' => $row['estado'],
+        'estado_taquilla' => $row['estado_taquilla'],
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
         'valorData' => 'hay_datos'

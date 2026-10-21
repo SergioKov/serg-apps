@@ -209,12 +209,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                 //build...
                 //========================================//
                 case 'buildAlmacen':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildAlmacen()');
@@ -225,12 +220,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildCliente':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildCliente()');
@@ -241,12 +231,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildProducto':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildProducto()');
@@ -257,12 +242,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildBono':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildBono()');
@@ -273,12 +253,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildTarifa':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildTarifa()');
@@ -289,12 +264,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildTaquilla':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildTaquilla()');
@@ -305,12 +275,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildServicio':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildServicio()');
@@ -321,12 +286,7 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
 
 
                 case 'buildPedido':
-                    eid_h4_text.innerHTML = `
-                        <span class="dbtn_fx">
-                            <img class="btn_img" src="./images/login2_white.svg">
-                            <span>${headerTitle}</span> 
-                        </span>
-                    `;
+                    eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
                     console.log('aki llamar buildPedido()');

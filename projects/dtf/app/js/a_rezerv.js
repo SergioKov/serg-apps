@@ -4418,7 +4418,7 @@ async function findWordsLista(){
             let fecha_val = '';
 
             if(fecha_str){
-                diaSemana_val = diaSemana(fecha_str);
+                diaSemana_val = getDiaSemana(fecha_str);
                 fecha_val = convertirFecha(fecha_str, 'ver', '/');
             }
 
@@ -5185,7 +5185,7 @@ function addToLista(new_lista = null){
                         <img src="./images/guardar.png">
                     </span>
                 </span>
-                <span class="fecha_lista">${diaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}</span>
+                <span class="fecha_lista">${getDiaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}</span>
                 <span class="title_lista">${objLista.title}</span>
                 <span class="grupo_lista">${objLista.grupo_nombre}</span>
             </div>
@@ -6250,7 +6250,7 @@ function pintListaActiveSoloDatos(){
         
     //     //Actualizo datos de tr_lista
     //     tr_lista.querySelector('.td_titulo').textContent = objLista.title || '';
-    //     tr_lista.querySelector('.td_dia_semana').textContent = diaSemana(objLista.fecha) || '';
+    //     tr_lista.querySelector('.td_dia_semana').textContent = getDiaSemana(objLista.fecha) || '';
     //     tr_lista.querySelector('.td_fecha').textContent = objLista.fecha_ver || '';
     //     tr_lista.querySelector('.td_lista').textContent = (objLista.arr_lista.length > 0) ? `Sí (${objLista.arr_lista.length})` :  '';
     // }
@@ -6259,7 +6259,7 @@ function pintListaActiveSoloDatos(){
         //Actualizo datos de p_lista
         p_lista.querySelector('.cl_title').textContent = objLista.title || '';
         p_lista.querySelector('.cl_grupo_nombre ').textContent = `${objLista.grupo_nombre}` || '';
-        p_lista.querySelector('.cl_dia_semana').textContent = diaSemana(objLista.fecha) || '';
+        p_lista.querySelector('.cl_dia_semana').textContent = getDiaSemana(objLista.fecha) || '';
         p_lista.querySelector('.cl_fecha').textContent = objLista.fecha_ver || '';
         p_lista.querySelector('.cl_notes').textContent = objLista.notes || '';
 
@@ -6286,7 +6286,7 @@ function pintListaActiveSoloDatos(){
         const grupo_lista = btn_add_lista.querySelector('.grupo_lista');
 
         if(fecha_lista && title_lista && grupo_lista){
-            fecha_lista.innerHTML = `${diaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}`;
+            fecha_lista.innerHTML = `${getDiaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}`;
             title_lista.textContent = objLista.title || '';
             grupo_lista.textContent = `${objLista.grupo_nombre}` || '';
         }
@@ -6384,10 +6384,10 @@ function pintListaActiveSoloDatos(){
         //lista_vista_lista_content.append(d_fecha);
         const fecha_html = `
             <span class="wr_dia_y_fecha">
-                <span class="cl_dia_semana cl_title_note">${diaSemana(objLista.fecha)}</span>
+                <span class="cl_dia_semana cl_title_note">${getDiaSemana(objLista.fecha)}</span>
                 <span class="cl_fecha cl_title_note">${fecha_text_red}</span>
             </span>`;
-        // content_fecha = diaSemana(objLista.fecha) + ' ' + fecha_text_red;
+        // content_fecha = getDiaSemana(objLista.fecha) + ' ' + fecha_text_red;
         content_fecha = fecha_html;
     }
 
@@ -8178,7 +8178,7 @@ async function hideShowDiv(id_div){
                 <span>Añadir a la Lista ACTUAL: </span>
                 <b class="n_lista">${objLista.id_lista}</b>
             </span>
-            <span class="fecha_lista">${diaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}</span>
+            <span class="fecha_lista">${getDiaSemana(objLista.fecha)} &nbsp; ${objLista.fecha_ver}</span>
             <span class="title_lista">${objLista.title}</span>
             <span class="grupo_lista">${objLista.grupo_nombre}</span>
             <span class="wr_canciones">

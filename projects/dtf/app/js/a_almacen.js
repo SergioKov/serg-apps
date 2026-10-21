@@ -324,7 +324,7 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                 objAlmacen = await getDataAlmacenFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objAlmacen: ', objAlmacen);
 
-                const itemAlmacenUpdate = objDataAlmacenes.arr_data?.find(item => item.id_almacen == id_almacen);
+                const itemAlmacenUpdate = objDataAlmacenes?.arr_data?.find(item => item.id_almacen == id_almacen);
                 if (itemAlmacenUpdate) {//es update del cliente existente
                     
                     Object.assign(itemAlmacenUpdate, objAlmacen);

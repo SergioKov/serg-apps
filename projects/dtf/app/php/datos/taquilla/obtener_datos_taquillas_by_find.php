@@ -81,7 +81,7 @@ switch ($buscar_en) {
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['t.id_taquilla', 't.nombre', 't.comentario', 't.taquilla_search', 't.codigo_taquilla', 't.codigo_apertura', 't.estado'];
+        $arr_campos = ['t.id_taquilla', 't.nombre', 't.comentario', 't.taquilla_search', 't.codigo_taquilla', 't.codigo_apertura', 't.estado_taquilla'];
         break;
     
     case '3'://Todos los campos de texto disponibles
@@ -119,7 +119,7 @@ $sql_init = "SELECT
 
                 t.codigo_taquilla,
                 t.codigo_apertura,
-                t.estado,
+                t.estado_taquilla,
 
                 t.created_at, 
                 t.updated_at
@@ -190,7 +190,7 @@ if($result->num_rows > 0){
 
             'codigo_taquilla' => $row['codigo_taquilla'],
             'codigo_apertura' => $row['codigo_apertura'],
-            'estado' => $row['estado'],
+            'estado_taquilla' => $row['estado_taquilla'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],

@@ -353,7 +353,7 @@ async function guardarProducto(event, modo_guardar = 'normal'){
                 objProducto = await getDataProductoFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objProducto: ', objProducto);
 
-                const itemProductoUpdate = objDataProductos.arr_data?.find(item => item.id_producto == id_producto);
+                const itemProductoUpdate = objDataProductos?.arr_data?.find(item => item.id_producto == id_producto);
                 if (itemProductoUpdate) {//es update del producto existente
     
                     Object.assign(itemProductoUpdate, objProducto);

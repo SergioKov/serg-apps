@@ -332,7 +332,7 @@ async function guardarServicio(event, modo_guardar = 'normal'){
                 objServicio = await getDataServicioFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objServicio: ', objServicio);
 
-                const itemServicioUpdate = objDataServicios.arr_data?.find(item => item.id_servicio == id_servicio);
+                const itemServicioUpdate = objDataServicios?.arr_data?.find(item => item.id_servicio == id_servicio);
                 if (itemServicioUpdate) {//es update del servicio existente
     
                     Object.assign(itemServicioUpdate, objServicio);

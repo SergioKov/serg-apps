@@ -56,7 +56,7 @@
 
                 </div><!--/#bl_buscar_taquillas -->
 
-                <div id="contenedor_taquillas" class="wr_d_taquillas wr_d_arts">
+                <div id="contenedor_taquillas" class="wr_d_taquillas wr_d_arts grid_container">
 
                     <div class="d_taquilla d_art" data-tipo_art="taquilla" data-id_taquilla="5">
                         <div class="datos_taquilla datos_art">

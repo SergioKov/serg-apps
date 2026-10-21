@@ -96,7 +96,7 @@
 /* width */
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar, 
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar, 
-.main_block::-webkit-scrollbar 
+.m---ain_block::-webkit-scrollbar 
 {
     width: 10px !important;
 }
@@ -106,7 +106,7 @@
 /* Track */
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar-track, 
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar-track, 
-.main_block::-webkit-scrollbar-track 
+.m---ain_block::-webkit-scrollbar-track 
 {
     /* background: #d6e8f6; */
     background: #ddd;
@@ -117,7 +117,7 @@
 /* Handle */
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar-thumb, 
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar-thumb, 
-.main_block::-webkit-scrollbar-thumb 
+.m---ain_block::-webkit-scrollbar-thumb 
 {
     /* background: #2b88d2;
     cursor: pointer;
@@ -134,7 +134,7 @@
 
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar-thumb,
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar-thumb,
-.main_block::-webkit-scrollbar-thumb
+.m---ain_block::-webkit-scrollbar-thumb
 {
     /* background: red; */
     /* background: #820101; */
@@ -148,7 +148,7 @@
 /* Handle on hover */
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar-thumb:hover,
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar-thumb:hover,
-.main_block::-webkit-scrollbar-thumb:hover
+.m---ain_block::-webkit-scrollbar-thumb:hover
 {
     /* background: pink;  */
     background: #444; 
@@ -157,7 +157,7 @@
 
 .scrollbar_menu_over.d_contenedor::-webkit-scrollbar-thumb:hover, 
 .scrollbar_drag_over.d_contenedor::-webkit-scrollbar-thumb:hover, 
-.main_block::-webkit-scrollbar-thumb:hover 
+.m---ain_block::-webkit-scrollbar-thumb:hover 
 {
     /* background: #981010; */
     background: #333;
