@@ -48,6 +48,8 @@ include($niveles_para_subir . 'includes/connect_db.php');
 //Consula todos los bonos no eliminados 
 $sql_init = "SELECT 
                 b.id_bono, 
+                b.id_producto,
+
                 b.nombre, 
                 b.descripcion, 
 
@@ -99,6 +101,8 @@ if($result->num_rows > 0){
             'success' => true,
 
             'id_bono' => $row['id_bono'],
+            'id_producto' => $row['id_producto'],
+            
             'nombre' => $row['nombre'],
             'descripcion' => $row['descripcion'],
 

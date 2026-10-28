@@ -19,19 +19,26 @@ document.addEventListener('click', (e) => {
     // Cerrar modal al hacer clic fuera del contenido de modal
     // el elemento clickeado es eid_myModal o eid_myModalContent y no el contenido -> cerrar modal
     if (e.target === eid_myModal || e.target === eid_myModalContent) {
-        closeModal(null, true);
+        closeModal(null, true);//click_fuera_o_x
     }
 
     const menuShown = document.querySelector('.tres_puntos_menu.shown');
-
     if (menuShown && !menuShown.contains(e.target)) {
         menuShown.classList.remove('shown');
     }
-    
-    //click fuera del contenido del modal
-    if(e.target == eid_myModal || e.target == eid_myModalContent){
-        closeModal(null,true);//click_fuera_o_x
+
+    // Cerrar menú de metros al hacer clic fuera
+    const menu_btns_menos_mas_abierto = document.querySelector('.wr_btns_menos_mas');
+    // Si el clic no está dentro del menú ni en la cantidad
+    if (
+        menu_btns_menos_mas_abierto && //si hay menu_btns_menos_mas_abierto
+        !menu_btns_menos_mas_abierto.contains(e.target) && //si menu_btns_menos_mas_abierto no contiene el elemento clicked 
+        !e.target.closest('.wr_cantidad_item') // si el elemento clicked no está en el contenedor del producto 
+        //!e.target.closest('.div_item[data-tipo_concepto="producto"] .wr_cantidad_item') // si el elemento clicked no está en el contenedor del producto 
+    ) {
+        menu_btns_menos_mas_abierto.remove();//lo quito
     }
+
 
 });
 

@@ -237,6 +237,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $estado_taquilla
     );
     $result2 = $stmt->execute();
+    $id_taquilla_insertado = $conn->insert_id;//importante! si se inserta tendrá id de insert, lo guardo en esta variable ya que con otras consultas (si hay) $conn->insert_id se modifica y no es el valor correcto para mi!!!
     //===============================================================//
     // end - UPSERT
     //===============================================================//
@@ -253,7 +254,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }else{//es insert
             $action_val = 'is_insert';
             $action_tipo = 'is_insert_taquilla';
-            $id_taquilla_val = $conn->insert_id;//es id insertado del taquilla nuevo de esta $conn
+            $id_taquilla_val = $id_taquilla_insertado;//es id insertado del taquilla nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 

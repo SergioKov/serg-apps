@@ -8342,49 +8342,6 @@ function scrollToElement(contenedor, elemento) {
 
 
 
-/**
- * Hace que un elemento se muestre dentro de su contenedor sin mover el resto de la página
- * @param {HTMLElement} container - Contenedor con overflow scroll/auto
- * @param {HTMLElement} element - Elemento a mostrar
- * @param {boolean} smooth - Si true hace scroll suave
- * @param {string} block - 'top', 'center' hace scroll al top de contenedor o el centro verticalmente
- */
-function scrollIntoViewInContainer(container, element, smooth = true, block = 'top') {
-    if (!element || !container) return;
-
-    // Posición del elemento relativa al contenedor
-    const elementTop = element.offsetTop - container.offsetTop;
-    const elementHeight = element.offsetHeight;
-    const containerHeight = container.clientHeight;
-
-    let targetScroll;
-    let margin_top = 0;
-
-    if (block === 'top') {
-        // Scroll para alinear el elemento con la parte superior del contenedor
-        targetScroll = elementTop + margin_top;
-    } else if (block === 'center') {
-        // Scroll para centrar el elemento en el contenedor
-        targetScroll = elementTop - (containerHeight / 2) + (elementHeight / 2) + margin_top;
-    } else {
-        // Por defecto usamos 'top'
-        targetScroll = elementTop + margin_top;
-    }
-
-    // Evitar scroll negativo
-    if (targetScroll < 0) targetScroll = 0 + margin_top;
-
-    // Evitar pasar del máximo scroll
-    const maxScroll = container.scrollHeight - containerHeight;
-    if (targetScroll > maxScroll) targetScroll = maxScroll;
-
-    // Aplicar scroll
-    if (smooth && 'scrollTo' in container) {
-        container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-    } else {
-        container.scrollTop = targetScroll;
-    }
-}
 
 
 

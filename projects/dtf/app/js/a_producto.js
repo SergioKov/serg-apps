@@ -449,15 +449,7 @@ async function insertarProductoDatos(objProducto) {
             const data = JSON.parse(text);
             console.log('data:', data);
     
-            if (data.success) {
-                console.log('success is true');
-
-                return data;    
-                
-            } else {
-                console.log('success is false');
-                return 'no_hay_datos';              
-            }
+            return data;
 
         } catch (error) {
             

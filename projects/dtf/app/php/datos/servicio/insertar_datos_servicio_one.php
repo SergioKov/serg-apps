@@ -228,6 +228,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $precio
     );
     $result2 = $stmt->execute();
+    $id_servicio_insertado = $conn->insert_id;//importante! si se inserta tendrá id de insert, lo guardo en esta variable ya que con otras consultas (si hay) $conn->insert_id se modifica y no es el valor correcto para mi!!!
     //===============================================================//
     // end - UPSERT
     //===============================================================//
@@ -244,7 +245,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }else{//es insert
             $action_val = 'is_insert';
             $action_tipo = 'is_insert_servicio';
-            $id_servicio_val = $conn->insert_id;//es id insertado del servicio nuevo de esta $conn
+            $id_servicio_val = $id_servicio_insertado;//es id insertado del servicio nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 

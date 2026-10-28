@@ -61,14 +61,21 @@ function buildTaquilla(taquilla_action = null){
             </span>
         `;
 
+        const wr_img_editar_en_ver = document.createElement('span');
+        wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
+        wr_img_editar_en_ver.dataset.action = taquilla_action;
+
         if(taquilla_action == 'ver'){
-            const wr_img_editar_en_ver = document.createElement('span');
-            wr_img_editar_en_ver.className = 'wr_img_editar_en_ver';
             wr_img_editar_en_ver.innerHTML = `
                 <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
             `;
-            p_mensaje.append(wr_img_editar_en_ver);
+        } else if (taquilla_action == 'editar'){
+            wr_img_editar_en_ver.innerHTML = `
+            <img class="img_acts img_eliminar" src="./images/img_eliminar_white_24x24.png">
+            `;
         }
+
+        p_mensaje.append(wr_img_editar_en_ver);
     }
 
     switch (taquilla_action) {
@@ -218,7 +225,7 @@ function buildTaquilla(taquilla_action = null){
 
                 <!-- estado_taquilla -->
                 <div id="wr_estado_taquilla" class="wr_sel_opt_estado ${objTaquilla?.estado_taquilla || ''}">
-                    <h5>Estado:</h5>
+                    <h5>Estado de taquilla:</h5>
                     <select id="estado_taquilla" class="sel_opt_find">
                         <option value="libre">Libre</option>
                         <option value="ocupado">Ocupado</option>
@@ -245,8 +252,13 @@ function buildTaquilla(taquilla_action = null){
     //añado action onclick a wr_img_editar_en_ver
     const element_wr_img_editar_en_ver = form_taquilla.querySelector('.wr_img_editar_en_ver');
     if(element_wr_img_editar_en_ver){
-        element_wr_img_editar_en_ver.onclick = () => {
-            openModal('full','Editar Taquilla actual',null,'buildTaquilla',true,'editar');
+        element_wr_img_editar_en_ver.onclick = (e) => {
+            if(e.currentTarget.dataset.action == 'ver'){
+                openModal('full','Editar Taquilla actual',null,'buildTaquilla',true,'editar');//llamo editar
+            }
+            if(e.currentTarget.dataset.action == 'editar') {
+                openModal('full','Eliminar Taquilla actual',null,'buildTaquilla',true,'eliminar');//llamo eliminar
+            }
         }
     }
 
@@ -463,15 +475,7 @@ async function insertarTaquillaDatos(objTaquilla) {
             const data = JSON.parse(text);
             console.log('data:', data);
     
-            if (data.success) {
-                console.log('success is true');
-
-                return data;    
-                
-            } else {
-                console.log('success is false');
-                return 'no_hay_datos';              
-            }
+            return data;
 
         } catch (error) {
             
@@ -798,10 +802,6 @@ function pintTaquillaOne(objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar sol
     d_taquilla.dataset.id_taquilla = objTaquillaOne.id_taquilla;
     d_taquilla.dataset.tipo_art = 'taquilla';
     d_taquilla.innerHTML = `
-        <div class="d_vacio">
-            <div>&nbsp;</div>
-        </div>
-
         <div class="datos_taquilla datos_art">
             <div class="da_nombre">${escaparHTML(objTaquillaOne.nombre) || '(nombre no asignado)'}</div>
         </div>

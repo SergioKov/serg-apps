@@ -10,7 +10,6 @@ function buildPedido(pedido_action = null){
 
     eid_bl_modalFullInner.innerHTML = '';//reset
 
-
     // Formato YYYY-MM-DD que necesita <input type="date">
     //const fechahora_hoy = new Date().toISOString().split("T")[0];
     const fechahora_hoy = fechaMySQLLocal('fecha_hora_corta');
@@ -44,11 +43,14 @@ function buildPedido(pedido_action = null){
     let subtotal_val = '';
     let subtotal_text = '';
 
+    let iva_incluido_val = 1;//por defecto 'Con IVA'
     let iva_total_val = '';
     let iva_total_text = '';
 
     let total_val = '';
     let total_text = '';
+
+    let cantidad_pedido_items = 0;//por defecto. si los hay, se modifica
 
     //elemento de título en el top
     const p_mensaje = document.createElement('p');
@@ -56,17 +58,27 @@ function buildPedido(pedido_action = null){
         
     //otras vars
     let cl_id_pedido = 'd-none';//oculto
-    let cl_d_canal_venta = '';
-    let cl_d_canal_aviso = '';
-    let cl_wr_taquilla_asignada = '';
+    let cl_d_subtotal = '';//muestro ya que por defecto iva_incluido = 1
+    let cl_d_iva_total = '';//muestro ya que por defecto iva_incluido = 1
+    let cl_solo_ver = '';
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
+
     let contenedor;//general. se asigna luego  
     
     if(pedido_action == 'nuevo'){//si es nueva
-        
-        //aki no hago nada por ahora...
+        console.log('es pedido nuevo');
+
+        //reseteo pedido
+        pedido = {
+            arr_items_pedido: [],
+            subtotal: 0,
+            iva_incluido: 1,
+            iva_total: 0,
+            total: 0
+        }
 
     }else{//si es: ver, editar, eliminar
+        console.log('es pedido que se edita');
         
         if(!hay_id(id_pedido, 'id_pedido', 'buildPedido()')){
             const aviso_outer = document.createElement('div');
@@ -77,7 +89,10 @@ function buildPedido(pedido_action = null){
             `;
             openModal('center','Aviso Pedido',aviso_outer,'showAviso2');
             return; // <- se detiene aquí si no hay id_pedido
-        } 
+        }
+
+        
+
         id_pedido_val = objPedido.id_pedido;
         id_cliente_val = objPedido.id_cliente;
         id_taquilla_val = objPedido.id_taquilla || '';
@@ -108,11 +123,22 @@ function buildPedido(pedido_action = null){
         subtotal_val = (objPedido.subtotal) ? escaparHTML(objPedido.subtotal) : '';
         subtotal_text = (objPedido.subtotal) ? `${subtotal_val} €` : '--';
                 
+        iva_incluido_val = objPedido.iva_incluido;
         iva_total_val = (objPedido.iva_total) ? escaparHTML(objPedido.iva_total) : '';
         iva_total_text = (objPedido.iva_total) ? `${iva_total_val} €` : '--';
+
+        cl_d_subtotal = (iva_incluido_val) ? '' : 'd-none';
+        cl_d_iva_total = (iva_incluido_val) ? '' : 'd-none';
                 
         total_val = (objPedido.total) ? escaparHTML(objPedido.total) : '';
         total_text = (objPedido.total) ? `${total_val} €` : '--';
+
+        if(objPedido.arr_items){
+            pedido.arr_items_pedido = structuredClone(objPedido.arr_items);//aki imprescindible structuredClone() y no [...array_new]
+            console.log('pedido.arr_items_pedido:', pedido.arr_items_pedido);
+        }
+
+        cantidad_pedido_items = pedido.arr_items_pedido.length;
     }
 
     //si es ver o editar, muestro id
@@ -155,9 +181,7 @@ function buildPedido(pedido_action = null){
             //console.log('(editar) --- arr_lista_bucle: ', arr_lista_bucle);
             cl_id_pedido = '';//muestro
             cl_d_limpiar_input = 'd-none';//oculto porque es 'ver'
-            cl_d_canal_venta = 'solo_ver';//permito solo ver y no manejar el click
-            cl_d_canal_aviso = 'solo_ver';//permito solo ver y no manejar el click
-            cl_wr_taquilla_asignada = 'solo_ver';//permito solo ver y no manejar el click
+            cl_solo_ver = 'solo_ver';//permito solo ver y no manejar el click
             break;
 
         case 'editar'://Editar Pedido - FORMULARIO
@@ -299,26 +323,28 @@ function buildPedido(pedido_action = null){
                     <div id="datos_cliente_finded" class="reg_selected">
                         <div class="cl_campo">Cliente: </div>
                         <div class="cl_valor">
-                            <div class="d_flex_v">
-                                <div class="cl_campo_v">id</div>
-                                <div>${id_cliente_val}</div>
-                            </div> 
-                            <div class="d_flex_v">
-                                <div class="cl_campo_v">nombre</div>
-                                <div>${nombre_val}</div>    
-                            </div> 
-                            <div class="d_flex_v">
-                                <div class="cl_campo_v">tel</div>
-                                <div>${telefono_val}</div>    
-                            </div> 
-                            <div class="d_flex_v">
-                                <div class="cl_campo_v">cod</div>
-                                <div>${codigo_cliente_val}</div>    
-                            </div> 
+                            <div class="cl_valor_inner">
+                                <div class="nc_val d_flex_v">
+                                    <div class="cl_campo_v">id</div>
+                                    <div>${id_cliente_val}</div>
+                                </div> 
+                                <div class="nc_val d_flex_v">
+                                    <div class="cl_campo_v">nombre</div>
+                                    <div>${nombre_val}</div>    
+                                </div> 
+                                <div class="nc_val d_flex_v">
+                                    <div class="cl_campo_v">tel</div>
+                                    <div>${telefono_val}</div>    
+                                </div> 
+                                <div class="nc_val d_flex_v">
+                                    <div class="cl_campo_v">cod</div>
+                                    <div>${codigo_cliente_val}</div>    
+                                </div> 
+                            </div>
                         </div>
                     </div>
 
-                    <div id="eid_regs_finded_cliente_sm" class="wr_cliente_find d-none">
+                    <div id="regs_finded_cliente_sm" class="wr_cliente_find d-none">
                         <!-- aki divs de clientes encontrados -->                  
                     </div>
                 </div>
@@ -327,17 +353,17 @@ function buildPedido(pedido_action = null){
                 <!-- fecha_pedido -->
                 <div class="form_group wr_input_general">
                     <input type="datetime-local" id="fecha_pedido" name="fecha_pedido" required="" placeholder=" " value="${fecha_pedido_val}">
-                    <label for="fecha_pedido">Fecha pedido</label>
+                    <label for="fecha_pedido">Fecha de pedido</label>
                 </div>
 
 
                 <!-- canal_venta -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Canal venta:</label>
-                    <div id="d_canal_venta" class="wr_varios_btns ${cl_d_canal_venta}">
-                        <div class="dbtn dbtn_whatsapp" data-value="whatsapp">WhatsApp</div>
-                        <div class="dbtn dbtn_mail" data-value="mail">Mail</div>
-                        <div class="dbtn dbtn_web" data-value="web">Web</div>
+                    <label class="lab_varios_btns">Canal de venta:</label>
+                    <div id="d_canal_venta" class="wr_varios_btns ${cl_solo_ver}">
+                        <div class="dbtn" data-value="whatsapp">WhatsApp</div>
+                        <div class="dbtn" data-value="mail">Mail</div>
+                        <div class="dbtn" data-value="web">Web</div>
                     </div>
                     <input id="canal_venta" type="hidden" name="canal_venta" value="${canal_venta_val}"> 
                 </div>
@@ -345,9 +371,89 @@ function buildPedido(pedido_action = null){
 
 
 
-               
 
 
+
+                
+
+
+
+                <!-- Tipo de concepto -->
+                <div id="wr_tipo_conceptos" class="wr_sel_opt_estado ${cl_solo_ver}">
+
+                    <h5>Tipo de concepto:</h5>
+                    <div id="d_tipo_concepto" class="wr_varios_btns ${cl_solo_ver}">
+                        <div class="dbtn active" data-value="producto">Producto</div>
+                        <div class="dbtn" data-value="bono">Bono</div>
+                        <div class="dbtn" data-value="servicio">Servicio</div>
+                    </div>
+
+                    <div id="contenedor_tipos">
+                    
+                        <div id="contenedor_select_producto" class="todos_items active ${cl_solo_ver}" data-value="producto">
+                            <!-- aki se meten los productos de bd -->
+                        </div>
+
+                        <div id="contenedor_select_bono" class="todos_items ${cl_solo_ver}" data-value="bono">
+                            <!-- aki se meten los bonos de bd -->
+                        </div>
+
+                        <div id="contenedor_select_servicio" class="todos_items ${cl_solo_ver}" data-value="servicio">
+                            <!-- aki se meten los servicios de bd -->
+                        </div>
+
+                    </div> 
+
+                </div>
+
+
+
+
+                <!-- items_pedido -->
+                <div id="wr_items_pedido" class="wr_sel_opt_estado ${cl_solo_ver}">
+                    <h5>Lista de elementos de pedido:</h5>
+
+                    <div id="contenedor_lista_items" class="">
+                        <!-- aki divs de items de pedido seleccionados -->
+                        <div class="prim ${cantidad_pedido_items ? 'd-none' : 'd-block'}">
+                            Lista de elementos de pedido vacia.
+                        </div>
+                    </div>
+
+                   
+                    <div id="contenedor_totales" class="">                        
+                        <div class="row_tot d_subtotal ${cl_d_subtotal}">
+                            <span>Subtotal:</span> 
+                            <span class="sp_subtotal">${subtotal_val || '0.00'} €</span>
+                        </div>
+                        <div class="row_tot d_iva_total ${cl_d_iva_total}">
+                            <span>IVA Total:</span> 
+                            <span class="sp_iva_total">${iva_total_val || '0.00'} €</span>
+                        </div>
+                        <div class="row_tot d_total">
+                            <span>Total:</span> 
+                            <span class="sp_total">${total_val || '0.00'} €</span>
+                        </div>
+                    </div>
+
+                    <input id="subtotal" type="hidden" name="subtotal" value="${subtotal_val}">
+                    <input id="iva_total" type="hidden" name="iva_total" value="${iva_total_val}">
+                    <input id="total" type="hidden" name="total" value="${total_val}">
+                    
+                </div>
+
+
+
+
+                <!-- iva_incluido -->
+                <div class="form_group wr_input_general">
+                    <label class="lab_varios_btns">Iva incluido:</label>
+                    <div id="d_iva_incluido" class="wr_varios_btns ${cl_solo_ver}">
+                        <div class="dbtn dbtn_no" data-value="0">Sin IVA</div>
+                        <div class="dbtn dbtn_si" data-value="1">Con IVA</div>
+                    </div>
+                    <input id="iva_incluido" type="hidden" name="iva_incluido" value="${iva_incluido_val}"> 
+                </div>
 
 
                 <!-- estado_pedido -->
@@ -363,16 +469,8 @@ function buildPedido(pedido_action = null){
                 </div>
 
 
-
-
-
-
-
-
-
-
                 <!-- taquilla asignada -->
-                <div id="wr_taquilla_asignada" class="wr_sel_opt_estado ${cl_wr_taquilla_asignada}">
+                <div id="wr_taquilla_asignada" class="wr_sel_opt_estado ${cl_solo_ver}">
                     <h5>Taquilla:</h5>
 
                     <input id="id_taquilla" type="hidden" name="id_taquilla" value="${id_taquilla_val}">
@@ -381,8 +479,7 @@ function buildPedido(pedido_action = null){
                         <!-- aki se mete la taquilla asignada si hay -->
                     </div>
 
-
-                    <div id="outer_asignar_taquilla" class="${cl_wr_taquilla_asignada}">
+                    <div id="outer_asignar_taquilla" class="${cl_solo_ver}">
                                         
                         <div id="dbtn_asignar_taquilla" class="btn btn_big" onclick="toggleContenedor('contenedor_taquillas_asignar', 'dbtn_asignar_taquilla', 'grid')">Mostrar taquillas</div>
                     
@@ -394,17 +491,13 @@ function buildPedido(pedido_action = null){
                 </div>
 
 
-
-
-
-
-
                 <!-- estado_pago -->
                 <div id="wr_estado_pago" class="wr_sel_opt_estado ${objPedido?.estado_pago || ''}">
                     <h5>Estado de pago:</h5>
                     <select id="estado_pago" class="sel_opt_find">
                         <option value="">(no asignado)</option>
                         <option value="pendiente">Pendiente</option>
+                        <option value="parcial">Parcial</option>
                         <option value="pagado">Pagado</option>
                         <option value="recurrente">Recurrente (mensual)</option>
                     </select>
@@ -424,51 +517,16 @@ function buildPedido(pedido_action = null){
                 </div>
 
 
-
-
                 <!-- canal_aviso-->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Canal aviso:</label>
-                    <div id="d_canal_aviso" class="wr_varios_btns ${cl_d_canal_aviso}">
-                        <div class="dbtn dbtn_whatsapp" data-value="whatsapp">WhatsApp</div>
-                        <div class="dbtn dbtn_mail" data-value="mail">Mail</div>
-                        <div class="dbtn dbtn_sms" data-value="sms">SMS</div>
+                    <label class="lab_varios_btns">Canal de aviso:</label>
+                    <div id="d_canal_aviso" class="wr_varios_btns ${cl_solo_ver}">
+                        <div class="dbtn" data-value="whatsapp">WhatsApp</div>
+                        <div class="dbtn" data-value="mail">Mail</div>
+                        <div class="dbtn" data-value="sms">SMS</div>
                     </div>
                     <input id="canal_aviso" type="hidden" name="canal_aviso" value="${canal_aviso_val}"> 
-                </div>
-
-
-
-
-
-                <!-- subtotal -->
-                <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#subtotal')">
-                        <img src="images/x_white.png">
-                    </div>
-                    <input id="subtotal" type="text" name="subtotal" required="" placeholder=" " value="${subtotal_val}">
-                    <label for="subtotal">subtotal</label>
-                </div>
-
-
-                <!-- iva_total -->
-                <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#iva_total')">
-                        <img src="images/x_white.png">
-                    </div>
-                    <input id="iva_total" type="text" name="iva_total" required="" placeholder=" " value="${iva_total_val}">
-                    <label for="iva_total">IVA total</label>
-                </div>
-
-
-                <!-- total -->
-                <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#total')">
-                        <img src="images/x_white.png">
-                    </div>
-                    <input id="total" type="text" name="total" required="" placeholder=" " value="${total_val}">
-                    <label for="total">Total</label>
-                </div>
+                </div>               
 
 
                 <!-- comentario -->
@@ -491,6 +549,153 @@ function buildPedido(pedido_action = null){
     const input_id_taquilla = form_pedido.querySelector('#id_taquilla');
     const eid_dbtn_asignar_taquilla = form_pedido.querySelector('#dbtn_asignar_taquilla');
 
+    //taquilla
+    const eid_d_taq_asignada = form_pedido.querySelector('#d_taq_asignada');
+    const eid_contenedor_una_taquilla_asignada = form_pedido.querySelector('#contenedor_una_taquilla_asignada');
+    const eid_contenedor_taquillas_asignar = form_pedido.querySelector('#contenedor_taquillas_asignar');
+    
+
+
+
+
+
+    const eid_contenedor_tipos = form_pedido.querySelector('#contenedor_tipos');
+    const eid_contenedor_select_producto = form_pedido.querySelector('#contenedor_select_producto');
+    const eid_contenedor_select_bono = form_pedido.querySelector('#contenedor_select_bono');
+    const eid_contenedor_select_servicio = form_pedido.querySelector('#contenedor_select_servicio');
+    const eid_contenedor_lista_items = form_pedido.querySelector('#contenedor_lista_items');
+
+    
+
+    //tipo_concepto // no se guarda en bd. solo para seleccionar concepto_venta para items_pedido
+    const eid_d_tipo_concepto = form_pedido.querySelector('#d_tipo_concepto');
+    let tipo_concepto_anterior_val = 'producto';//por defecto
+
+    eid_d_tipo_concepto.onclick = (e) => {
+        console.log('e.currentTarget: ', e.currentTarget);
+        console.log('e.target: ', e.target);
+
+        const contenedor_dbtns = e.currentTarget;
+        const btn = e.target;
+
+        if(contenedor_dbtns.classList.contains('solo_ver')){
+            return;//no dejo cambiar el valor si es form_ver
+        }
+
+        const tipo_concepto_val = btn.dataset.value;
+
+        if(tipo_concepto_val == tipo_concepto_anterior_val){
+            console.log('es el click sobre el mismo valor. no hago nada');
+            return;
+        }
+
+        pintDivSelected('d_tipo_concepto', eid_d_tipo_concepto, tipo_concepto_val);
+        pintDivSelected('contenedor_tipos', eid_contenedor_tipos, tipo_concepto_val, 'todos_items');
+
+        tipo_concepto_anterior_val = tipo_concepto_val;
+    }
+    
+    
+    //=============================================================================//
+    //start - creo y pinto elementos:  productos, bonos, servicios. 
+    //les asigno eventos click para añadir items al pedido
+    //=============================================================================//
+
+    // PRODUCTOS
+    crearItemsSelector({
+        tipo_concepto: 'producto',
+        datos: objDataProductos?.arr_data,
+        contenedor: eid_contenedor_select_producto,
+        contenedor_lista_items: eid_contenedor_lista_items,
+        clase: 'd_producto',
+        campoId: 'id_producto',
+        campoPrecio: 'precio_venta',
+        mostrarCantidad: () => '1 m'
+    });
+
+
+    // BONOS
+    crearItemsSelector({
+        tipo_concepto: 'bono',
+        datos: objDataBonos?.arr_data,
+        contenedor: eid_contenedor_select_bono,
+        contenedor_lista_items: eid_contenedor_lista_items,
+        clase: 'd_bono',
+        campoId: 'id_bono',
+        campoPrecio: 'precio',
+        mostrarCantidad: obj => `${obj.cantidad} m`,
+    });
+
+
+    // SERVICIOS
+    crearItemsSelector({
+        tipo_concepto: 'servicio',
+        datos: objDataServicios?.arr_data,
+        contenedor: eid_contenedor_select_servicio,
+        contenedor_lista_items: eid_contenedor_lista_items,
+        clase: 'd_servicio',
+        campoId: 'id_servicio',
+        campoPrecio: 'precio',
+        mostrarCantidad: () => '1 ud.'
+    });
+
+    //=============================================================================//
+    //start - creo y pinto elementos:  productos, bonos, servicios. 
+    //les asigno eventos click para añadir items al pedido
+    //=============================================================================//
+
+
+
+
+
+    if(cantidad_pedido_items){
+        
+        //ordenar por tipo_concepto
+        const orden = {
+            producto: 1,
+            bono: 2,
+            servicio: 3
+        };
+        
+        pedido.arr_items_pedido.sort((a, b) =>
+            orden[a.tipo_concepto] - orden[b.tipo_concepto]
+        );
+
+        //Recorrer los artículos de pedido
+        pedido.arr_items_pedido.forEach(item => {
+
+            console.log('item:', item);
+        
+            // Crear el artículo del pedido
+            const item_pedido = {
+                tipo_concepto: item.tipo_concepto,
+                id: item.id,
+                nombre: item.nombre,
+                cantidad: item.cantidad,
+                precio: Number(item.precio),
+                importe: Number(item.importe)
+            };
+        
+            // Crear elemento DOM
+            const div_item = crearDivItem(item_pedido);
+        
+            // Eliminar mensaje de lista vacía, si existe
+            eid_contenedor_lista_items.querySelector('.prim')?.remove();
+        
+            // Añadir artículo a la lista
+            eid_contenedor_lista_items.append(div_item);
+        
+        });        
+        
+    }
+
+
+
+
+
+
+
+
     //al teclear texto en la busqueda de cliente
     let timeoutBuscarCliente;
 
@@ -512,12 +717,9 @@ function buildPedido(pedido_action = null){
         }, 400);
     };
 
-    //taquilla
-    const eid_d_taq_asignada = form_pedido.querySelector('#d_taq_asignada');
-    const eid_contenedor_una_taquilla_asignada = form_pedido.querySelector('#contenedor_una_taquilla_asignada');
-    const eid_contenedor_taquillas_asignar = form_pedido.querySelector('#contenedor_taquillas_asignar');
 
     if(id_taquilla_val){
+        
         //creo kvadrat de taquilla asignada
         const eid_d_taq_asignada = crearTaquillaAsignada(id_taquilla_val, t_nombre_val, estado_taquilla_val);
         eid_contenedor_una_taquilla_asignada.append(eid_d_taq_asignada);
@@ -554,6 +756,7 @@ function buildPedido(pedido_action = null){
                     eid_contenedor_una_taquilla_asignada.append(taq_asignada_new);
                     
                     input_id_taquilla.value = objTaquilla.id_taquilla;
+                    //scrollIntoViewInContainer(eid_modcont_body, taq_asignada_new, true, 'top');
 
                 }else{
                     showToast('info', 'Taquilla ocupada', 2050, 'center');
@@ -563,6 +766,40 @@ function buildPedido(pedido_action = null){
             eid_contenedor_taquillas_asignar.append(d_taq);
         });
     }
+
+   
+
+
+    let iva_incluido_anterior_val = objPedido.iva_incluido;//por defecto
+
+    //iva_incluido
+    const eid_d_iva_incluido = form_pedido.querySelector('#d_iva_incluido');
+    eid_d_iva_incluido.onclick = (e) => {
+        console.log('e.currentTarget: ', e.currentTarget);
+        console.log('e.target: ', e.target);
+
+        const contenedor_dbtns = e.currentTarget;
+        const btn = e.target;
+
+        if(contenedor_dbtns.classList.contains('solo_ver')){
+            return;//no dejo cambiar el valor si es form_ver
+        }
+
+        const iva_incluido_val = btn.dataset.value;
+
+        if(iva_incluido_val == iva_incluido_anterior_val){
+            console.log('es el click sobre el mismo valor. no hago nada');
+            return;
+        }
+        meterValor('iva_incluido', eid_d_iva_incluido, iva_incluido_val);
+        pintDivSelected('d_iva_incluido', eid_d_iva_incluido, iva_incluido_val);
+
+        iva_incluido_anterior_val = iva_incluido_val;
+    }
+
+    //al cargar el formulario
+    meterValor('iva_incluido', eid_d_iva_incluido, iva_incluido_val);
+    pintDivSelected('d_iva_incluido', eid_d_iva_incluido, objPedido.iva_incluido);
 
    
 
@@ -588,15 +825,14 @@ function buildPedido(pedido_action = null){
             console.log('es el click sobre el mismo valor. no hago nada');
             return;
         }
-
-        meterCanalVenta(eid_d_canal_venta, canal_venta_val);
-        pintCanalVenta(eid_d_canal_venta, canal_venta_val);
+        meterValor('canal_venta', eid_d_canal_venta, canal_venta_val);
+        pintDivSelected('d_canal_venta', eid_d_canal_venta, canal_venta_val);
 
         canal_venta_anterior_val = canal_venta_val;
     }
 
     //al cargar el formulario
-    pintCanalVenta(eid_d_canal_venta, objPedido.canal_venta);
+    pintDivSelected('d_canal_venta', eid_d_canal_venta, objPedido.canal_venta);
 
 
     let canal_aviso_anterior_val = objPedido.canal_aviso;//por defecto
@@ -621,14 +857,14 @@ function buildPedido(pedido_action = null){
             return;
         }
 
-        meterCanalAviso(eid_d_canal_aviso, canal_aviso_val);
-        pintCanalAviso(eid_d_canal_aviso, canal_aviso_val);
+        meterValor('canal_aviso', eid_d_canal_aviso, canal_aviso_val);
+        pintDivSelected('d_canal_aviso', eid_d_canal_aviso, canal_aviso_val);
 
         canal_aviso_anterior_val = canal_aviso_val;
     }
 
     //al cargar el formulario
-    pintCanalAviso(eid_d_canal_aviso, objPedido.canal_aviso);
+    pintDivSelected('d_canal_aviso', eid_d_canal_aviso, objPedido.canal_aviso);
 
 
 
@@ -638,6 +874,19 @@ function buildPedido(pedido_action = null){
     eid_estado_pedido.value = objPedido?.estado_pedido || '';
     eid_estado_pedido.onchange = async (e) => {
         pintContenedorEstado(eid_wr_estado_pedido, eid_estado_pedido.value);
+
+        if(e.currentTarget.value === 'entregado'){
+            //pongo que la taquilla está libre. los cambios se hacen al guardar
+            input_id_taquilla.value = '';//reset
+            eid_contenedor_taquillas_asignar.classList.add('d-none');
+            
+            eid_contenedor_una_taquilla_asignada.innerHTML = '';//reset
+
+            const d_prim = document.createElement('div');
+            d_prim.className = 'prim';
+            d_prim.textContent = '(no asignada)';
+            eid_contenedor_una_taquilla_asignada.append(d_prim);
+        }
     }
 
     //estado_pago
@@ -730,37 +979,375 @@ function crearTaquillaAsignada(id_taquilla, t_nombre, estado_taquilla){
 }
 
 
-function pintCanalVenta(contenedor, valor){
-    
-    if(!contenedor){
-        return;
-    }
-    
-    const dbtn_whatsapp = contenedor.querySelector('.dbtn_whatsapp');
-    const dbtn_mail = contenedor.querySelector('.dbtn_mail');
-    const dbtn_web = contenedor.querySelector('.dbtn_web');
 
-    if(valor === 'whatsapp'){
-        dbtn_whatsapp.classList.add('active');
-        dbtn_mail.classList.remove('active');
-        dbtn_web.classList.remove('active');
+
+
+
+function crearDivItem(obj){
+    console.log('=== function crearDivItem() ===');
+    
+    let cantidad_text = '';
+    
+    if(obj.tipo_concepto == 'producto'){
+        cantidad_text = 'm';
+    }else{//bono, servicio
+        cantidad_text = (Number(obj.cantidad) == 1) ? 'ud.' : 'uds.' ;
     }
-    else if(valor === 'mail'){
-        dbtn_whatsapp.classList.remove('active');
-        dbtn_mail.classList.add('active');
-        dbtn_web.classList.remove('active');
+
+    const div_item = document.createElement('div');
+    div_item.className = `div_item`;
+    div_item.dataset.tipo_concepto = obj.tipo_concepto;
+    div_item.dataset.id_item = obj.id;
+    div_item.dataset.nombre = obj.nombre;
+    div_item.dataset.precio = obj.precio;
+    div_item.dataset.cantidad = obj.cantidad;
+    div_item.innerHTML = `
+        <div class="d_art_row">
+            <div class="datos_item datos_art">
+                <div class="wr_id_nombre">
+                    <div class="da_nombre">${obj.nombre}</div>
+                </div>
+            </div>
+
+            <div class="wr_datos">
+                <div class="art_cols art_col2 wr_cantidad_item">
+                    <div class="cantidad_valor">${obj.cantidad} ${cantidad_text}</div>
+                </div>
+
+                <div class="art_cols art_col3 wr_precio_item">
+                    <div class="precio_valor">${obj.precio.toFixed(2)} €</div>
+                </div>
+
+                <div class="art_cols art_col4 wr_importe_item">
+                    <div class="importe_valor">${obj.importe.toFixed(2)} €</div>
+                </div>
+            </div>
+        
+            <div class="wr_close_item">
+                <span class="close">✕</span>
+            </div>
+        </div>
+    `;
+
+    div_item.onclick= (e) => {
+        console.log('div_item.onclick');
+
+        //si el contenedor es de solo ver, no permito el click. 
+        if(div_item.closest('#wr_items_pedido.solo_ver')){
+            return;
+        }
+        
+        // Eliminar artículo del pedido
+        // Click en X para eliminar el div_item del pedido
+        if(e.target.closest('.wr_close_item')){//click sobre 'X' de cerrar div_item
+            const id_item = div_item.dataset.id_item;
+            const tipo_concepto = div_item.dataset.tipo_concepto;
+
+            pedido.arr_items_pedido = pedido.arr_items_pedido.filter(
+                item =>
+                    String(item.id) !== String(id_item) ||
+                    item.tipo_concepto !== tipo_concepto
+            );
+
+            div_item.remove();
+            calcularSubtotal();
+
+            // Mostrar mensaje si la lista queda vacía
+            if (pedido.arr_items_pedido.length === 0) {
+                const d_prim = document.createElement('div');
+                d_prim.className = 'prim';
+                d_prim.textContent = 'Lista de elementos de pedido vacía.';
+
+                contenedor_lista_items.append(d_prim);
+            }
+
+            return;
+        }
+
+        // Abrir o cerrar el menú para modificar cantidad
+        // Click en la cantidad de metros SOLO en producto
+        if (e.target.closest('.wr_cantidad_item')) {
+
+            // Menú que ya está abierto en este artículo
+            const menu_actual = div_item.querySelector('.wr_btns_menos_mas');
+
+            // Si ya existe, lo cierro
+            if (menu_actual) {
+                menu_actual.remove();
+                return;
+            }
+
+            // Cerrar otros menús abiertos
+            removeElementosAll('.wr_btns_menos_mas');
+
+            let cl_row_sm = (div_item.dataset.tipo_concepto === 'producto') ? 'd-flex' : 'd-none';
+
+            // Creo el menú de manejar cantidad
+            const wr_btns_menos_mas = document.createElement('div');
+            wr_btns_menos_mas.className = 'wr_btns_menos_mas';
+            wr_btns_menos_mas.innerHTML = `
+                <div class="row row_big">
+                    <div class="dbtn" data-action="valor_menos">-</div>
+                    <div class="dbtn" data-action="valor_mas">+</div>
+                </div>
+
+                <div class="row row_sm ${cl_row_sm}">
+                    <div class="dbtn" data-action="decivalor_menos">0.1 -</div>
+                    <div class="dbtn" data-action="decivalor_mas">0.1 +</div>
+                </div>
+            `;
+
+            // 2. El menú gestiona sus propios botones
+            // Click en un botón del menú de cantidad -/+
+            wr_btns_menos_mas.onclick = (e) => {
+
+                const btn = e.target.closest('[data-action]');
+
+                if (!btn) return;
+
+                switch (btn.dataset.action) {
+
+                    case 'valor_menos':
+                        cambiarValor(div_item, -1);
+                        break;
+
+                    case 'valor_mas':
+                        cambiarValor(div_item, 1);
+                        break;
+
+                    case 'decivalor_menos':
+                        cambiarValor(div_item, -0.1);
+                        break;
+
+                    case 'decivalor_mas':
+                        cambiarValor(div_item, 0.1);
+                        break;
+                }
+
+            };
+
+            div_item.append(wr_btns_menos_mas);
+
+        }
+        
     }
-    else if(valor === 'web'){
-        dbtn_whatsapp.classList.remove('active');
-        dbtn_mail.classList.remove('active');
-        dbtn_web.classList.add('active');
-    }
+
+    return div_item;
 }
 
-function meterCanalVenta(contenedor, valor){
-    console.log('=== function meterCanalVenta() ===');
+function removeElementosAll(selectorElement) {//quita/elimina todos los elementos del DOM con selectorElement
+    document.querySelectorAll(`${selectorElement}`).forEach(element => {
+        element?.remove();
+    });
+}
+
+
+function cambiarValor(contenedor, incremento) {
+    console.log('=== function cambiarValor() ===');
+
+    const tipo_concepto = contenedor.dataset.tipo_concepto;
+    const id_item = contenedor.dataset.id_item;
+
+    // Buscar el artículo en el array único
+    const item = pedido.arr_items_pedido.find(
+        item =>
+            String(item.id) === String(id_item) &&
+            item.tipo_concepto === tipo_concepto
+    );
+
+    if (!item) return;
+
+    // Obtener cantidad actual (metros o unidades)
+    let cantidad_item = parseFloat(item.cantidad) || 1;
+
+    cantidad_item = Math.round((cantidad_item + incremento) * 10) / 10;
+
+    // No permitir valores inferiores a 1
+    cantidad_item = Math.max(1, cantidad_item);
+
+    const precio_item = Number(item.precio);
+
+    // Actualizar artículo, importe y subtotal
+    calcularImporteItem(contenedor, cantidad_item, precio_item);
+    calcularSubtotal();
+}
+
+
+function calcularImporteItem(contenedor, cantidad, precio) {
+    console.log('=== function calcularImporteItem() ===');
+
+    const cantidad_val = parseFloat(cantidad) || 1;
+    const precio_val = parseFloat(precio);
+    const importe_val = cantidad_val * precio_val;
+
+    let cantidad_text = '';
+    
+    if (contenedor.dataset.tipo_concepto === 'producto') {
+        cantidad_text = 'm';
+    } else {
+        cantidad_text = (Number(cantidad_val) === 1) ? 'ud.' : 'uds.';
+    }
+    
+    // Actualizar DOM
+    const elemento_cantidad = contenedor.querySelector('.cantidad_valor');
+    if (elemento_cantidad) {
+        elemento_cantidad.textContent = `${cantidad_val} ${cantidad_text}`;
+    }
+
+    const elemento_precio = contenedor.querySelector('.precio_valor');
+    if (elemento_precio) {
+        elemento_precio.textContent = `${precio_val.toFixed(2)} €`;
+    }
+
+    const elemento_importe = contenedor.querySelector('.importe_valor');
+    if (elemento_importe) {
+        elemento_importe.textContent = `${importe_val.toFixed(2)} €`;
+    }
+
+    // Actualizar objeto pedido
+    const id_item = contenedor.dataset.id_item;
+    const tipo_concepto_item = contenedor.dataset.tipo_concepto;
+
+    const item_pedido = pedido.arr_items_pedido.find(
+        item =>
+            String(item.id) === String(id_item) &&
+            item.tipo_concepto === tipo_concepto_item
+    );
+
+    if (item_pedido) {
+        item_pedido.cantidad = cantidad_val;
+        item_pedido.precio = precio_val;
+        item_pedido.importe = importe_val;
+    }  
+
+    return importe_val;
+}
+
+
+
+
+function calcularSubtotal() {
+    console.log('=== function calcularSubtotal() ===');
+
+    // Sumar los subtotales de productos y servicios
+    const subtotal_items = pedido.arr_items_pedido.reduce(
+        (total, item) => total + (parseFloat(item.importe) || 0),
+        0
+    );
+
+    // const subtotal_productos = pedido.productos.reduce(
+    //     (total, item) => total + (parseFloat(item.importe) || 0),
+    //     0
+    // );
+
+    // const subtotal_bonos = pedido.bonos.reduce(
+    //     (total, item) => total + (parseFloat(item.importe) || 0),
+    //     0
+    // );
+
+    // const subtotal_servicios = pedido.servicios.reduce(
+    //     (total, item) => total + (parseFloat(item.importe) || 0),
+    //     0
+    // );
+
+    // Subtotal general
+    pedido.subtotal = Math.round(
+        // (subtotal_productos + subtotal_bonos + subtotal_servicios) * 100
+        subtotal_items * 100
+    ) / 100;
+
+    //si hay que contar con iva
+    if(pedido.iva_incluido){
+        
+        // Calcular IVA (21 %)
+        pedido.iva_total = Math.round(
+            pedido.subtotal * 0.21 * 100
+        ) / 100;
+
+        // Total con IVA
+        pedido.total = Math.round(
+            (pedido.subtotal + pedido.iva_total) * 100
+        ) / 100;
+    
+    }else{
+        pedido.iva_total = 0;
+        pedido.total = pedido.subtotal;
+    }
+
+
+
+    // Actualizar DOM
+    const sp_subtotal = document.querySelector('#contenedor_totales .sp_subtotal');
+    const sp_iva_total = document.querySelector('#contenedor_totales .sp_iva_total');
+    const sp_total = document.querySelector('#contenedor_totales .sp_total');
+
+    const input_subtotal = document.querySelector('#subtotal');
+    const input_iva_total = document.querySelector('#iva_total');
+    const input_total = document.querySelector('#total');
+
+
+    
+    //subtotal
+    if (sp_subtotal) {
+        sp_subtotal.textContent = `${pedido.subtotal.toFixed(2)} €`;
+    }
+    if (input_subtotal) {
+        input_subtotal.value = pedido.subtotal.toFixed(2);
+    }
+
+    //iva_total
+    if (sp_iva_total) {
+        sp_iva_total.textContent = `${pedido.iva_total.toFixed(2)} €`;
+    }
+    if (input_iva_total) {
+        input_iva_total.value = pedido.iva_total.toFixed(2);
+    }
+
+    //total
+    if (sp_total) {
+        sp_total.textContent = `${pedido.total.toFixed(2)} €`;
+    }
+    if (input_total) {
+        input_total.value = pedido.total.toFixed(2);
+    }
+
+    return pedido;
+}
+
+
+
+
+
+function pintDivSelected(id_div, contenedor, valor, class_element = 'dbtn'){
+    console.log('=== function pintDivSelected() ===');
+
+    if(!arr_divs_permitidos.includes(id_div) || !contenedor || [null, undefined, ''].includes(valor)){
+        return;
+    }
+
+    const elementosAll = contenedor.querySelectorAll(`.${class_element}`);
+
+    elementosAll.forEach(elemento => {
+        if(elemento.dataset.value == valor){
+            elemento.classList.add('active');
+        } else {
+            elemento.classList.remove('active');
+        }
+    });
+
+}
+
+
+function meterValor(nombre_valor, contenedor, valor){//nombre_valor: 'canal_venta','canal_aviso',
+    console.log('=== function meterValor() ===');
+
+    console.log('nombre_valor: ', nombre_valor);
     console.log('contenedor: ', contenedor);
-    console.log('valor: ', valor);
+    console.log('valor: ', valor);    
+
+    if(!arr_valores_permitidos.includes(nombre_valor) || !contenedor || [null, undefined, ''].includes(valor)){
+        return;
+    }
 
     const dbtnAll = contenedor.querySelectorAll('.dbtn');
     dbtnAll.forEach(dbtn => {
@@ -771,62 +1358,30 @@ function meterCanalVenta(contenedor, valor){
         }
     });
 
-    if(contenedor.id === 'd_canal_venta'){
-        const input_canal_venta = document.querySelector('#canal_venta');
-        if(input_canal_venta){
-            input_canal_venta.value = valor;
+    if(contenedor.id === `d_${nombre_valor}`){//'d_canal_venta','d_canal_aviso'
+        const input_canal = document.querySelector(`#${nombre_valor}`);
+        if(input_canal){
+            input_canal.value = valor;
         }
     }    
-}
-
-
-
-function pintCanalAviso(contenedor, valor){
     
-    if(!contenedor){
-        return;
-    }
-    
-    const dbtn_whatsapp = contenedor.querySelector('.dbtn_whatsapp');
-    const dbtn_mail = contenedor.querySelector('.dbtn_mail');
-    const dbtn_sms = contenedor.querySelector('.dbtn_sms');
+    //iva_incluido
+    if(contenedor.id === `d_iva_incluido`){
+        const d_subtotal = document.querySelector(`#contenedor_totales .d_subtotal`);
+        const d_iva_total = document.querySelector(`#contenedor_totales .d_iva_total`);
 
-    if(valor === 'whatsapp'){
-        dbtn_whatsapp.classList.add('active');
-        dbtn_mail.classList.remove('active');
-        dbtn_sms.classList.remove('active');
-    }
-    else if(valor === 'mail'){
-        dbtn_whatsapp.classList.remove('active');
-        dbtn_mail.classList.add('active');
-        dbtn_sms.classList.remove('active');
-    }
-    else if(valor === 'sms'){
-        dbtn_whatsapp.classList.remove('active');
-        dbtn_mail.classList.remove('active');
-        dbtn_sms.classList.add('active');
-    }
-}
-
-function meterCanalAviso(contenedor, valor){
-    console.log('=== function meterCanalVenta() ===');
-    console.log('contenedor: ', contenedor);
-    console.log('valor: ', valor);
-
-    const dbtnAll = contenedor.querySelectorAll('.dbtn');
-    dbtnAll.forEach(dbtn => {
-        if(dbtn.dataset.value == valor){
-            dbtn.classList.add('active');
-        } else {
-            dbtn.classList.remove('active');
+        if(d_subtotal && d_iva_total){
+            if(valor == 1){
+                pedido.iva_incluido = 1;
+                d_subtotal.classList.toggle('d-none',false);
+                d_iva_total.classList.toggle('d-none',false);
+            }else{
+                pedido.iva_incluido = 0;
+                d_subtotal.classList.toggle('d-none',true);
+                d_iva_total.classList.toggle('d-none',true);    
+            }
         }
-    });
-
-    if(contenedor.id === 'd_canal_aviso'){
-        const input_canal_aviso = document.querySelector('#canal_aviso');
-        if(input_canal_aviso){
-            input_canal_aviso.value = valor;
-        }
+        calcularSubtotal();
     }    
 }
 
@@ -863,9 +1418,11 @@ async function guardarPedido(event, modo_guardar = 'normal'){
         const estado_pedido = form_pedido?.querySelector('#estado_pedido').value.trim();
         const estado_pago = form_pedido?.querySelector('#estado_pago').value.trim();
         const metodo_pago = form_pedido?.querySelector('#metodo_pago').value.trim();
-        const subtotal = form_pedido?.querySelector('#subtotal').value.trim();
-        const iva_total = form_pedido?.querySelector('#iva_total').value.trim();
-        const total = form_pedido?.querySelector('#total').value.trim();
+
+        // const subtotal = form_pedido?.querySelector('#subtotal').value.trim();
+        // const iva_incluido = form_pedido?.querySelector('#iva_incluido').value.trim();
+        // const iva_total = form_pedido?.querySelector('#iva_total').value.trim();
+        // const total = form_pedido?.querySelector('#total').value.trim();
     
         let errors = [];
 
@@ -874,22 +1431,22 @@ async function guardarPedido(event, modo_guardar = 'normal'){
         // }
 
         if(id_cliente == ''){
-            errors.push('Cliente del pedido');
+            errors.push('Cliente');
         }
         if(fecha_pedido == ''){
-            errors.push('Fecha del pedido');
+            errors.push('Fecha');
         }
         if(canal_venta == ''){
-            errors.push('Canal venta del pedido');
+            errors.push('Canal de venta');
         }
         if(estado_pedido == ''){
-            errors.push('Estado del pedido');
+            errors.push('Estado de pedido');
         }
         if(estado_pago == ''){
-            errors.push('Estado de pago del pedido');
+            errors.push('Estado de pago');
         }
         if(metodo_pago == ''){
-            errors.push('Método de pago del pedido');
+            errors.push('Método de pago');
         }
 
        
@@ -918,9 +1475,15 @@ async function guardarPedido(event, modo_guardar = 'normal'){
             estado_pedido,
             estado_pago,
             metodo_pago,
-            subtotal,
-            iva_total,
-            total
+
+            // Datos económicos del pedido
+            subtotal: pedido.subtotal,
+            iva_incluido: pedido.iva_incluido,
+            iva_total: pedido.iva_total,
+            total: pedido.total,
+
+            // Líneas del pedido
+            arr_items: pedido.arr_items_pedido
         }
         console.log('objPedidoToSend: ',objPedidoToSend);
     
@@ -981,22 +1544,21 @@ async function guardarPedido(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_pedido en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintPedidoOne(objPedido, 'arriba');//div de pedido se pinta al inicio (arriba)
-                    loadPedidosAll();
+                    await loadPedidosAll();
                 }
 
                 //actualizo Taquillas y obj y DOM
-                loadTaquillasAll();
+                await loadTaquillasAll();
 
                 closeModal(null,true);
             }
            
         }else{
 
-            let text_show = 'Error al guardar el pedido.';
+            let text_show = `Error al guardar el pedido: ${data.error}`;
             console.log(text_show);
-            console.error('data.error: ', data.error);
 
-            showToast('error', text_show, 5000);
+            showToast('error', text_show, 1000, 'center', true, 'Error');
 
         }
     
@@ -1052,18 +1614,11 @@ async function insertarPedidoDatos(objPedido) {
         }
 
         try {
+            
             const data = JSON.parse(text);
             console.log('data:', data);
-    
-            if (data.success) {
-                console.log('success is true');
-
-                return data;    
-                
-            } else {
-                console.log('success is false');
-                return 'no_hay_datos';              
-            }
+            
+            return data;    
 
         } catch (error) {
             
@@ -1397,6 +1952,28 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
     const iva_total_text = (objPedidoOne.iva_total) ? `${objPedidoOne.iva_total} €` : '--' ;
     const total_text = (objPedidoOne.total) ? `${objPedidoOne.total} €` : '--' ;
 
+    let cl_iva_incluido = (objPedidoOne.iva_incluido) ? '' : 'd-none';
+    let cl_wr_kvadrat = '';
+    let cl_da_kvadrat = '';
+    let da_kvadrat_html = '';
+
+    const condicion_tiene_taquilla_ocupada = (objPedidoOne.id_taquilla && objPedidoOne.estado_taquilla == 'ocupado');
+    const condicion_esta_entregado = (objPedidoOne.estado_pedido == 'entregado');
+
+    if(condicion_tiene_taquilla_ocupada || condicion_esta_entregado ){
+        cl_wr_kvadrat = '';
+        if(condicion_tiene_taquilla_ocupada){
+            cl_da_kvadrat = 'ocupado';
+            da_kvadrat_html = objPedidoOne.t_nombre;
+        }        
+        if(condicion_esta_entregado){
+            da_kvadrat_html = `<img class="btn_img" src="./images/icon_ok_green.svg">`;
+        }
+    }else{
+        cl_wr_kvadrat = 'd-none';
+    }
+
+
     const d_pedido = document.createElement('div');
     d_pedido.className = 'd_pedido d_art';
     d_pedido.dataset.id_pedido = objPedidoOne.id_pedido;
@@ -1412,15 +1989,19 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
             <div class="da_nombre">${escaparHTML(objPedidoOne.nombre) || '(nombre no asignado)'} </div>
             <div class="da_tel">${escaparHTML(objPedidoOne.telefono)}</div>
         </div>
-        <div class="art_cols art_col2 wr_kvadrat ${(objPedidoOne.id_taquilla && objPedidoOne.estado_taquilla == 'ocupado') ? '' : 'd-none'}">
-            <div class="da_kvadrat ${(objPedidoOne.estado_taquilla === 'ocupado') ? 'ocupado' : ''}">${(objPedidoOne.estado_taquilla === 'ocupado') ? objPedidoOne.t_nombre : ''}</div>
+
+        <div class="wr_datos">
+            <div class="art_cols art_col2 wr_kvadrat ${cl_wr_kvadrat}">
+                <div class="da_kvadrat ${cl_da_kvadrat}">${da_kvadrat_html}</div>
+            </div>
+            <div class="art_cols art_col3 wr_bola">
+                <div class="da_bola ${objPedidoOne.estado_pago}">€</div>
+            </div>
         </div>
-        <div class="art_cols art_col3">
-            <div class="da_bola ${objPedidoOne.estado_pago}">€</div>
-        </div>
+
         <div class="art_cols art_col4">
-            <div class="da_subtotal">${subtotal_text}</div>
-            <div class="da_iva_total">${iva_total_text}</div>
+            <div class="da_subtotal ${cl_iva_incluido}">${subtotal_text}</div>
+            <div class="da_iva_total ${cl_iva_incluido}">${iva_total_text}</div>
             <div class="da_total">${total_text}</div>
         </div>
 
@@ -1611,8 +2192,8 @@ async function findWordsPedido(){
         eid_regs_finded_pedido.classList.remove('d-none');
         eid_regs_finded_pedido.innerHTML = `
             <div class="wr_num_regs">
-                <span>Registros encontrados: </span>
-                <span class="num_regs_finded">${objDataPedidosFinded.arr_data.length}</span>
+                <div class="title_regs_finded">Registros encontrados: </div>
+                <div class="num_regs_finded">${objDataPedidosFinded.arr_data.length}</div>
             </div>
             <button id="btn_mostrar_finded_pedido" class="btn btn_big mostrar_finded">Mostrar</button>
         `;
@@ -2075,6 +2656,27 @@ function pintPedidoActiveSoloDatos(){
     const iva_total_text = (objPedido.iva_total) ? `${objPedido.iva_total} €` : '--' ;
     const total_text = (objPedido.total) ? `${objPedido.total} €` : '--' ;
 
+    let cl_iva_incluido = (objPedido.iva_incluido) ? '' : 'd-none';
+    let cl_wr_kvadrat = '';
+    let cl_da_kvadrat = '';
+    let da_kvadrat_html = '';
+
+    const condicion_tiene_taquilla_ocupada = (objPedido.id_taquilla && objPedido.estado_taquilla == 'ocupado');
+    const condicion_esta_entregado = (objPedido.estado_pedido == 'entregado');
+
+    if(condicion_tiene_taquilla_ocupada || condicion_esta_entregado ){
+        cl_wr_kvadrat = '';
+        if(condicion_tiene_taquilla_ocupada){
+            cl_da_kvadrat = 'ocupado';
+            da_kvadrat_html = objPedido.t_nombre;
+        }        
+        if(condicion_esta_entregado){
+            da_kvadrat_html = `<img class="btn_img" src="./images/icon_ok_green.svg">`;
+        }
+    }else{
+        cl_wr_kvadrat = 'd-none';
+    }
+
 
     //diasemana
     div_da_diasem.textContent = diaSemana_val;
@@ -2089,20 +2691,24 @@ function pintPedidoActiveSoloDatos(){
     div_da_tel.classList.toggle('d-none', !objPedido.telefono);//si tiene -> lo muestra, si no tiene -> oculta
 
     //taquilla
-    div_wr_kvadrat.classList.toggle('d-none', !objPedido.id_taquilla);//si tiene -> lo muestra, si no tiene -> oculta
-    div_da_kvadrat.textContent = objPedido.t_nombre || '';
-    div_da_kvadrat.className = `da_kvadrat ${(objPedido.estado_taquilla === 'ocupado') ? 'ocupado' : ''}`;//muestro bg rojo solo con ocupado
+    div_wr_kvadrat.className = `art_cols art_col2 wr_kvadrat ${cl_wr_kvadrat}`;
+    div_da_kvadrat.className = `da_kvadrat ${cl_da_kvadrat}`;//muestro bg rojo solo con ocupado
+    div_da_kvadrat.innerHTML = `
+        ${da_kvadrat_html}
+    `;
 
     //estado_pago
     div_da_bola.className = `da_bola ${objPedido.estado_pago}`;//muestro bola con bg color
 
     //subtotal
     div_da_subtotal.textContent = subtotal_text;
-    div_da_subtotal.classList.remove('d-none');//muestro tenga o no el subtotal
+    //div_da_subtotal.classList.remove('d-none');//muestro tenga o no el subtotal
+    div_da_subtotal.classList.toggle('d-none', !objPedido.iva_incluido);
 
     //iva_total
     div_da_iva_total.textContent = iva_total_text;
-    div_da_iva_total.classList.remove('d-none');//muestro tenga o no el subtotal
+    //div_da_iva_total.classList.remove('d-none');//muestro tenga o no el subtotal
+    div_da_iva_total.classList.toggle('d-none', !objPedido.iva_incluido);
 
     //total
     div_da_total.textContent = total_text;

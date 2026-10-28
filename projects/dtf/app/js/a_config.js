@@ -229,3 +229,77 @@ localStorage.setItem('obj_ajustes', JSON.stringify(obj_ajustes));
 //Block Activo
 let BlockNameActive = localStorage.getItem('BlockNameActive') || 'almacenes';//default
 
+//para pedidos
+const arr_divs_permitidos = [
+    'd_envio_gratis',
+    'd_iva_incluido',
+    'd_canal_venta',
+    'd_canal_aviso',
+    'd_tipo_concepto',
+    'contenedor_tipos'
+];
+
+const arr_valores_permitidos = [
+    'envio_gratis',
+    'iva_incluido',
+    'canal_venta',
+    'canal_aviso',
+    'tipo_concepto'
+];
+
+
+let pedido_old = {
+    productos: [],
+    bonos: [],
+    servicios: [],
+    subtotal: 0,
+    iva_incluido: 1,
+    iva_total: 0,
+    total: 0
+};
+
+
+//new - como ejemplo
+let pedido_def = {
+    arr_items_pedido: [
+        {
+            tipo_concepto: 'producto',
+            id: 1,
+            nombre: 'DTF Textil',
+            cantidad: 6,
+            precio: 10,
+            importe: 60
+        },
+        {
+            tipo_concepto: 'bono',
+            id: 2,
+            nombre: 'Bono 5m',
+            cantidad: 1,
+            precio: 45,
+            importe: 45
+        },
+        {
+            tipo_concepto: 'servicio',
+            id: 3,
+            nombre: 'Envío Express',
+            cantidad: 1,
+            precio: 15,
+            importe: 15
+        }
+    ],
+
+    subtotal: 0,
+    iva_incluido: 1,
+    iva_total: 0,
+    total: 0
+};
+
+let pedido = {
+    arr_items_pedido: [],
+    subtotal: 0,
+    iva_incluido: 1,
+    iva_total: 0,
+    total: 0
+};
+
+let arr_items_pedido_bd = [];

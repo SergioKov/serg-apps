@@ -133,6 +133,7 @@ $sql_init = "SELECT
             p.metodo_pago,
 
             p.subtotal,
+            p.iva_incluido,
             p.iva_total,
             p.total,
 
@@ -228,6 +229,7 @@ if($result->num_rows > 0){
             'metodo_pago' => $row['metodo_pago'],
             
             'subtotal' => $row['subtotal'],
+            'iva_incluido' => $row['iva_incluido'],
             'iva_total' => $row['iva_total'],
             'total' => $row['total'],
     

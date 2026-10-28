@@ -121,8 +121,8 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="almacenes">Almacenes</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="clientes">Clientes</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="productos">Productos</li>
-                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="servicios">Servicios</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="bonos">Bonos</li>
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="servicios">Servicios</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="tarifas">Tarifas</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="taquillas">Taquillas</li>
 
@@ -257,8 +257,8 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_config_almacen.js"></script>
     <script src="js/a_config_cliente.js"></script>
     <script src="js/a_config_producto.js"></script>
-    <script src="js/a_config_servicio.js"></script>
     <script src="js/a_config_bono.js"></script>
+    <script src="js/a_config_servicio.js"></script>
     <script src="js/a_config_tarifa.js"></script>
     <script src="js/a_config_taquilla.js"></script>
     <script src="js/a_config_pedido.js"></script>
@@ -268,8 +268,8 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_almacen.js"></script>
     <script src="js/a_cliente.js"></script>
     <script src="js/a_producto.js"></script>
-    <script src="js/a_servicio.js"></script>
     <script src="js/a_bono.js"></script>
+    <script src="js/a_servicio.js"></script>
     <script src="js/a_tarifa.js"></script>
     <script src="js/a_taquilla.js"></script>
     <script src="js/a_pedido.js"></script>

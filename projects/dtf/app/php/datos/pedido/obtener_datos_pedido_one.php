@@ -79,6 +79,7 @@ $sql = "SELECT
             p.metodo_pago,
 
             p.subtotal,
+            p.iva_incluido,
             p.iva_total,
             p.total,
 
@@ -105,9 +106,75 @@ $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 
 
-
 if($row){   
     //echo_json_x($row, 'row']);
+
+    // Consultar las líneas del pedido
+    $sql_items = "SELECT
+                    id_pedido_item,
+                    tipo_item,
+                    id_producto,
+                    id_bono,
+                    id_servicio,
+                    nombre,
+                    cantidad,
+                    precio,
+                    importe
+                FROM pedido_items
+                WHERE id_pedido = ?
+                ORDER BY id_pedido_item ASC
+    ";
+    $stmt_items = $conn->prepare($sql_items);
+
+    if (!$stmt_items) {
+        throw new Exception(
+            'Error al preparar la consulta de pedido_items: ' . $conn->error
+        );
+    }
+
+    $stmt_items->bind_param("i", $id_pedido);
+    $stmt_items->execute();
+
+    $result_items = $stmt_items->get_result();
+
+    // Preparar el array único de líneas del pedido
+    $arr_items_pedido = [];
+
+    while ($item = $result_items->fetch_assoc()) {
+
+        // Obtener el ID según el tipo de concepto
+        switch ($item['tipo_item']) {
+            case 'producto':
+                $id_item = $item['id_producto'];
+                break;
+
+            case 'bono':
+                $id_item = $item['id_bono'];
+                break;
+
+            case 'servicio':
+                $id_item = $item['id_servicio'];
+                break;
+
+            default:
+                continue 2;
+        }
+
+        $arr_items_pedido[] = [
+            'tipo_concepto' => $item['tipo_item'],
+            'id'            => $id_item,
+            'nombre'        => $item['nombre'],
+            'cantidad'      => (float) $item['cantidad'],
+            'precio'        => (float) $item['precio'],
+            'importe'       => (float) $item['importe']
+        ];
+    }
+
+    $stmt_items->close();
+
+
+
+
 
     $data = [
         'success' => true,
@@ -134,6 +201,7 @@ if($row){
         'metodo_pago' => $row['metodo_pago'],
         
         'subtotal' => $row['subtotal'],
+        'iva_incluido' => $row['iva_incluido'],
         'iva_total' => $row['iva_total'],
         'total' => $row['total'],
 
@@ -141,6 +209,9 @@ if($row){
 
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
+
+        // Líneas del pedido
+        'arr_items' => $arr_items_pedido,
     
         'valorData' => 'hay_datos'
     ];

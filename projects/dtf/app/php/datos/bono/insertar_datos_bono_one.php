@@ -112,6 +112,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
     $id_bono = $datos['id_bono'];
+    $id_producto = $datos['id_producto'];
     $nombre = $datos['nombre'];
     $descripcion = $datos['descripcion'];
     $cantidad = $datos['cantidad'];
@@ -170,6 +171,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $sql2_upsert = "INSERT INTO bonos
                     (
                         id_bono,
+                        id_producto,
                     
                         nombre,
                         descripcion,
@@ -184,7 +186,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     )        
                     VALUES
                     (
-                        ?,
+                        ?, ?,
                     
                         ?, ?,
 
@@ -197,6 +199,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                     ON DUPLICATE KEY UPDATE
                     
+                        id_producto = VALUES(id_producto),
+
                         nombre = VALUES(nombre),
                         descripcion = VALUES(descripcion),                    
 
@@ -220,9 +224,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $descripcion = str_replace(["\r\n", "\r"], "\n", $descripcion);
 
     $stmt->bind_param(
-        "issddid",
+        "iissddid",
     
         $id_bono_upsert,
+        $id_producto,
     
         $nombre,
         $descripcion,
@@ -234,6 +239,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $precio
     );
     $result2 = $stmt->execute();
+    $id_bono_insertado = $conn->insert_id;//importante! si se inserta tendrá id de insert, lo guardo en esta variable ya que con otras consultas (si hay) $conn->insert_id se modifica y no es el valor correcto para mi!!!
     //===============================================================//
     // end - UPSERT
     //===============================================================//
@@ -250,7 +256,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         }else{//es insert
             $action_val = 'is_insert';
             $action_tipo = 'is_insert_bono';
-            $id_bono_val = $conn->insert_id;//es id insertado del bono nuevo de esta $conn
+            $id_bono_val = $id_bono_insertado;//es id insertado del bono nuevo de esta $conn
             $mensaje_val = 'Datos insertados correctamente.';
         }
 

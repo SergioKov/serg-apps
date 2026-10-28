@@ -60,6 +60,7 @@ include($niveles_para_subir . 'includes/connect_db.php');
 //Consula el bonos por su id 
 $sql = "SELECT
             b.id_bono, 
+            b.id_producto, 
             b.nombre, 
             b.descripcion, 
 
@@ -94,6 +95,8 @@ if($row){
         'success' => true,
 
         'id_bono' => $row['id_bono'],
+        'id_producto' => $row['id_producto'],
+        
         'nombre' => $row['nombre'],
         'descripcion' => $row['descripcion'],
 

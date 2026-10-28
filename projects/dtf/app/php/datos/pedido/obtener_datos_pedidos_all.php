@@ -67,6 +67,7 @@ $sql_init = "SELECT
             p.metodo_pago,
 
             p.subtotal,
+            p.iva_incluido,
             p.iva_total,
             p.total,
 
@@ -100,6 +101,85 @@ if (!$result) {
 	die("<p>ok en la consulta</p>");
 }
 */
+
+
+
+
+
+// Consultar todas las líneas de los pedidos no eliminados
+$sql_items = "SELECT
+                pi.id_pedido,
+                pi.id_pedido_item,
+                pi.tipo_item,
+                pi.id_producto,
+                pi.id_bono,
+                pi.id_servicio,
+                pi.nombre,
+                pi.cantidad,
+                pi.precio,
+                pi.importe
+              FROM pedido_items pi
+              INNER JOIN pedidos p ON p.id_pedido = pi.id_pedido
+              WHERE p.is_deleted = 0
+              ORDER BY pi.id_pedido, pi.id_pedido_item";
+
+$stmt_items = $conn->prepare($sql_items);
+
+if (!$stmt_items) {
+    error_log('Error al preparar consulta de pedido_items: ' . $conn->error);
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'No se pudieron consultar las líneas de los pedidos.'
+    ], JSON_UNESCAPED_UNICODE);
+    $conn->close();
+    exit;
+}
+
+$stmt_items->execute();
+$result_items = $stmt_items->get_result();
+
+
+// Agrupar las líneas por pedido
+$arr_items_por_pedido = [];
+
+while ($item = $result_items->fetch_assoc()) {
+
+    $id_pedido_item = $item['id_pedido'];
+
+    // Obtener el ID según el tipo de concepto
+    switch ($item['tipo_item']) {
+
+        case 'producto':
+            $id_item = $item['id_producto'];
+            break;
+
+        case 'bono':
+            $id_item = $item['id_bono'];
+            break;
+
+        case 'servicio':
+            $id_item = $item['id_servicio'];
+            break;
+
+        default:
+            // Ignorar tipos de artículo no reconocidos y pasar a la siguiente línea
+            continue 2;
+    }
+
+    // Añadir la línea al array único del pedido
+    $arr_items_por_pedido[$id_pedido_item][] = [
+        'id_pedido_item' => $item['id_pedido_item'],
+        'tipo_concepto'  => $item['tipo_item'],
+        'id'             => $id_item,
+        'nombre'         => $item['nombre'],
+        'cantidad'       => (float) $item['cantidad'],
+        'precio'         => (float) $item['precio'],
+        'importe'        => (float) $item['importe']
+    ];
+}
+
+$stmt_items->close();
 
 
 
@@ -140,6 +220,7 @@ if($result->num_rows > 0){
             'metodo_pago' => $row['metodo_pago'],
             
             'subtotal' => $row['subtotal'],
+            'iva_incluido' => $row['iva_incluido'],
             'iva_total' => $row['iva_total'],
             'total' => $row['total'],
 
@@ -147,7 +228,8 @@ if($result->num_rows > 0){
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
-    
+
+            'arr_items' => $arr_items_por_pedido[$row['id_pedido']] ?? [],    
 
             'valorData' => 'hay_datos'
         ];

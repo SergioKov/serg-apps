@@ -15,10 +15,6 @@
         flex-direction: row;
     }
 
-    .wr_d_taquillas {
-        grid-template-columns: repeat(5, 1fr);
-    }
-
 }
 
 
@@ -64,10 +60,10 @@
     }
 
     .wr_d_taquillas {
-        grid-template-columns: repeat(5, 1fr);
+        font-size: 1.5rem;
     }
     .d_taquilla {
-        min-height: 120px;
+        min-height: 130px;
     }
 
 }
@@ -76,7 +72,7 @@
 /* Desktop BIG */
 @media screen and (min-width: 1440px){
     .wr_d_taquillas {
-        grid-template-columns: repeat(10, 1fr);
+        font-size: 2rem;
     }
     .d_taquilla {
         min-height: 140px;
@@ -94,8 +90,8 @@
         display: none;
     }
 
-    .wr_d_taquillas {
-        grid-template-columns: repeat(5, 1fr);
+    .d_taquilla {
+        min-height: 120px;
     }
 
 }
@@ -209,14 +205,29 @@
         /* flex-direction: column; */
     }
 
+    .wr_d_taquillas .d_vacio,
+    .wr_d_taquillas .tres_puntos
+    {
+        display: none;
+    }
+
+}
+
+
+/* Mobilka hasta width 600px */
+@media screen and (min-width: 1px) and (max-width: 600px) {
+    .d_art_row {
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .wr_datos {
+        flex-direction: column;
+    }
 }
 
 
 /* mobilka L */
 @media screen and (min-width: 1px) and (max-width: 425px) {
-    .wr_d_taquillas {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
     #fecha
     {
@@ -239,15 +250,15 @@
         display: none;
     }
 
+    .d_art {
+        gap: 15px;
+    }
+
 }
 
 
 /* mobilka horizontal */
 @media (orientation: landscape) and (max-height: 700px) {
-    .wr_d_taquillas {
-        grid-template-columns: repeat(5, 1fr);
-    }
-
 
     .barra_estado::-webkit-scrollbar {
         height: 3px;
@@ -268,20 +279,15 @@
 
 /* mobilka XL - 1 */
 @media screen and (min-width: 426px) and (max-width: 600px) {
-    .wr_d_taquillas {
-        grid-template-columns: repeat(3, 1fr);
-    }
+
 }
 
 /* mobilka XL - 2 */
 @media screen and (min-width: 601px) and (max-width: 640px) {
-    .wr_d_taquillas {
-        grid-template-columns: repeat(4, 1fr);
-    }
+
 }
+
 /* mobilka XL - 3 */
 @media screen and (min-width: 641px) and (max-width: 767px) {
-    .wr_d_taquillas {
-        grid-template-columns: repeat(5, 1fr);
-    }
+    
 }

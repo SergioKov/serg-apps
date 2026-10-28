@@ -5,7 +5,7 @@ async function findWordsClienteSm(){
     const eid_inpt_find_cliente = document.getElementById('buscar_cliente');
     // const eid_modo_cliente = document.getElementById('modo_cliente');
     // const eid_buscar_en_cliente = document.getElementById('buscar_en_cliente');
-    const eid_regs_finded_cliente_sm = document.getElementById('eid_regs_finded_cliente_sm');
+    const eid_regs_finded_cliente_sm = document.getElementById('regs_finded_cliente_sm');
 
     let words_input_trimed = eid_inpt_find_cliente.value.trim();
     let words_input = normalizeSearchText(words_input_trimed);//quito espacios duplicados, puntuacion, tildes etc...
@@ -73,13 +73,13 @@ async function findWordsClienteSm(){
         eid_regs_finded_cliente_sm.classList.remove('d-none');
         eid_regs_finded_cliente_sm.innerHTML = `
             <div class="wr_num_regs">
-                <span>Registros encontrados: </span>
-                <span class="num_regs_finded">${objDataClientesSmFinded.arr_data.length}</span>
+                <div class="title_regs_finded">Registros encontrados: </div>
+                <div class="num_regs_finded">${objDataClientesSmFinded.arr_data.length}</div>
+                <div class="wr_close_item" onclick="closeDivBySelector('#regs_finded_cliente_sm')">
+                    <span class="close">✕</span>
+                </div>
             </div>
         `;
-
-
-
 
 
         objDataClientesSmFinded.arr_data.forEach((el,i,arr) => {
@@ -90,9 +90,18 @@ async function findWordsClienteSm(){
             d_cliente.dataset.tipo_art = 'cliente';
             d_cliente.innerHTML = `
                 <div class="datos_cliente datos_art">
-                    <div class="da_nombre ${(el.nombre) ? '' : 'd-none'}"">${el.id_cliente} | ${escaparHTML(el.nombre) || '(nombre no asignado)'}</div>
-                    <div class="da_tel ${(el.telefono) ? '' : 'd-none'}">${escaparHTML(el.telefono)}</div>
-                    <div class="da_com ${(el.comentario) ? '' : 'd-none'}"">${escaparHTML(el.comentario) || '(sin comentario)'}</div>
+                    <div class="wr_id_nombre">
+                        <div class="da_id">${(el.id_cliente)}</div>
+                        <div class="da_nombre ${(el.nombre) ? '' : 'd-none'}">
+                            ${escaparHTML(el.nombre) || '(nombre no asignado)'}
+                        </div>
+                    </div>                    
+                    <div class="da_tel ${(el.telefono) ? '' : 'd-none'}">
+                        ${escaparHTML(el.telefono)}
+                    </div>
+                    <div class="da_com ${(el.comentario) ? '' : 'd-none'}">
+                        ${escaparHTML(el.comentario) || '(sin comentario)'}
+                    </div>
                 </div>               
             `;
 
@@ -113,21 +122,23 @@ async function findWordsClienteSm(){
                 if(eid_datos_cliente_finded){
 
                     eid_datos_cliente_finded.querySelector('.cl_valor').innerHTML = `
-                        <div class="d_flex_v">
-                            <div class="cl_campo_v">id</div>
-                            <div>${el.id_cliente}</div>
-                        </div> 
-                        <div class="d_flex_v">
-                            <div class="cl_campo_v">nombre</div>
-                            <div>${el.nombre || '(no asignado)'}</div>
-                        </div> 
-                        <div class="d_flex_v">
-                            <div class="cl_campo_v">tel</div>
-                            <div>${el.telefono}</div>
-                        </div> 
-                        <div class="d_flex_v">
-                            <div class="cl_campo_v">cod</div>
-                            <div>${el.codigo_cliente}</div>
+                        <div class="cl_valor_inner">
+                            <div class="nc_val d_flex_v">
+                                <div class="cl_campo_v">id</div>
+                                <div>${el.id_cliente}</div>
+                            </div> 
+                            <div class="nc_val d_flex_v">
+                                <div class="cl_campo_v">nombre</div>
+                                <div>${el.nombre || '(no asignado)'}</div>
+                            </div> 
+                            <div class="nc_val d_flex_v">
+                                <div class="cl_campo_v">tel</div>
+                                <div>${el.telefono}</div>
+                            </div> 
+                            <div class="nc_val d_flex_v">
+                                <div class="cl_campo_v">cod</div>
+                                <div>${el.codigo_cliente}</div>
+                            </div>                        
                         </div>                        
                     `;
 
@@ -146,7 +157,6 @@ async function findWordsClienteSm(){
 
     console.timeEnd('time_findWordsClienteSm');
 }
-
 
 
 function pintContenedorEstado(contenedor, estado_val){
@@ -176,7 +186,7 @@ function pintContenedorEstado(contenedor, estado_val){
 
     
         case 'wr_estado_pago'://estado_pago
-            if(['pendiente', 'pagado', 'recurrente'].includes(estado_val)){
+            if(['pendiente', 'parcial', 'pagado', 'recurrente'].includes(estado_val)){
                 contenedor.className = `wr_sel_opt_estado ${estado_val}`;
             }else{
                 contenedor.className = `wr_sel_opt_estado`;
@@ -198,9 +208,6 @@ function pintContenedorEstado(contenedor, estado_val){
     }
 
 }
-
-
-
 
 
 function fechaMySQLLocal(tipo_data = 'fecha_hora_larga', fecha = new Date()) {//tipo_data 'hora_corta' o 'hora_larga'
@@ -235,13 +242,22 @@ function fechaMySQLLocal(tipo_data = 'fecha_hora_larga', fecha = new Date()) {//
 
 }
 
+
 function convertirToTitleCase(text) {//'aaa' => 'Aaa'
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
+
 function toggleContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tipo_display: 'flex', 'grid', 'block'
     const contenedor = document.getElementById(id_contenedor);
     const btn = document.getElementById(id_btn);
+    const eid_estado_pedido = document.querySelector('#form_pedido #estado_pedido');
+
+    if(eid_estado_pedido?.value == 'entregado'){
+        const text_show = 'El pedido con estado <b>ENTREGADO</b> no puede tener una taquilla asignada ya que su contenido ha sido recogido.';
+        showToast('warn', text_show, 1000, 'center', true);
+        return;
+    }
 
     if (contenedor) {
         const display_actual = contenedor.style.display;
@@ -261,6 +277,7 @@ function toggleContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tipo
     }
 }
 
+
 function ocultarContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tipo_display: 'flex', 'grid', 'block'
     const contenedor = document.getElementById(id_contenedor);
     const btn = document.getElementById(id_btn);
@@ -271,6 +288,7 @@ function ocultarContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tip
         btn.textContent = 'Mostrar taquillas';
     }
 }
+
 
 function mostrarContenedor(id_contenedor, id_btn, tipo_display) {//tipo_display: 'flex', 'grid', 'block'
     const contenedor = document.getElementById(id_contenedor);

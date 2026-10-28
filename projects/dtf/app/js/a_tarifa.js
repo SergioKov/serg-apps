@@ -271,6 +271,7 @@ function buildTarifa(tarifa_action = null){
         </div>     
     `;
 
+
     //añado action onclick a wr_img_editar_en_ver
     const element_wr_img_editar_en_ver = form_tarifa.querySelector('.wr_img_editar_en_ver');
     if(element_wr_img_editar_en_ver){
@@ -288,7 +289,7 @@ function buildTarifa(tarifa_action = null){
             makeInputsDisabled(contenedor, true);//deshabilito los inputs
         }
     }
-
+    
     pintProductosOptionsEnSelect(contenedor.querySelector('.d_productos_select'), id_producto_val);//relleno select de productos
 
     eid_bl_modalFullInner.append(contenedor);
@@ -300,6 +301,10 @@ function buildTarifa(tarifa_action = null){
 function pintProductosOptionsEnSelect(selectElement, id_producto_selected = null){
     console.log('=== function pintGruposOptionsEnSelect() ===');
     
+    if(!selectElement){
+        return;
+    }
+
     selectElement.innerHTML = '';//reset
 
     if(!id_producto_selected){
@@ -520,15 +525,7 @@ async function insertarTarifaDatos(objTarifa) {
             const data = JSON.parse(text);
             console.log('data:', data);
     
-            if (data.success) {
-                console.log('success is true');
-
-                return data;    
-                
-            } else {
-                console.log('success is false');
-                return 'no_hay_datos';              
-            }
+            return data;
 
         } catch (error) {
             

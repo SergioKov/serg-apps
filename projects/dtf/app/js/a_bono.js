@@ -14,6 +14,7 @@ function buildBono(bono_action = null){
     let id_bono_val = '';
     let nombre_val = '';
     let descripcion_val = '';
+    let id_producto_val = '';
 
     let cantidad_val = '';
     let cantidad_text = '';
@@ -60,6 +61,7 @@ function buildBono(bono_action = null){
         id_bono_val = objBono.id_bono;
         nombre_val = escaparHTML(objBono.nombre) || '';
         descripcion_val = escaparHTML(objBono.descripcion) || '';
+        id_producto_val = escaparHTML(objBono.id_producto) || '';
         
         cantidad_val = (objBono.cantidad) ? escaparHTML(objBono.cantidad) : '';
         cantidad_text = (objBono.cantidad) ? `${cantidad_val} m` : '--';
@@ -217,6 +219,15 @@ function buildBono(bono_action = null){
                     <input id="nombre" type="text" name="nombre" required="" placeholder=" " value="${nombre_val}">
                     <label for="nombre">Nombre del bono</label>
                 </div>
+
+
+                <!-- Producto relacionado -->
+                <div class="form_group wr_input_general">
+                    <select id="id_producto" name="id_producto" class="d_productos_select sel_opt" required="">
+                        <!-- aki productos -->
+                    </select>
+                    <label for="id_producto">Producto relacionado</label>
+                </div>
                
 
                 <!-- cantidad -->
@@ -275,7 +286,7 @@ function buildBono(bono_action = null){
             </form>
         </div>     
     `;
-    
+
     //añado action onclick a wr_img_editar_en_ver
     const element_wr_img_editar_en_ver = form_bono.querySelector('.wr_img_editar_en_ver');
     if(element_wr_img_editar_en_ver){
@@ -306,13 +317,13 @@ function buildBono(bono_action = null){
             return;
         }
 
-        meterEnvioGratis(eid_d_envio_gratis, envio_gratis_val);
-        pintEnvioGratis(eid_d_envio_gratis, envio_gratis_val);
+        meterValor('envio_gratis', eid_d_envio_gratis, envio_gratis_val);
+        pintDivSelected('d_envio_gratis', eid_d_envio_gratis, envio_gratis_val);
 
         anterior_val = envio_gratis_val;
     }
 
-    pintEnvioGratis(eid_d_envio_gratis, objBono.envio_gratis);//para cambiar envio_gratis al cargar el form
+    pintDivSelected('d_envio_gratis', eid_d_envio_gratis, objBono.envio_gratis);//para cambiar envio_gratis al cargar el form
 
 
     //Reasigno el contenedor
@@ -324,6 +335,8 @@ function buildBono(bono_action = null){
             makeInputsDisabled(contenedor, true);//deshabilito los inputs
         }
     }
+
+    pintProductosOptionsEnSelect(contenedor.querySelector('.d_productos_select'), id_producto_val);//relleno select de productos
 
     //añado al MODAL
     eid_bl_modalFullInner.append(contenedor);
@@ -351,28 +364,6 @@ function pintEnvioGratis(contenedor, envio_gratis_val){
     }
 }
 
-function meterEnvioGratis(contenedor, valor){
-    console.log('=== function meterEnvioGratis() ===');
-    console.log('contenedor: ', contenedor);
-    console.log('valor: ', valor);
-
-    const dbtnAll = contenedor.querySelectorAll('.dbtn');
-    dbtnAll.forEach(dbtn => {
-        if(dbtn.dataset.value == valor){
-            dbtn.classList.add('active');
-        } else {
-            dbtn.classList.remove('active');
-        }
-    });
-
-    if(contenedor.id === 'd_envio_gratis'){
-        const input_envio_gratis = document.querySelector('#envio_gratis');
-        if(input_envio_gratis){
-            input_envio_gratis.value = valor;
-        }
-    }    
-}
-
 
 async function guardarBono(event, modo_guardar = 'normal'){
     //modo_guardar: 'normal' o 'fast' (para guardar rápido sin pasar por el formulario, 
@@ -395,6 +386,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
 
         const form_bono = document.getElementById('form_bono');
 
+        let id_producto = form_bono?.querySelector('#id_producto').value.trim();
         let nombre = form_bono?.querySelector('#nombre').value.trim();
         let descripcion = form_bono?.querySelector('#descripcion').value.trim();
         let cantidad = form_bono?.querySelector('#cantidad').value.trim();
@@ -408,6 +400,9 @@ async function guardarBono(event, modo_guardar = 'normal'){
             nombre = objBono.nombre;
         }
 
+        if(id_producto == ''){
+            errors.push('Producto relacionado');
+        }
         if(nombre == ''){
             errors.push('Nombre del bono');
         }
@@ -434,6 +429,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
 
         const objBonoToSend = {
             id_bono: id_bono || null, //ya que se añade un nuevo bono, entonces no hay id_bono
+            id_producto,
             nombre,
             descripcion,
             cantidad,
@@ -571,15 +567,7 @@ async function insertarBonoDatos(objBono) {
             const data = JSON.parse(text);
             console.log('data:', data);
     
-            if (data.success) {
-                console.log('success is true');
-
-                return data;    
-                
-            } else {
-                console.log('success is false');
-                return 'no_hay_datos';              
-            }
+            return data;    
 
         } catch (error) {
             
