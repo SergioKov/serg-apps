@@ -25,7 +25,7 @@ function crearItemsSelector({
 
         // Crear elemento seleccionable
         const d_item = document.createElement('div');
-        d_item.className = `${clase} d_art`;
+        d_item.className = `d_item ${clase} d_art`;
         d_item.dataset.tipo_concepto = tipo_concepto;
         d_item.dataset.id_item = id;
         d_item.dataset.nombre = nombre;
@@ -91,6 +91,12 @@ function crearItemsSelector({
                 );
 
                 if (div_item_existente) {
+                    
+                    //si es producto,saco su precio de tarifas según cantidad de metros                    
+                    if(item_existente.tipo_concepto === 'producto'){
+                        actualizarPrecioProductoSegunTarifa(item_existente, div_item_existente);
+                    }                    
+                    
                     // Actualizar cantidad y precio
                     calcularImporteItem(
                         div_item_existente,
@@ -136,6 +142,27 @@ function crearItemsSelector({
 }
 
 
+function actualizarPrecioProductoSegunTarifa(item, div_item) {
+    if (item.tipo_concepto !== 'producto') return;
+
+    const tarifa_producto = objDataTarifas.arr_data.find(
+        tarifa =>
+            String(tarifa.id_producto) === String(item.id) &&
+            item.cantidad >= Number(tarifa.cantidad_desde) &&
+            (
+                !tarifa.cantidad_hasta ||
+                item.cantidad <= Number(tarifa.cantidad_hasta)
+            )
+    );
+
+    if(tarifa_producto){
+        item.precio = Number(tarifa_producto.precio);
+        div_item.dataset.precio = item.precio;
+        console.log('new item.precio: ', item.precio);
+    }
+}
+
+
 function cleanContenedor(contenedor){
     console.log('=== function cleanContenedor() ===');
     if(!contenedor) return;
@@ -143,7 +170,7 @@ function cleanContenedor(contenedor){
     contenedor.innerHTML = '';//reset
 }
 
-function closeDivBySelector(selectorElemento){
+function closeDivBySelector(selectorElemento){//=> 'd-none'
     console.log('=== function closeDivBySelector() ===');
 
     const divElement = document.querySelector(selectorElemento);    

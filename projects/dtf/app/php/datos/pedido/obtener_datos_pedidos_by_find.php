@@ -136,6 +136,7 @@ $sql_init = "SELECT
             p.iva_incluido,
             p.iva_total,
             p.total,
+            p.importe_pagado,
 
             p.comentario,
 
@@ -232,6 +233,7 @@ if($result->num_rows > 0){
             'iva_incluido' => $row['iva_incluido'],
             'iva_total' => $row['iva_total'],
             'total' => $row['total'],
+            'importe_pagado' => $row['importe_pagado'],
     
             'comentario' => $row['comentario'],
     

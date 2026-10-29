@@ -389,15 +389,19 @@ header:not(#myModal header) {
 
 .art_cols {
     /* background: #c50707; */
-    min-width: 65px;
     display: flex;
     text-align: right;
     justify-content: flex-end;
     flex-direction: column;
     align-items: flex-end;
+    min-width: 65px;
 }
 .art_cols div{
     white-space: nowrap;
+}
+
+.wr_d_pedidos .art_cols {
+    width: stretch;
 }
 
 .wr_kvadrat,
@@ -1692,8 +1696,8 @@ p.prim .btn.tres_puntos .btn_img {
     display: flex;
     flex-direction: row;
     gap: 5px 10px;
-    justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 

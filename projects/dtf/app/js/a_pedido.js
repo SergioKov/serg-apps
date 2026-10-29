@@ -49,6 +49,9 @@ function buildPedido(pedido_action = null){
 
     let total_val = '';
     let total_text = '';
+    
+    let importe_pagado_val = '';
+    let importe_pagado_text = '';
 
     let cantidad_pedido_items = 0;//por defecto. si los hay, se modifica
 
@@ -132,6 +135,9 @@ function buildPedido(pedido_action = null){
                 
         total_val = (objPedido.total) ? escaparHTML(objPedido.total) : '';
         total_text = (objPedido.total) ? `${total_val} €` : '--';
+
+        importe_pagado_val = (objPedido.importe_pagado) ? escaparHTML(objPedido.importe_pagado) : '';
+        importe_pagado_text = (objPedido.importe_pagado) ? `${importe_pagado_val} €` : '--';
 
         if(objPedido.arr_items){
             pedido.arr_items_pedido = structuredClone(objPedido.arr_items);//aki imprescindible structuredClone() y no [...array_new]
@@ -517,6 +523,16 @@ function buildPedido(pedido_action = null){
                 </div>
 
 
+                <!-- importe_pagado -->
+                <div class="form_group wr_input_general">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#importe_pagado')">
+                        <img src="images/x_white.png">
+                    </div>
+                    <input id="importe_pagado" type="text" name="importe_pagado" required="" placeholder=" " value="${importe_pagado_val}">
+                    <label for="importe_pagado">Importe pagado:</label>
+                </div>
+
+
                 <!-- canal_aviso-->
                 <div class="form_group wr_input_general">
                     <label class="lab_varios_btns">Canal de aviso:</label>
@@ -636,7 +652,7 @@ function buildPedido(pedido_action = null){
         clase: 'd_servicio',
         campoId: 'id_servicio',
         campoPrecio: 'precio',
-        mostrarCantidad: () => '1 ud.'
+        mostrarCantidad: () => '' //por defecto no muestro cantidad en servicios. obvio que es '1'
     });
 
     //=============================================================================//
@@ -1165,6 +1181,15 @@ function cambiarValor(contenedor, incremento) {
     // No permitir valores inferiores a 1
     cantidad_item = Math.max(1, cantidad_item);
 
+    // Actualizar cantidad en item
+    item.cantidad = cantidad_item;
+
+    //si es producto,saco su precio de tarifas según cantidad de metros                    
+    if(item.tipo_concepto === 'producto'){
+        // Actualizar precio según la tarifa de los metros actuales
+        actualizarPrecioProductoSegunTarifa(item, contenedor);
+    }
+
     const precio_item = Number(item.precio);
 
     // Actualizar artículo, importe y subtotal
@@ -1423,6 +1448,8 @@ async function guardarPedido(event, modo_guardar = 'normal'){
         // const iva_incluido = form_pedido?.querySelector('#iva_incluido').value.trim();
         // const iva_total = form_pedido?.querySelector('#iva_total').value.trim();
         // const total = form_pedido?.querySelector('#total').value.trim();
+
+        const importe_pagado = form_pedido?.querySelector('#importe_pagado').value.trim();
     
         let errors = [];
 
@@ -1481,6 +1508,8 @@ async function guardarPedido(event, modo_guardar = 'normal'){
             iva_incluido: pedido.iva_incluido,
             iva_total: pedido.iva_total,
             total: pedido.total,
+
+            importe_pagado,
 
             // Líneas del pedido
             arr_items: pedido.arr_items_pedido

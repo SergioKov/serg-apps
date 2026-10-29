@@ -127,9 +127,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="taquillas">Taquillas</li>
 
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="pedidos">Pedidos</li>
-                <li on-click="" data-block_name="">Ingresos</li>
-                <li on-click="" data-block_name="">Gastos</li>
-                <li on-click="" data-block_name="">Usuarios</li>
+                <li class="d-none" on-click="" data-block_name="ingresos">Ingresos</li>
+                <li class="d-none" on-click="" data-block_name="gastos">Gastos</li>
+                <li class="d-none" on-click="" data-block_name="usuarios">Usuarios</li>
                 <li>---</li>
                 <li><a href="/home">Serg-Apps.com</a></li>
             </ul>

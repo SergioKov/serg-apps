@@ -176,6 +176,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $iva_incluido = ($datos['iva_incluido'] === '') ? 0 : $datos['iva_incluido'];//si viene vacio => 0
     $iva_total = ($datos['iva_total'] === '') ? null : $datos['iva_total'];//si viene vacio => null
     $total = ($datos['total'] === '') ? null : $datos['total'];//si viene vacio => null
+    $importe_pagado = ($datos['importe_pagado'] === '') ? null : $datos['importe_pagado'];//si viene vacio => null
 
     //si es nuevo pedido necesito esto
     $stored_id_taquilla = null;//si se edita pedido se reasigna
@@ -323,6 +324,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                             iva_incluido,
                             iva_total,
                             total,
+                            importe_pagado,
                         
                             created_at
                         )        
@@ -334,7 +336,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                             
                             ?, ?, ?,
                             
-                            ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?,
                                                 
                             NOW()
                         )
@@ -357,6 +359,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                             iva_incluido = VALUES(iva_incluido),
                             iva_total = VALUES(iva_total),
                             total = VALUES(total),                        
+                            importe_pagado = VALUES(importe_pagado),                        
                         
                             updated_at = NOW()
         ";
@@ -373,7 +376,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
         $stmt->bind_param(
-            "iiisssssssdidd",
+            "iiisssssssdiddd",
         
             $id_pedido_upsert,
             $id_cliente,
@@ -391,7 +394,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             $subtotal,
             $iva_incluido,
             $iva_total,
-            $total
+            $total,
+            $importe_pagado
         );
         $result2 = $stmt->execute();
 
