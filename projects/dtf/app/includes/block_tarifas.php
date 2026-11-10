@@ -92,7 +92,7 @@
 
                 </div><!--/#contenedor_tarifas -->
 
-                <button id="btn_add_tarifa" class="btn_add" onclick="openModal('full', 'Crear Tarifa', null, 'buildTarifa', true, 'nuevo');">+</button>
+                <button id="btn_add_tarifa" class="btn_add" onclick="addTarifa()">+</button>
 
             </div><!--/#block_tarifas_inner -->
         </div><!--/#block_tarifas -->

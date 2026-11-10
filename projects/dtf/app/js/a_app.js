@@ -14,6 +14,7 @@ async function init() {
     await loadTarifasAll();   
     await loadTaquillasAll(); 
     await loadPedidosAll(); 
+    await loadMovimientosAll(); 
     
     showBlockName(BlockNameActive);
 }
@@ -124,6 +125,10 @@ function showBlockName(blockName){
     closePuntosMenu();
 
     localStorage.setItem('BlockNameActive', blockName);
+
+    if(blockName == 'taquillas'&& id_almacen_uso){
+        pintDivSelected('d_almacenes', eid_d_almacenes, id_almacen_uso);
+    }
 }
 
 
@@ -307,7 +312,7 @@ function showToast(tipo = 'info', mensaje, duration = null, position = 'default'
 
     //si no hay duration, muestro btn de cerrar
     if(!duration || duration  <= 1000){
-        const ejemplo_btn = '<button class="toast_close" onclick="this.parentElement.remove()">×</button>';
+        //const ejemplo_btn = '<button class="toast_close" onclick="this.parentElement.remove()">×</button>';
 
         const toast_close = document.createElement('button');
         toast_close.className = 'toast_close';
@@ -538,6 +543,32 @@ function manejarLogin(){
     }
 }
 
+
+
+
+function manejarAlgo(){
+    console.log('=== function manejarAlgo() ===');
+
+    let aviso_html = `
+        <h3>Bienvenido de nuevo, ${username}!</h3>
+        <p>${email}</p>
+        <p>Puedes añadir clientes, crear productos, pedidos y guardar tus ajustes personales.</p>
+        <div class="wr_btns_vertical">
+            <button class="btn" onclick="window.location.href = '../home';">Inicio</button>            
+            <button class="btn" onclick="window.location.href = '../login';">Login</button>            
+            <button class="btn" onclick="window.location.href = '../logout';">Cerrar sesión</button>            
+        </div>
+    `;
+
+    showToast('ok', aviso_html, 1000, 'center', true, 'Sesión iniciada correctamente.');
+    return;
+    
+}
+
+
+
+
+
 function resetDivActive(contenedor, element_class) {//Ej.: contenedor = eid_contenedor_clientes, element_class = 'd_cliente'//sin punto
     contenedor.querySelectorAll(`.${element_class}`).forEach(d => {
         d.classList.remove('active');
@@ -610,4 +641,14 @@ function scrollIntoViewInContainer(container, element, smooth = true, block = 't
     } else {
         container.scrollTop = targetScroll;
     }
+}
+
+function displayElementos(arr, show = true){
+    arr.forEach(el => {
+        if(show){
+            el.classList.remove('d-none');
+        }else{
+            el.classList.add('d-none');
+        }
+    });
 }

@@ -299,7 +299,7 @@ function reemplazarValores(frase, arr_valores) {
     //let arr_valores = ['Sergio', 'Pedro'];
     // let aviso_text = reemplazarValores(frase, arr_valores);//con traduccion
 
-    if(arr_valores && arr_valores.length > 0){
+    if(arr_valores?.length > 0){
         arr_valores.forEach(valor => {
             // Reemplaza la primera ocurrencia de __VAR__ con el valor actual
             frase = frase.replace('__VAR__', valor);

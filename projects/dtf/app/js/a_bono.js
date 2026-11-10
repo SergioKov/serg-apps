@@ -2,6 +2,13 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addBono(){
+    console.log('=== function addBono() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Bono', null, 'buildBono', true, 'nuevo');
+}
+
 function buildBono(bono_action = null){
     console.log('=== function buildBono() ===');
 
@@ -223,7 +230,7 @@ function buildBono(bono_action = null){
 
                 <!-- Producto relacionado -->
                 <div class="form_group wr_input_general">
-                    <select id="id_producto" name="id_producto" class="d_productos_select sel_opt" required="">
+                    <select id="id_producto" name="id_producto" class="sel_productos_select sel_opt" required="">
                         <!-- aki productos -->
                     </select>
                     <label for="id_producto">Producto relacionado</label>
@@ -336,7 +343,7 @@ function buildBono(bono_action = null){
         }
     }
 
-    pintProductosOptionsEnSelect(contenedor.querySelector('.d_productos_select'), id_producto_val);//relleno select de productos
+    pintProductosOptionsEnSelect(contenedor.querySelector('.sel_productos_select'), id_producto_val);//relleno select de productos
 
     //añado al MODAL
     eid_bl_modalFullInner.append(contenedor);
@@ -386,13 +393,13 @@ async function guardarBono(event, modo_guardar = 'normal'){
 
         const form_bono = document.getElementById('form_bono');
 
-        let id_producto = form_bono?.querySelector('#id_producto').value.trim();
-        let nombre = form_bono?.querySelector('#nombre').value.trim();
-        let descripcion = form_bono?.querySelector('#descripcion').value.trim();
-        let cantidad = form_bono?.querySelector('#cantidad').value.trim();
-        let cantidad_bonificada = form_bono?.querySelector('#cantidad_bonificada').value.trim();
-        let envio_gratis = form_bono?.querySelector('#envio_gratis').value.trim();
-        let precio = form_bono?.querySelector('#precio').value.trim();
+        const id_producto = form_bono?.querySelector('#id_producto').value.trim();
+        const nombre = form_bono?.querySelector('#nombre').value.trim();
+        const descripcion = form_bono?.querySelector('#descripcion').value.trim();
+        const cantidad = form_bono?.querySelector('#cantidad').value.trim();
+        const cantidad_bonificada = form_bono?.querySelector('#cantidad_bonificada').value.trim();
+        const envio_gratis = form_bono?.querySelector('#envio_gratis').value.trim();
+        const precio = form_bono?.querySelector('#precio').value.trim();
     
         let errors = [];
 
@@ -664,7 +671,7 @@ async function deleteBono(event){
                 objBono = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadBonosAll();
+                await loadBonosAll();
 
                 showToast('ok', text_show, 5000);
             }

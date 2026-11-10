@@ -77,15 +77,15 @@ switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
     default:
         //'p.pedido_search' -> campo optimizado para busquedas con indice fulltext //aki no hace falta
-        $arr_campos = ['p.id_pedido', 'p.id_cliente', 'c.nombre', 'c.telefono', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.estado_pago', 'p.metodo_pago', 'p.subtotal', 'p.total', 'p.comentario'];
+        $arr_campos = ['p.id_pedido', 'p.id_cliente', 'c.nombre', 'c.telefono', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.tipo_pago', 'p.metodo_pago', 'p.estado_pago', 'p.subtotal', 'p.total', 'p.comentario'];
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['p.id_pedido', 'p.id_cliente', 'c.nombre', 'c.telefono', 'p.fecha_pedido', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.estado_pago', 'p.metodo_pago', 'p.subtotal', 'p.iva_total', 'p.total', 'p.comentario'];
+        $arr_campos = ['p.id_pedido', 'p.id_cliente', 'c.nombre', 'c.telefono', 'p.fecha_pedido', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.tipo_pago', 'p.metodo_pago', 'p.estado_pago', 'p.subtotal', 'p.iva_total', 'p.total', 'p.comentario'];
         break;
     
     case '3'://Todos los campos de texto disponibles
-        $arr_campos = ['c.nombre', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.estado_pago', 'p.metodo_pago', 'p.comentario'];
+        $arr_campos = ['c.nombre', 'p.canal_venta' ,'p.canal_aviso', 'p.estado_pedido', 'p.tipo_pago', 'p.metodo_pago', 'p.estado_pago', 'p.comentario'];
         break;
 
     case '4'://Todos los campos de números disponibles
@@ -113,9 +113,12 @@ $where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
 
 //test modos de where
 $sql_init = "SELECT
-            p.id_pedido, 
+            p.id_pedido,
+            p.id_almacen, 
             p.id_cliente, 
             p.id_taquilla,
+
+            a.nombre AS a_nombre,
 
             c.nombre,
             c.telefono,
@@ -129,8 +132,10 @@ $sql_init = "SELECT
             p.canal_aviso, 
 
             p.estado_pedido,
-            p.estado_pago,
+
+            p.tipo_pago,
             p.metodo_pago,
+            p.estado_pago,
 
             p.subtotal,
             p.iva_incluido,
@@ -144,6 +149,8 @@ $sql_init = "SELECT
             p.updated_at
                 
             FROM pedidos p
+
+            LEFT JOIN almacenes a ON a.id_almacen = p.id_almacen
 
             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente
 
@@ -209,8 +216,12 @@ if($result->num_rows > 0){
             'success' => true,
 
             'id_pedido' => $row['id_pedido'],
+            'id_almacen' => $row['id_almacen'],
             'id_cliente' => $row['id_cliente'],
             'id_taquilla' => $row['id_taquilla'],
+
+            //almacen
+            'a_nombre' => $row['a_nombre'],
             
             //cliente
             'nombre' => $row['nombre'],
@@ -226,8 +237,10 @@ if($result->num_rows > 0){
             'canal_aviso' => $row['canal_aviso'],
     
             'estado_pedido' => $row['estado_pedido'],
-            'estado_pago' => $row['estado_pago'],
+
+            'tipo_pago' => $row['tipo_pago'],
             'metodo_pago' => $row['metodo_pago'],
+            'estado_pago' => $row['estado_pago'],
             
             'subtotal' => $row['subtotal'],
             'iva_incluido' => $row['iva_incluido'],

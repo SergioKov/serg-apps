@@ -112,9 +112,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
     $id_taquilla = $datos['id_taquilla'];
+    $id_almacen = $datos['id_almacen'];
     $nombre = $datos['nombre'];
     $comentario = $datos['comentario'];
     $codigo_taquilla = ($datos['codigo_taquilla'] === '') ? null : $datos['codigo_taquilla'];//si viene vacio => null
+    $codigo_apertura_old = ($datos['codigo_apertura_old'] === '') ? null : $datos['codigo_apertura_old'];//si viene vacio => null
     $codigo_apertura = ($datos['codigo_apertura'] === '') ? null : $datos['codigo_apertura'];//si viene vacio => null
     $estado_taquilla = ($datos['estado_taquilla'] === '') ? null : $datos['estado_taquilla'];//si viene vacio => null
     
@@ -177,12 +179,14 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $sql2_upsert = "INSERT INTO taquillas
                     (
                         id_taquilla,
+                        id_almacen,
                     
                         nombre,
                         taquilla_search,
                         comentario,
                     
-                        codigo_taquilla,
+                        codigo_taquilla,                        
+                        codigo_apertura_old,
                         codigo_apertura,
                         estado_taquilla,
                     
@@ -190,22 +194,24 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     )        
                     VALUES
                     (
-                        ?,
+                        ?, ?,
                     
                         ?, ?, ?,
                         
-                        ?, ?, ?,
+                        ?, ?, ?, ?,
                     
                         NOW()
                     )
                     
                     ON DUPLICATE KEY UPDATE
                     
+                        id_almacen = VALUES(id_almacen),
                         nombre = VALUES(nombre),
                         taquilla_search = VALUES(taquilla_search),
                         comentario = VALUES(comentario),                    
                     
                         codigo_taquilla = VALUES(codigo_taquilla),
+                        codigo_apertura_old = VALUES(codigo_apertura_old),
                         codigo_apertura = VALUES(codigo_apertura),
                         estado_taquilla = VALUES(estado_taquilla),
                     
@@ -223,16 +229,17 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "isssdds",
+        "iisssisss",
     
         $id_taquilla_upsert,
+        $id_almacen,
     
         $nombre,
-        $taquilla_search,
-    
+        $taquilla_search,    
         $comentario,
     
         $codigo_taquilla,
+        $codigo_apertura_old,
         $codigo_apertura,
         $estado_taquilla
     );

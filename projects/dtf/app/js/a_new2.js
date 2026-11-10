@@ -1,11 +1,9 @@
-async function findWordsClienteSm(){
+async function findWordsClienteSm(find_by = 'words', referencia_modal, input_hidden){//buscar por palabras o todos
     console.log('=== async function findWordsClienteSm() ===');
     console.time('time_findWordsClienteSm');
 
-    const eid_inpt_find_cliente = document.getElementById('buscar_cliente');
-    // const eid_modo_cliente = document.getElementById('modo_cliente');
-    // const eid_buscar_en_cliente = document.getElementById('buscar_en_cliente');
-    const eid_regs_finded_cliente_sm = document.getElementById('regs_finded_cliente_sm');
+    const eid_inpt_find_cliente = referencia_modal.modal2.querySelector('#buscar_cliente');
+    const eid_regs_finded_cliente_sm = referencia_modal.modal2.querySelector('#regs_finded_cliente_sm');
 
     let words_input_trimed = eid_inpt_find_cliente.value.trim();
     let words_input = normalizeSearchText(words_input_trimed);//quito espacios duplicados, puntuacion, tildes etc...
@@ -13,38 +11,52 @@ async function findWordsClienteSm(){
     let buscar_en = 1;//eid_buscar_en_cliente.value;
     //console.log('--- words_input: ', words_input);
 
-    if(words_input == ''){
-        console.log('1. no has introducido nada....');
-        let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
-            
-        showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
-        return;
-    }
+    let objDataClientesSmFinded;
+
+    if(find_by == 'words'){//buscar clientes por palabras introducidas
+        if(words_input == ''){
+            console.log('1. no has introducido nada....');
+            let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
+                
+            showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
+            return;
+        }
+        
+        //reasigno arr_words global
+        if(words_input.includes(' ')){
+            arr_words = words_input.split(' ');
+        }else{
+            arr_words = [words_input];
+        }
     
-    //reasigno arr_words global
-    if(words_input.includes(' ')){
-        arr_words = words_input.split(' ');
-    }else{
-        arr_words = [words_input];
+        if(arr_words.length === 0){
+            console.log('2. no has introducido nada....');
+            let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
+                
+            showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
+            return;
+        }
+    
+        objFindParamsClienteSm.words_input = words_input;
+        objFindParamsClienteSm.modo = modo;
+        objFindParamsClienteSm.buscar_en = buscar_en;
+        objFindParamsClienteSm.findedRows = 0;//por defecto '0' luego lo actualizo si hay coincidencias
+
+        objDataClientesSmFinded = await getDataClientesFromBdByFind(objFindParamsClienteSm);
     }
 
-    if(arr_words.length === 0){
-        console.log('2. no has introducido nada....');
-        let aviso_text = `<p>No has introducido nada en el campo de búsqueda. Por favor, introduce texto para buscar.</p>`;
-            
-        showToast('warn', aviso_text, 50, 'center', true, 'Rellena el campo de búsqueda');
-        return;
+    if(find_by == 'all'){//buscar todos clientes
+        eid_inpt_find_cliente.value = '';//reset
+
+        objFindParamsClienteSm.words_input = '';
+        objFindParamsClienteSm.modo = modo;
+        objFindParamsClienteSm.buscar_en = buscar_en;
+        objFindParamsClienteSm.findedRows = 0;//por defecto '0' luego lo actualizo si hay coincidencias
+        
+        objDataClientesSmFinded = await getDataClientesAllFromBd();
     }
 
-    objFindParamsClienteSm.words_input = words_input;
-    objFindParamsClienteSm.modo = modo;
-    objFindParamsClienteSm.buscar_en = buscar_en;
-    objFindParamsClienteSm.findedRows = 0;//por defecto '0' luego lo actualizo si hay coincidencias
-
-
-    const objDataClientesSmFinded = await getDataClientesFromBdByFind(objFindParamsClienteSm);
-    console.log('objDataClientesSmFinded: ', objDataClientesSmFinded);   
-
+    console.log('objDataClientesSmFinded: ', objDataClientesSmFinded);
     
     const hay_coincidencias = (esObjeto(objDataClientesSmFinded) && objDataClientesSmFinded.arr_data?.length > 0);//true o false
     
@@ -72,16 +84,21 @@ async function findWordsClienteSm(){
         //Resultado de búsqueda
         eid_regs_finded_cliente_sm.classList.remove('d-none');
         eid_regs_finded_cliente_sm.innerHTML = `
-            <div class="wr_num_regs">
-                <div class="title_regs_finded">Registros encontrados: </div>
-                <div class="num_regs_finded">${objDataClientesSmFinded.arr_data.length}</div>
-                <div class="wr_close_item" onclick="closeDivBySelector('#regs_finded_cliente_sm')">
-                    <span class="close">✕</span>
+            <div class="wr_cliente_find_head">
+                <div class="wr_num_regs">
+                    <div class="title_regs_finded">Registros encontrados: </div>
+                    <div class="num_regs_finded">${objDataClientesSmFinded.arr_data.length}</div>
+                    <div class="wr_close_item" onclick="closeDivBySelector('#regs_finded_cliente_sm')">
+                        <span class="close">✕</span>
+                    </div>
                 </div>
+            </div>
+            <div class="wr_cliente_find_body">
+                <!-- aki los divs de clientes -->
             </div>
         `;
 
-
+        //Recorrer el array de clientes encontrados y crear divs para cada uno
         objDataClientesSmFinded.arr_data.forEach((el,i,arr) => {
             
             const d_cliente = document.createElement('div');
@@ -106,47 +123,44 @@ async function findWordsClienteSm(){
             `;
 
             //click en div
-            d_cliente.onclick = (e) => {
+            d_cliente.onclick = async (e) => {
 
                 console.log('element clicked: ', e.currentTarget);
-
                 console.log('el:', el);
 
                 const d_cliente_clicked = e.target.closest('.d_art');
                 console.log('d_cliente_clicked:', d_cliente_clicked);
 
-                const input_id_cliente = document.getElementById('id_cliente');
-                input_id_cliente.value = el.id_cliente;
-                
-                const eid_datos_cliente_finded = document.getElementById('datos_cliente_finded');
-                if(eid_datos_cliente_finded){
+                // const input_id_cliente = document.getElementById('id_cliente');
+                // input_id_cliente.value = el.id_cliente;
+                input_hidden.value = el.id_cliente;//es input_id_cliente que se pasa como parametro
 
-                    eid_datos_cliente_finded.querySelector('.cl_valor').innerHTML = `
-                        <div class="cl_valor_inner">
-                            <div class="nc_val d_flex_v">
-                                <div class="cl_campo_v">id</div>
-                                <div>${el.id_cliente}</div>
-                            </div> 
-                            <div class="nc_val d_flex_v">
-                                <div class="cl_campo_v">nombre</div>
-                                <div>${el.nombre || '(no asignado)'}</div>
-                            </div> 
-                            <div class="nc_val d_flex_v">
-                                <div class="cl_campo_v">tel</div>
-                                <div>${el.telefono}</div>
-                            </div> 
-                            <div class="nc_val d_flex_v">
-                                <div class="cl_campo_v">cod</div>
-                                <div>${el.codigo_cliente}</div>
-                            </div>                        
-                        </div>                        
-                    `;
+                //actualizo objeto de cliente con los datos del cliente seleccionado
+                id_cliente = el.id_cliente;//importante
+                objCliente = await getDataClienteFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                console.log('objCliente: ', objCliente);
+
+                const wr_saldo_cliente = document.getElementById('wr_saldo_cliente');
+                const eid_datos_cliente_finded = document.getElementById('datos_cliente_finded');
+
+                calcularTotal();
+
+                if(wr_saldo_cliente){
+                    //muestro el block de saldo cliente ya que el cliente ha sido seleccionado
+                    wr_saldo_cliente.classList.remove('d-none')
+                }
+                
+                if(eid_datos_cliente_finded){
+                    pintDatosClienteFinded(eid_datos_cliente_finded, objCliente, input_hidden);
 
                     eid_regs_finded_cliente_sm.classList.add('d-none');
+                    
+                    console.log('div clicked. cierro modal2');
+                    referencia_modal.cerrarModal2();
                 }
             }
 
-            eid_regs_finded_cliente_sm.append(d_cliente);
+            eid_regs_finded_cliente_sm.querySelector('.wr_cliente_find_body').append(d_cliente);
         });
 
         
@@ -156,6 +170,87 @@ async function findWordsClienteSm(){
     //await update_objFindParamsCliente();
 
     console.timeEnd('time_findWordsClienteSm');
+}
+
+async function pintDatosClienteFinded(contenedor, obj, input_id_cliente){
+    console.log('=== function pintDatosClienteFinded() ===');
+    console.log('obj (del cliente): ', obj);
+
+    if(!contenedor){
+        alert('no hay contenedor. No puedo pintar datos de cliente...');
+        return;
+    }
+
+    if(obj?.id_cliente){
+
+        id_cliente = obj.id_cliente;
+
+        //cliente
+        nombre_val = escaparHTML(obj.nombre) || '(no asignado)';
+        telefono_val = escaparHTML(obj.telefono) || '---';
+        codigo_cliente_val = escaparHTML(obj.codigo_cliente) || '(no asignado)';
+        saldo_val = (obj.saldo) ? escaparHTML(obj.saldo) : '';
+        saldo_text = (obj.saldo) ? `${saldo_val} €` : '--';
+
+        contenedor.innerHTML = `
+            <div class="cl_valor">    
+                <div class="cl_valor_inner">
+                    <div class="nc_val d_flex_v">
+                        <div class="cl_campo_v">id</div>
+                        <div>${obj.id_cliente}</div>
+                    </div> 
+                    <div class="nc_val d_flex_v">
+                        <div class="cl_campo_v">nombre</div>
+                        <div>${nombre_val}</div>    
+                    </div> 
+                    <div class="nc_val d_flex_v">
+                        <div class="cl_campo_v">tel</div>
+                        <div>${telefono_val}</div>    
+                    </div> 
+                    <div class="nc_val d_flex_v">
+                        <div class="cl_campo_v">cod</div>
+                        <div>${codigo_cliente_val}</div>    
+                    </div>
+                    <div class="nc_val d_flex_v">
+                        <div class="cl_campo_v">Saldo</div>
+                        <div>${saldo_text}</div>
+                    </div> 
+                    <div class="nc_val_x d_flex_v">
+                        <div class="close">✕</div>
+                    </div> 
+                </div>
+            </div>
+        `;
+
+        contenedor.onclick = (e) => {
+            //click cerrar
+            if(e.target.closest('.nc_val_x')){
+                //alert('click en nc_val_x')
+                resetIdCliente(contenedor, input_id_cliente);
+            }
+        }
+
+    }else{
+        console.log('no hay cliente seleccionado...');
+
+        contenedor.innerHTML = `
+            <div class="cl_valor">    
+                <div class="cl_valor_inner w_100">
+                    <div class="prim">No hay cliente vinculado</div> 
+                </div>
+            </div>
+        `;            
+    }
+}
+
+function resetIdCliente(contenedor, input_id_cliente){
+    console.log('=== function resetIdCliente() ===');
+
+    id_cliente = null;//reset
+    input_id_cliente.value = '';//reset
+    objCliente = {};//reset
+    
+    pintDatosClienteFinded(contenedor, objCliente, input_id_cliente);
 }
 
 
@@ -184,18 +279,24 @@ function pintContenedorEstado(contenedor, estado_val){
             }    
             break;
 
-    
-        case 'wr_estado_pago'://estado_pago
-            if(['pendiente', 'parcial', 'pagado', 'recurrente'].includes(estado_val)){
+        case 'wr_tipo_pago'://tipo_pago
+            if(['normal', 'recurrente'].includes(estado_val)){
                 contenedor.className = `wr_sel_opt_estado ${estado_val}`;
             }else{
                 contenedor.className = `wr_sel_opt_estado`;
             }    
-            break;
+            break;  
 
-    
         case 'wr_metodo_pago'://metodo_pago
             if(['efectivo', 'bizum', 'tarjeta', 'transferencia'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`;
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;  
+
+        case 'wr_estado_pago'://estado_pago
+            if(['pendiente', 'parcial', 'pagado'].includes(estado_val)){
                 contenedor.className = `wr_sel_opt_estado ${estado_val}`;
             }else{
                 contenedor.className = `wr_sel_opt_estado`;

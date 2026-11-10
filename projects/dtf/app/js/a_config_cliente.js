@@ -35,7 +35,7 @@ let objClienteDef = {
     created_at: "2026/09/29 16:20:05",
     updated_at: "2026/09/29 16:20:05",
 }    
-objCliente = objClienteDef;
+//objCliente = objClienteDef;
 
 
 let objModoBusquedaCliente = {

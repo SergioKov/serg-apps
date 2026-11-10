@@ -75,6 +75,7 @@ $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 // Preparar y ejecutar la consulta
 $sql_init = "SELECT 
                 id_pedido, 
+                id_almacen, 
                 id_cliente, 
                 id_taquilla,
 
@@ -102,12 +103,14 @@ if($result->num_rows > 0){
     //echo_json_x($row, 'row']);
     
     $id_pedido_bd = $row['id_pedido'];
+    $id_almacen_bd = $row['id_almacen'];
     $id_cliente_bd = $row['id_cliente'];
     $id_taquilla_bd = $row['id_taquilla'];
 
     $data = [
         'success' => true,
         'id_pedido' => $row['id_pedido'],
+        'id_almacen' => $row['id_almacen'],
         'id_cliente' => $row['id_cliente'],
         'id_taquilla' => $row['id_taquilla'],
         'fecha_pedido' => $row['fecha_pedido'],

@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addTarifa(){
+    console.log('=== function addTarifa() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Tarifa', null, 'buildTarifa', true, 'nuevo');
+}
+
+
 function buildTarifa(tarifa_action = null){
     console.log('=== function buildTarifa() ===');
 
@@ -218,7 +226,7 @@ function buildTarifa(tarifa_action = null){
 
                 <!-- Producto relacionado -->
                 <div class="form_group wr_input_general">
-                    <select id="id_producto" name="id_producto" class="d_productos_select sel_opt" required="">
+                    <select id="id_producto" name="id_producto" class="sel_productos_select sel_opt" required="">
                         <!-- aki productos -->
                     </select>
                     <label for="id_producto">Producto relacionado</label>
@@ -290,7 +298,7 @@ function buildTarifa(tarifa_action = null){
         }
     }
     
-    pintProductosOptionsEnSelect(contenedor.querySelector('.d_productos_select'), id_producto_val);//relleno select de productos
+    pintProductosOptionsEnSelect(contenedor.querySelector('.sel_productos_select'), id_producto_val);//relleno select de productos
 
     eid_bl_modalFullInner.append(contenedor);
 
@@ -299,7 +307,7 @@ function buildTarifa(tarifa_action = null){
 
 
 function pintProductosOptionsEnSelect(selectElement, id_producto_selected = null){
-    console.log('=== function pintGruposOptionsEnSelect() ===');
+    console.log('=== function pintProductosOptionsEnSelect() ===');
     
     if(!selectElement){
         return;
@@ -349,12 +357,12 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
 
         const form_tarifa = document.getElementById('form_tarifa');
 
-        let nombre = form_tarifa?.querySelector('#nombre').value.trim();
-        let descripcion = form_tarifa?.querySelector('#descripcion').value.trim();
-        let id_producto = form_tarifa?.querySelector('#id_producto').value.trim();
-        let cantidad_desde = form_tarifa?.querySelector('#cantidad_desde').value.trim();
-        let cantidad_hasta = form_tarifa?.querySelector('#cantidad_hasta').value.trim();
-        let precio = form_tarifa?.querySelector('#precio').value.trim();
+        const nombre = form_tarifa?.querySelector('#nombre').value.trim();
+        const descripcion = form_tarifa?.querySelector('#descripcion').value.trim();
+        const id_producto = form_tarifa?.querySelector('#id_producto').value.trim();
+        const cantidad_desde = form_tarifa?.querySelector('#cantidad_desde').value.trim();
+        const cantidad_hasta = form_tarifa?.querySelector('#cantidad_hasta').value.trim();
+        const precio = form_tarifa?.querySelector('#precio').value.trim();
     
         let errors = [];
 
@@ -366,7 +374,7 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
             errors.push('Nombre del tarifa');
         }
         if(cantidad_desde == ''){
-            errors.push('Cantidad del tarifa en metros');
+            errors.push('Cantidad DESDE en metros');
         }
         if(precio == ''){
             errors.push('Precio del tarifa');
@@ -622,7 +630,7 @@ async function deleteTarifa(event){
                 objTarifa = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadTarifasAll();
+                await loadTarifasAll();
 
                 showToast('ok', text_show, 5000);
             }

@@ -76,6 +76,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <link rel="stylesheet" href="./css/toast.css">
     <link rel="stylesheet" href="./css/app_form.css">
     <link rel="stylesheet" href="./css/app_modal.css">
+    <link rel="stylesheet" href="./css/app_modal2.css">
     <link rel="stylesheet" href="./css/app_scroll.css">
     <link rel="stylesheet" href="./css/app_public.css">
     <link rel="stylesheet" href="./css/app_resp.css">
@@ -125,8 +126,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="servicios">Servicios</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="tarifas">Tarifas</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="taquillas">Taquillas</li>
-
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="pedidos">Pedidos</li>
+
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="movimientos">Movimientos</li>
+
                 <li class="d-none" on-click="" data-block_name="ingresos">Ingresos</li>
                 <li class="d-none" on-click="" data-block_name="gastos">Gastos</li>
                 <li class="d-none" on-click="" data-block_name="usuarios">Usuarios</li>
@@ -156,9 +159,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
         <?php include __DIR__ . '/includes/block_taquillas.php'; ?>
 
+        <?php include __DIR__ . '/includes/block_pedidos.php'; ?>
 
         <!-- pendiente de hacer... -->
-        <?php include __DIR__ . '/includes/block_pedidos.php'; ?>
+        <?php include __DIR__ . '/includes/block_movimientos.php'; ?>
 
 
     </div><!--/#main-->
@@ -262,6 +266,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_config_tarifa.js"></script>
     <script src="js/a_config_taquilla.js"></script>
     <script src="js/a_config_pedido.js"></script>
+    <script src="js/a_config_movimiento.js"></script>
 
     <script src="js/a_app.js"></script>
     
@@ -273,8 +278,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_tarifa.js"></script>
     <script src="js/a_taquilla.js"></script>
     <script src="js/a_pedido.js"></script>
+    <script src="js/a_movimiento.js"></script>
     
     <script src="js/a_modal.js"></script>
+    <script src="js/a_modal2.js"></script>
     <script src="js/a_listen.js"></script>
     <script src="js/a_new.js"></script>
     <script src="js/a_new2.js"></script>

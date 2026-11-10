@@ -8,6 +8,9 @@ const eid_block_taquillas = document.getElementById('block_taquillas');
 const eid_bl_buscar_taquillas = document.getElementById('bl_buscar_taquillas');
 const eid_filtros_aplicados_taquillas = document.getElementById('filtros_aplicados_taquillas');
 const eid_contenedor_taquillas = document.getElementById('contenedor_taquillas');
+const eid_d_almacenes = document.getElementById('d_almacenes');
+
+let contenedores_taquillas = {};
 
 //==================================================================//
 //end - main
@@ -19,6 +22,16 @@ let objTaquilla = {};//de solo un taquilla
 let objDataTaquillasBd = {};//objeto con datos de BD de todos los taquillas 
 let objDataTaquillas = {};//objeto con datos de todos los taquillas general
 let objDataTaquillasFinded = {};//objeto con datos de todos los taquillas encontrados en 'Buscar' 
+let objDataTaquillasByAlmacen = {};//objeto con datos de todos los taquillas encontrados en 'Buscar' 
+
+let obj_classes_almacen_grid = {
+    1: 'grid_a',//Alcorcón
+    2: 'grid_f',//Fuenlabrada
+    default: 'grid_o',//otro
+}
+
+//Alcorcón
+const arr_numeros_taquillas = [21, 31, 41, 51];//numeros despues de las cuales hay que añadir un div invisible para separar visualmente los grupos de taquillas
 
 let objTaquillaDef = {
     id_taquilla: 1,

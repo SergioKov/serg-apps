@@ -187,6 +187,12 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },    
+    objFindParamsMovimiento: {
+        words_input: "Demko",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },    
 }
 
 let obj_ajustes = {};
@@ -220,7 +226,8 @@ let {
     objFindParamsBono,
     objFindParamsTarifa,
     objFindParamsTaquilla,
-    objFindParamsPedido
+    objFindParamsPedido,
+    objFindParamsMovimiento
 
 } = obj_ajustes;
 
@@ -231,20 +238,27 @@ let BlockNameActive = localStorage.getItem('BlockNameActive') || 'almacenes';//d
 
 //para pedidos
 const arr_divs_permitidos = [
+    'd_confirmado',
+    'd_almacenes',
     'd_envio_gratis',
     'd_iva_incluido',
     'd_canal_venta',
     'd_canal_aviso',
+    'd_tipo_pago',
     'd_tipo_concepto',
+    'd_tipo_movimiento',
     'contenedor_tipos'
 ];
 
 const arr_valores_permitidos = [
+    'confirmado',
     'envio_gratis',
     'iva_incluido',
     'canal_venta',
     'canal_aviso',
-    'tipo_concepto'
+    'tipo_pago',
+    'tipo_concepto',
+    'tipo_movimiento'
 ];
 
 
@@ -299,7 +313,24 @@ let pedido = {
     subtotal: 0,
     iva_incluido: 1,
     iva_total: 0,
-    total: 0
+    total: 0,
+    importe_pagado: 0,
+    saldo: 0
 };
 
+let cliente = {
+    info_saldo_cliente: 'Sin información todavía...',
+}
+
 let arr_items_pedido_bd = [];
+
+let mensaje_whatsapp = 
+`Hola. Su pedido ya esta listo para recoger. 
+Te lo dejamos en las cajas fuertes que están en la entrada al local 
+Taquilla: 1
+Código: 1111B
+Total: 30€
+Girar el pestillo a la derecha para abrir y a la izquierda para bloquear. 
+Puedes dejar el dinero dentro de la caja y bloquearla.
+Gracias.
+`;

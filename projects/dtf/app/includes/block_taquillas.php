@@ -56,7 +56,17 @@
 
                 </div><!--/#bl_buscar_taquillas -->
 
-                <div id="contenedor_taquillas" class="wr_d_taquillas wr_d_arts grid_container">
+
+                <div class="wr_d_almacenes">
+                    <h5>Almacen:</h5>
+                    <div id="d_almacenes" class="wr_varios_btns so-lo_ver">
+                        <!-- <div class="dbtn active" onclick="showTaquillasByAlmacen('todos')" data-value="todos">Todos</div> -->
+                        <!-- <div class="dbtn" onclick="showTaquillasByAlmacen(this.dataset.value)" data-value="1">Alcorcón</div> -->
+                        <!-- <div class="dbtn" onclick="showTaquillasByAlmacen(this.dataset.value)" data-value="2">Fuenlabrada</div> -->
+                    </div>
+                </div>
+
+                <div id="contenedor_taquillas" class="">
 
                     <div class="d_taquilla d_art" data-tipo_art="taquilla" data-id_taquilla="5">
                         <div class="datos_taquilla datos_art">
@@ -82,7 +92,7 @@
 
                 </div><!--/#contenedor_taquillas -->
 
-                <button id="btn_add_taquilla" class="btn_add" onclick="openModal('full', 'Crear Taquilla', null, 'buildTaquilla', true, 'nuevo');">+</button>
+                <button id="btn_add_taquilla" class="btn_add" onclick="addTaquilla()">+</button>
 
             </div><!--/#block_taquillas_inner -->
         </div><!--/#block_taquillas -->

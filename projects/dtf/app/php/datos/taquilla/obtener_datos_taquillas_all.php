@@ -48,10 +48,13 @@ include($niveles_para_subir . 'includes/connect_db.php');
 //Consula todos los taquillas no eliminados 
 $sql_init = "SELECT 
                 t.id_taquilla, 
+                t.id_almacen,
+
                 t.nombre, 
                 t.comentario, 
 
                 t.codigo_taquilla,
+                t.codigo_apertura_old,
                 t.codigo_apertura,
                 t.estado_taquilla,
 
@@ -97,10 +100,13 @@ if($result->num_rows > 0){
             'success' => true,
 
             'id_taquilla' => $row['id_taquilla'],
+            'id_almacen' => $row['id_almacen'],
+            
             'nombre' => $row['nombre'],
             'comentario' => $row['comentario'],
             
             'codigo_taquilla' => $row['codigo_taquilla'],
+            'codigo_apertura_old' => $row['codigo_apertura_old'],
             'codigo_apertura' => $row['codigo_apertura'],
             'estado_taquilla' => $row['estado_taquilla'],
     

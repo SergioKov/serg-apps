@@ -296,6 +296,17 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     break;                    
 
 
+                case 'buildMovimiento':
+                    eid_h4_text.innerHTML = headerTitle;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildPedido()');
+                    let movimiento_action = args;
+                    console.log('movimiento_action:', movimiento_action);
+                    buildMovimiento(movimiento_action);
+                    break;                    
+
+
 
                     
                 //========================================//
@@ -426,6 +437,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     let pedido_action2 = args;
                     console.log('pedido_action2:', pedido_action2);
                     buildBuscarPedido();
+                    break;
+
+
+                case 'buildBuscarMovimiento':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarPedido()');
+                    let movimiento_action2 = args;
+                    console.log('movimiento_action2:', movimiento_action2);
+                    buildBuscarMovimiento();
                     break;
 
 

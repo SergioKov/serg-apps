@@ -92,7 +92,7 @@
 
                 </div><!--/#contenedor_bonos -->
 
-                <button id="btn_add_bono" class="btn_add" onclick="openModal('full', 'Crear Bono', null, 'buildBono', true, 'nuevo');">+</button>
+                <button id="btn_add_bono" class="btn_add" onclick="addBono()">+</button>
 
             </div><!--/#block_bonos_inner -->
         </div><!--/#block_bonos -->

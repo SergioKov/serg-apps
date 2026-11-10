@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addAlmacen(){
+    console.log('=== function addAlmacen() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Almacen', null, 'buildAlmacen', true, 'nuevo');
+}
+
+
 function buildAlmacen(almacen_action = null){
     console.log('=== function buildAlmacen() ===');
 
@@ -22,6 +30,8 @@ function buildAlmacen(almacen_action = null){
     
     //otras vars
     let cl_id_almacen = 'd-none';//oculto
+    let cl_id_almacen_uso = '';//no marco
+    let btn_usar_almacen_text = 'Usar este almacán';//por defecto
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
     
@@ -63,6 +73,11 @@ function buildAlmacen(almacen_action = null){
                 <img class="img_acts img_editar" src="./images/img_editar_white_24x24.png">
             `;
             p_mensaje.append(wr_img_editar_en_ver);
+        }
+
+        if(id_almacen_uso == id_almacen_val){
+            cl_id_almacen_uso = 'uso';//marco el boton que es almacen de uso
+            btn_usar_almacen_text = 'Almacén de uso';//cambio texto del boton
         }
     }
 
@@ -155,7 +170,19 @@ function buildAlmacen(almacen_action = null){
         ${(almacen_action == 'eliminar') ? wr_btns_eliminar.outerHTML : '' }
     `;
     
-    //Botones de FORMULARIO
+
+
+
+    
+    //Boton - Usar este alamacén
+    const wr_btn_usar_almacen = document.createElement('div');
+    wr_btn_usar_almacen.className = 'wr_btn_usar_almacen';
+    wr_btn_usar_almacen.innerHTML = `
+        <div id="btn_usar_almacen" class="btn btn_big ${cl_id_almacen_uso}" onclick="usarAlmacen(${id_almacen_val})">${btn_usar_almacen_text}</div>
+    `;
+
+    
+    //Botones de FORMULARIO - Limpiar, Guardar
     const wr_btns_form = document.createElement('div');
     wr_btns_form.className = 'wr_btns_form';
     wr_btns_form.innerHTML = `
@@ -202,7 +229,8 @@ function buildAlmacen(almacen_action = null){
                     <textarea id="comentario" name="comentario" rows="4" required="" placeholder=" ">${comentario_val}</textarea>
                     <label class="lab_textarea" for="comentario">Comentario</label>
                 </div>
-
+                
+                ${ (['ver','editar'].includes(almacen_action)) ? wr_btn_usar_almacen.outerHTML : ''}
 
                 ${ (['nuevo','editar'].includes(almacen_action)) ? wr_btns_form.outerHTML : '' }
 
@@ -233,6 +261,32 @@ function buildAlmacen(almacen_action = null){
     console.log('fin func');
 }
 
+function usarAlmacen(id_almacen_val){
+    if(!id_almacen_val) return;
+
+    const btn_usar_almacen = document.getElementById('btn_usar_almacen');
+    btn_usar_almacen.textContent = 'Almacén de uso';
+    btn_usar_almacen.classList.add('uso');
+
+    id_almacen_uso = id_almacen_val;
+    localStorage.setItem('id_almacen_uso', id_almacen_uso);
+
+    //filtro taquillas por id_almacen_uso
+    objDataTaquillasByAlmacen.arr_data = objDataTaquillas?.arr_data?.filter(taq => taq.id_almacen == id_almacen_uso);
+
+    //pinto en bg div del almacen de uso en almacenes
+    eid_contenedor_almacenes.querySelectorAll('.d_almacen').forEach(div => {
+        if(div.dataset.id_almacen == id_almacen_uso){
+            div.classList.add('uso');
+        }else{
+            div.classList.remove('uso');
+        }
+    });
+
+    //cambio el almacen de uso en taquillas
+    showTaquillasByAlmacen(id_almacen_uso);
+}
+
 async function guardarAlmacen(event, modo_guardar = 'normal'){
     //modo_guardar: 'normal' o 'fast' (para guardar rápido sin pasar por el formulario, 
     //solo con los datos actuales de objAlmacen)
@@ -254,9 +308,9 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
 
         const form_almacen = document.getElementById('form_almacen');
 
-        let nombre = form_almacen?.querySelector('#nombre').value.trim();
-        let direccion = form_almacen?.querySelector('#direccion').value.trim();
-        let comentario = form_almacen?.querySelector('#comentario').value.trim();
+        const nombre = form_almacen?.querySelector('#nombre').value.trim();
+        const direccion = form_almacen?.querySelector('#direccion').value.trim();
+        const comentario = form_almacen?.querySelector('#comentario').value.trim();
 
     
         let errors = [];
@@ -320,6 +374,9 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                 console.log('id_almacen: ', data.id_almacen);
                 id_almacen = data.id_almacen;//guardo el id del cliente recién creada
 
+                //guardo el objeto antiguo para comparar después con el nuevo
+                const objAlmacenOld = structuredClone(objAlmacen);
+
                 //Cojo datos del almacen desde BD
                 objAlmacen = await getDataAlmacenFromBd();//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objAlmacen: ', objAlmacen);
@@ -333,7 +390,7 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                     //Actualizo d_art 
                     pintAlmacenActiveSoloDatos();//en el contenedor_almacens
 
-                } else {//es insert del cliente nuevo
+                } else {//es insert del almacen nuevo
                     
                     console.warn('No encontrado objAlmacen.id_almacen en objDataAlmacenes.arr_data');
                     //entonces es un cliente nuevo que se crea
@@ -350,7 +407,21 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintAlmacenOne(objAlmacen, 'arriba');//div de cliente se pinta al inicio (arriba)
                     loadAlmacenesAll();
-                }                
+                } 
+                
+                //compruebo si datos de almacén se han cambiado en edit actual y si es nuevo
+                const arr_camposComparar = ['id_almacen', 'nombre', 'direccion', 'comentario'];
+                
+                //Si algún campo no coincide, entonces es que se ha modificado el almacen o se ha creado uno nuevo
+                const almacenModificado = arr_camposComparar.some(
+                    campo => String(objAlmacenOld[campo]) !== String(objAlmacen[campo]) //true o false
+                );
+
+                if (almacenModificado) {
+                    console.log('El almacén ha sido modificado o se ha creado uno nuevo');
+                    //repinto taquillas ya que tienen almacenes actualizados o nuevos
+                    await loadTaquillasAll();
+                }
 
                 closeModal(null,true);
             }
@@ -517,7 +588,10 @@ async function deleteAlmacen(event){
                 objAlmacen = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadAlmacenesAll();
+                await loadAlmacenesAll();
+
+                //repinto taquillas ya que tienen almacén eliminado
+                await loadTaquillasAll();
 
                 showToast('ok', text_show, 5000);
             }
@@ -738,9 +812,10 @@ function pintAlmacenOne(objAlmacenOne, lugar_de_pintar = 'abajo'){//pintar solo 
     }
     
     let cl_da_comm = (objAlmacenOne.comentario) ? '' : 'd-none';//si no hay título, lo oculto 
+    let cl_alamacen_uso = (objAlmacenOne.id_almacen == id_almacen_uso) ? 'uso' : '';//si es el almacen de uso, lo marco
 
     const d_almacen = document.createElement('div');
-    d_almacen.className = 'd_almacen d_art';
+    d_almacen.className = `d_almacen d_art ${cl_alamacen_uso}`;
     d_almacen.dataset.id_almacen = objAlmacenOne.id_almacen;
     d_almacen.dataset.tipo_art = 'cliente';
     d_almacen.innerHTML = `

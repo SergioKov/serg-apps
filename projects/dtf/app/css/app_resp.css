@@ -224,6 +224,10 @@
         flex-direction: column;
         align-items: flex-end;
     }
+    
+    #contenedor_tipos {
+        height: 210px;
+    }
 }
 
 

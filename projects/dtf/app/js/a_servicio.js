@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addServicio(){
+    console.log('=== function addServicio() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Servicio', null, 'buildServicio', true, 'nuevo');
+}
+
+
 function buildServicio(servicio_action = null){
     console.log('=== function buildServicio() ===');
 
@@ -264,9 +272,9 @@ async function guardarServicio(event, modo_guardar = 'normal'){
 
         const form_servicio = document.getElementById('form_servicio');
 
-        let nombre = form_servicio?.querySelector('#nombre').value.trim();
-        let descripcion = form_servicio?.querySelector('#descripcion').value.trim();
-        let precio = form_servicio?.querySelector('#precio').value.trim();
+        const nombre = form_servicio?.querySelector('#nombre').value.trim();
+        const descripcion = form_servicio?.querySelector('#descripcion').value.trim();
+        const precio = form_servicio?.querySelector('#precio').value.trim();
     
         let errors = [];
 
@@ -525,7 +533,7 @@ async function deleteServicio(event){
                 objServicio = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadServiciosAll();
+                await loadServiciosAll();
 
                 showToast('ok', text_show, 5000);
             }

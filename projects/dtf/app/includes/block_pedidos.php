@@ -106,7 +106,7 @@
                 </div><!--/.wr_d_pedidos -->
 
 
-                <button id="btn_add_pedido" class="btn_add" onclick="openModal('full', 'Crear Pedido', null, 'buildPedido', true, 'nuevo');">+</button>
+                <button id="btn_add_pedido" class="btn_add" onclick="addPedido()">+</button>
 
 
             </div><!--/#block_pedidos_inner -->

@@ -162,24 +162,29 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
     $id_pedido = $datos['id_pedido'];
+    $id_almacen = ($datos['id_almacen'] === '') ? null : $datos['id_almacen'];//si viene vacio => null;
     $id_cliente = $datos['id_cliente'];
     $id_taquilla = ($datos['id_taquilla'] === '') ? null : $datos['id_taquilla'];//si viene vacio => null
     $fecha_pedido = $datos['fecha_pedido'];
     $canal_venta = $datos['canal_venta'];
     $canal_aviso = $datos['canal_aviso'];
+    $tipo_pago = $datos['tipo_pago'];
     $comentario = $datos['comentario'];
     $estado_pedido = $datos['estado_pedido'];
     $estado_pago = $datos['estado_pago'];
     $metodo_pago = $datos['metodo_pago'];
 
-    $subtotal = ($datos['subtotal'] === '') ? null : $datos['subtotal'];//si viene vacio => null
+    $subtotal = ($datos['subtotal'] === '') ? null : (float) $datos['subtotal'];//si viene vacio => null
     $iva_incluido = ($datos['iva_incluido'] === '') ? 0 : $datos['iva_incluido'];//si viene vacio => 0
-    $iva_total = ($datos['iva_total'] === '') ? null : $datos['iva_total'];//si viene vacio => null
-    $total = ($datos['total'] === '') ? null : $datos['total'];//si viene vacio => null
-    $importe_pagado = ($datos['importe_pagado'] === '') ? null : $datos['importe_pagado'];//si viene vacio => null
+    $iva_total = ($datos['iva_total'] === '') ? null : (float) $datos['iva_total'];//si viene vacio => null
+    $total = ($datos['total'] === '') ? null : (float) $datos['total'];//si viene vacio => null
+    $importe_pagado = ($datos['importe_pagado'] === '') ? null : (float) $datos['importe_pagado'];//si viene vacio => null
 
     //si es nuevo pedido necesito esto
+    $stored_id_cliente = null;//si se edita pedido se reasigna
     $stored_id_taquilla = null;//si se edita pedido se reasigna
+    $stored_importe_pagado = 0;//si se edita pedido se reasigna
+    $saldo_cliente = 0;//si se edita pedido se reasigna
     
     //variables de busqueda
     // $pedido_search = normalizeSearchText($fecha_pedido ?? '');
@@ -201,11 +206,19 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //busco si hay registro en la tabla a donde insertar datos
     $sql_prep = "SELECT 
                 
-                id_pedido, 
-                id_taquilla
+                p.id_pedido, 
+                p.id_cliente,
+                p.id_taquilla,
+                p.importe_pagado,
+                
+                c.saldo AS saldo_cliente 
 
-                FROM pedidos 
-                WHERE id_pedido = ? 
+                FROM pedidos p
+
+                LEFT JOIN clientes c ON p.id_cliente = c.id_cliente 
+
+                WHERE p.id_pedido = ?
+
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
@@ -220,7 +233,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $row = $result->fetch_assoc();
 		//echo_json_x($row,'row');		
         $stored_id_pedido = $row["id_pedido"];//1
+        $stored_id_cliente = $row["id_cliente"];//1
         $stored_id_taquilla = $row["id_taquilla"];//1
+        $stored_importe_pagado = (float) $row["importe_pagado"];
+
         $hay_id_pedido_en_tabla = true;
     }else{
         $hay_id_pedido_en_tabla = false;
@@ -285,6 +301,60 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
+    //saco saldo del cliente
+    if($id_cliente){
+        
+        //busco si la taquilla está libre para poder ocuparse
+        $sql_cliente = "SELECT     
+                        id_cliente,
+                        nombre,
+                        saldo
+
+                        FROM clientes 
+                        WHERE id_cliente = ?
+        ";
+        $stmt = $conn->prepare($sql_cliente);
+
+        if (!$stmt) {
+            throw new Exception(
+                'Error al preparar la consulta de cliente: ' . $conn->error
+            );
+        }
+
+        $stmt->bind_param("i", $id_cliente);
+        $stmt->execute();
+        $result_cliente = $stmt->get_result();
+
+        if($result_cliente->num_rows > 0){
+            $row_cliente = $result_cliente->fetch_assoc();
+            $saldo_cliente = (float) $row_cliente["saldo"];
+
+            $hay_cliente = true;
+        }else{
+            $hay_cliente = false;
+        }
+
+        if($hay_cliente == false){
+            
+            //echo_json_x($row,'row');
+            
+            $respuesta = [
+                'success' => false,
+                'error' => 'No existe el cliente indicado. Selecciona al cliente que existe por favor.',
+                'conn_error' => $conn->error
+            ];
+
+            //Cierro conexion con bd
+            $conn->close();	
+
+            // Enviar respuesta al pedido en formato JSON
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($respuesta,JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+    }
+
+
 
     try {
         
@@ -308,6 +378,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $sql2_upsert = "INSERT INTO pedidos
                         (
                             id_pedido,
+                            id_almacen,
                             id_cliente,
                             id_taquilla,
                         
@@ -317,8 +388,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                             comentario,
 
                             estado_pedido,
-                            estado_pago,
+
+                            tipo_pago,
                             metodo_pago,
+                            estado_pago,
                         
                             subtotal,
                             iva_incluido,
@@ -330,9 +403,11 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         )        
                         VALUES
                         (
-                            ?, ?, ?,
+                            ?, ?, ?, ?,
                         
                             ?, ?, ?, ?,
+                            
+                            ?, 
                             
                             ?, ?, ?,
                             
@@ -343,17 +418,20 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         
                         ON DUPLICATE KEY UPDATE
                         
+                            id_almacen = VALUES(id_almacen),
                             id_cliente = VALUES(id_cliente),
                             id_taquilla = VALUES(id_taquilla),
 
                             fecha_pedido = VALUES(fecha_pedido),
+                            comentario = VALUES(comentario),                    
                             canal_venta = VALUES(canal_venta),
                             canal_aviso = VALUES(canal_aviso),
-                            comentario = VALUES(comentario),                    
                         
                             estado_pedido = VALUES(estado_pedido),
-                            estado_pago = VALUES(estado_pago),
+
+                            tipo_pago = VALUES(tipo_pago),
                             metodo_pago = VALUES(metodo_pago),
+                            estado_pago = VALUES(estado_pago),
 
                             subtotal = VALUES(subtotal),
                             iva_incluido = VALUES(iva_incluido),
@@ -376,9 +454,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
         $stmt->bind_param(
-            "iiisssssssdiddd",
+            "iiiissssssssdiddd",
         
             $id_pedido_upsert,
+            $id_almacen,
             $id_cliente,
             $id_taquilla,
         
@@ -388,8 +467,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             $comentario, 
             
             $estado_pedido,
-            $estado_pago,
+
+            $tipo_pago,
             $metodo_pago,
+            $estado_pago,
 
             $subtotal,
             $iva_incluido,
@@ -564,7 +645,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
         
-        // Gestionar cambios de taquilla - new
+        // Gestionar cambios de taquilla
         if ($id_taquilla != $stored_id_taquilla) {
 
             // Si hay una nueva taquilla, marcarla como ocupada
@@ -621,7 +702,46 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                 $stmt->close();
             }
         }
-        
+
+        /*
+        //=============================================//
+        // start - Gestionar cambios de saldo en Cliente
+        //=============================================//
+        if ($importe_pagado != $stored_importe_pagado){
+
+            //calculo nuevo saldo del cliente
+            $saldo_new = $saldo_cliente - $importe_pagado;
+            //echo_json_x($saldo_new,'saldo_new'); 
+            
+            $sql = "UPDATE clientes
+                    SET saldo = $saldo_new
+                    WHERE id_cliente = ?
+            ";
+            $stmt = $conn->prepare($sql);
+
+            if (!$stmt) {
+                throw new Exception(
+                    'Error al preparar la consulta para actualizar saldo del cliente: '
+                    . $conn->error
+                );
+            }
+
+            $stmt->bind_param("i", $id_cliente);
+
+            if (!$stmt->execute()) {
+                throw new Exception(
+                    'Error al actualizar saldo del cliente: '
+                    . $stmt->error
+                );
+            }
+
+            $stmt->close();
+        }
+        //=============================================//
+        // end - Gestionar cambios de saldo en Cliente
+        //=============================================//
+        */
+  
 
 
         // Todas las operaciones se han completado correctamente

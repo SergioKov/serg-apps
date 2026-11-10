@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addCliente(){
+    console.log('=== function addCliente() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Cliente', null, 'buildCliente', true, 'nuevo');
+}
+
+
 function buildCliente(cliente_action = null){
     console.log('=== function buildCliente() ===');
 
@@ -15,6 +23,7 @@ function buildCliente(cliente_action = null){
     let nombre_val = '';
     let telefono_val = '';
     let codigo_cliente_val = '';
+    let email_val = '';
     let direccion_val = '';
     let comentario_val = '';
 
@@ -30,6 +39,7 @@ function buildCliente(cliente_action = null){
     
     //otras vars
     let cl_id_cliente = 'd-none';//oculto
+    let cl_saldo = '';//se reasigna luego
     let cl_d_limpiar_input = 'd-none';//oculto en 'ver' y 'eliminar' y muestro en 'editar'
     let contenedor;//general. se asigna luego  
     
@@ -57,6 +67,7 @@ function buildCliente(cliente_action = null){
         nombre_val = escaparHTML(objCliente.nombre) || '';
         telefono_val = escaparHTML(objCliente.telefono) || '';
         codigo_cliente_val = escaparHTML(objCliente.codigo_cliente) || '';
+        email_val = escaparHTML(objCliente.email) || '';
         direccion_val = escaparHTML(objCliente.direccion) || '';
         comentario_val = escaparHTML(objCliente.comentario) || '';
         taquilla_val = escaparHTML(objCliente.taquilla) || '';
@@ -64,6 +75,12 @@ function buildCliente(cliente_action = null){
         precio_fijo_dtf_val = escaparHTML(objCliente.precio_fijo_dtf) || '';
         precio_fijo_uv_val = escaparHTML(objCliente.precio_fijo_uv) || '';
         saldo_val = escaparHTML(objCliente.saldo) || '';
+
+        if(saldo_val > 0){
+            cl_saldo = 'positivo';
+        }else if(saldo_val < 0) {
+            cl_saldo = 'negativo';
+        }
     }
 
     //si es ver o editar, muestro id
@@ -220,7 +237,8 @@ function buildCliente(cliente_action = null){
                         name="telefono"
                         pattern="(?=(?:\D*\d){6})[0-9+() ,]+"
                         inputmode="tel" 
-                        required="" placeholder=" " 
+                        required="" 
+                        placeholder=" " 
                         value="${telefono_val}"
                     >
                     <label for="telefono">Teléfono (obligatorio)</label>
@@ -234,6 +252,25 @@ function buildCliente(cliente_action = null){
                     </div>
                     <input id="codigo_cliente" type="text" name="codigo_cliente" required="" placeholder=" " value="${codigo_cliente_val}">
                     <label for="codigo_cliente">Código (4 últ. números)</label>
+                </div>
+
+
+                <!-- email -->
+                <div class="form_group wr_input_general">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#email')">
+                        <img src="images/x_white.png">
+                    </div>
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                        inputmode="email"
+                        r-equired
+                        placeholder=" "
+                        value="${email_val}"
+                    >
+                    <label for="email">Email</label>
                 </div>
 
 
@@ -288,13 +325,13 @@ function buildCliente(cliente_action = null){
 
 
                 <!-- saldo -->
-                <div class="form_group wr_input_general">
-                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#saldo')">
-                        <img src="images/x_white.png">
-                    </div>
-                    <input id="saldo" type="text" name="saldo" required="" placeholder=" " value="${saldo_val}">
-                    <label for="saldo">Saldo</label>
+                <div id="wr_estado_pago" class="wr_sel_opt_estado ${cl_saldo}">
+                    <h5 id="h5_saldo" class="h5_flex">
+                        <span>Saldo:</span>
+                        <span id="saldo_text">${formatoImporte(saldo_val)} €</span>
+                    </h5>
                 </div>
+                <!-- /saldo -->
 
 
                 <!-- comentario -->
@@ -358,17 +395,19 @@ async function guardarCliente(event, modo_guardar = 'normal'){
 
         const form_cliente = document.getElementById('form_cliente');
         const inputTelefono = document.getElementById('telefono');
+        const inputEmail = document.getElementById('email');
 
-        let nombre = form_cliente?.querySelector('#nombre').value.trim();
-        let telefono = form_cliente?.querySelector('#telefono').value.trim();
-        let codigo_cliente = form_cliente?.querySelector('#codigo_cliente').value.trim();
-        let taquilla = form_cliente?.querySelector('#taquilla').value.trim();
-        let direccion = form_cliente?.querySelector('#direccion').value.trim();
-        let comentario = form_cliente?.querySelector('#comentario').value.trim();
-        let descuento = form_cliente?.querySelector('#descuento').value.trim();
-        let precio_fijo_dtf = form_cliente?.querySelector('#precio_fijo_dtf').value.trim();
-        let precio_fijo_uv = form_cliente?.querySelector('#precio_fijo_uv').value.trim();
-        let saldo = form_cliente?.querySelector('#saldo').value.trim();
+        const nombre = form_cliente?.querySelector('#nombre').value.trim();
+        const telefono = form_cliente?.querySelector('#telefono').value.trim();
+        const codigo_cliente = form_cliente?.querySelector('#codigo_cliente').value.trim();
+        const email = form_cliente?.querySelector('#email').value.trim();
+        const taquilla = form_cliente?.querySelector('#taquilla').value.trim();
+        const direccion = form_cliente?.querySelector('#direccion').value.trim();
+        const comentario = form_cliente?.querySelector('#comentario').value.trim();
+        const descuento = form_cliente?.querySelector('#descuento').value.trim();
+        const precio_fijo_dtf = form_cliente?.querySelector('#precio_fijo_dtf').value.trim();
+        const precio_fijo_uv = form_cliente?.querySelector('#precio_fijo_uv').value.trim();
+        const saldo = form_cliente?.querySelector('#saldo').value.trim();
     
         let errors = [];
 
@@ -380,7 +419,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
             errors.push('Teléfono del cliente');
         }
 
-        const regexTelefono = /^(?=(?:\D*\d){6})[0-9+() ,]+$/;        
+        const regexTelefono = /^(?=(?:\D*\d){6})[0-9+() ,]+$/;
 
         if (telefono && !regexTelefono.test(telefono)) {
             console.warn('campos introducidos mal');
@@ -392,6 +431,22 @@ async function guardarCliente(event, modo_guardar = 'normal'){
         }
 
         inputTelefono.setCustomValidity('');
+
+        if(email != ''){//solo hago comprobación si hay email
+
+            const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (email && !regexEmail.test(email)) {
+                console.warn('campos introducidos mal');
+                inputEmail.setCustomValidity(
+                    'Introduce un email válido. Ejemplo: nombre@dominio.com'
+                );
+                inputEmail.reportValidity();
+                return;
+            }
+
+            inputEmail.setCustomValidity('');
+        }
 
        
         if(errors.length > 0){
@@ -413,6 +468,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
             nombre,
             telefono,
             codigo_cliente,
+            email,
             direccion,
             comentario,
             taquilla,
@@ -485,7 +541,7 @@ async function guardarCliente(event, modo_guardar = 'normal'){
 
                 //actualizo divs de pedidos si tienen los datos del cliente modificado 
                 const arr_itemsPedidosToUpdate = objDataPedidos?.arr_data?.filter(item => item.id_cliente == id_cliente);//devuelve muchos si hay
-                if (arr_itemsPedidosToUpdate.length > 0) {//es update del cliente existente
+                if (arr_itemsPedidosToUpdate?.length > 0) {//es update del cliente existente
     
                     eid_contenedor_pedidos.querySelectorAll(`.d_pedido`).forEach(divPedido  => {
                         const idCliente = divPedido.dataset.id_cliente;
@@ -664,7 +720,7 @@ async function deleteCliente(event){
                 objCliente = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadClientesAll();
+                await loadClientesAll();
 
                 showToast('ok', text_show, 5000);
             }

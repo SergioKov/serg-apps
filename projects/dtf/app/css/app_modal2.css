@@ -1,0 +1,89 @@
+/* pongo aki modal2 para evitar conflicto con class '.modal' anterior */
+.modal2_container_inner {
+    position: fixed;
+    inset: 0;
+    /* z-index: 9999; */ /* lo maneja js */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgb(255 152 0 / 37%);
+    opacity: 0;
+    padding: 20px;
+    top: -100vh;
+    transition: opacity 0.3s ease, top 0.3s ease;
+}
+
+.modal2_container_inner.show {
+    opacity: 1;
+    top: 0;
+}
+
+.modal2_container_inner.top {
+    align-items: flex-start;
+}
+.modal2_container_inner.center {
+    align-items: center;
+}
+
+.modal2 {
+    /* width: min(90%, 600px); */
+    /* max-height: 90vh; */
+    background: #333;
+    color: white;
+    border-radius: 8px;
+    border: 1px solid #414141;
+    transform: scale(0.1);
+    overflow: hidden;
+    width: min(100%, 600px);
+    max-height: min(100%, 700px);
+    transition: transform 0.3s ease;
+}
+
+.modal2.show {
+    transform: scale(1);
+}
+
+.modal2_head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid #3c3c3c;
+    background: #000000;
+    color: #adadad;
+    font-weight: bold;
+}
+
+.modal2_body {
+    background: #272727;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.modal2_title {
+    font-weight: bold;
+}
+
+.modal2 .close {
+    right: -5px;
+}
+
+
+.d_title_form {
+    /* background: red; */
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.modal2 .btn_mostrar_todos {
+    font-size: 90%;
+}
+
+.modal2 form {
+    margin-top: 10px;
+    padding: 0;
+}

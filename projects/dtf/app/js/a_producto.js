@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addProducto(){
+    console.log('=== function addProducto() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Producto', null, 'buildProducto', true, 'nuevo');
+}
+
+
 function buildProducto(producto_action = null){
     console.log('=== function buildProducto() ===');
 
@@ -283,10 +291,10 @@ async function guardarProducto(event, modo_guardar = 'normal'){
 
         const form_producto = document.getElementById('form_producto');
 
-        let nombre = form_producto?.querySelector('#nombre').value.trim();
-        let descripcion = form_producto?.querySelector('#descripcion').value.trim();
-        let precio_compra = form_producto?.querySelector('#precio_compra').value.trim();
-        let precio_venta = form_producto?.querySelector('#precio_venta').value.trim();
+        const nombre = form_producto?.querySelector('#nombre').value.trim();
+        const descripcion = form_producto?.querySelector('#descripcion').value.trim();
+        const precio_compra = form_producto?.querySelector('#precio_compra').value.trim();
+        const precio_venta = form_producto?.querySelector('#precio_venta').value.trim();
     
         let errors = [];
 
@@ -546,7 +554,7 @@ async function deleteProducto(event){
                 objProducto = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadProductosAll();
+                await loadProductosAll();
 
                 showToast('ok', text_show, 5000);
             }

@@ -14,8 +14,11 @@ const eid_contenedor_almacenes = document.getElementById('contenedor_almacenes')
 //==================================================================//
 
 
-let id_almacen = null;//id actual
-let objAlmacen = {};//de solo un cliente
+let id_almacen = null;//id actual es el que se clickea para ver sus datos
+//let id_almacen_uso = null;//id seleccionado para mostrar taquillas y pedidos de este almacen
+let objAlmacen = {};//de solo un almacen
+let id_almacen_uso = Number(localStorage.getItem('id_almacen_uso')) || null;//default
+let objAlmacenUso = {};//de solo un almacen que es de uso
 
 //no se si hace falta...
 //let arrAlmacenesObj = [];//array de todos los clientes como objetos [{...},{...},]

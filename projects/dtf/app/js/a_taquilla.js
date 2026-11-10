@@ -2,6 +2,14 @@
 //=================================================================//
 // start - F U N C T I O N S  
 //=================================================================//
+function addTaquilla(){
+    console.log('=== function addTaquilla() ===');
+
+    //permito construir modal con el formulario
+    openModal('full', 'Crear Taquilla', null, 'buildTaquilla', true, 'nuevo');
+}
+
+
 function buildTaquilla(taquilla_action = null){
     console.log('=== function buildTaquilla() ===');
 
@@ -14,9 +22,11 @@ function buildTaquilla(taquilla_action = null){
     let id_taquilla_val = '';
     let nombre_val = '';
     let comentario_val = '';
+    let id_almacen_val = '';
 
     let codigo_taquilla_val = '';
     let codigo_apertura_val = '';
+    let codigo_apertura_old_val = '';
 
     //elemento de título en el top
     const p_mensaje = document.createElement('p');
@@ -49,8 +59,11 @@ function buildTaquilla(taquilla_action = null){
         id_taquilla_val = objTaquilla.id_taquilla;
         nombre_val = escaparHTML(objTaquilla.nombre) || '';
         comentario_val = escaparHTML(objTaquilla.comentario) || '';
+        id_almacen_val = escaparHTML(objTaquilla.id_almacen) || '';
+
         codigo_taquilla_val = escaparHTML(objTaquilla.codigo_taquilla) || '';
         codigo_apertura_val = escaparHTML(objTaquilla.codigo_apertura) || '';
+        codigo_apertura_old_val = escaparHTML(objTaquilla.codigo_apertura_old) || '';
     }
 
     //si es ver o editar, muestro id
@@ -160,6 +173,10 @@ function buildTaquilla(taquilla_action = null){
                         <span class="cl_campo">Código taquilla:</span>
                         <span>${codigo_taquilla_val}</span>
                     </span>
+                    <span class="linea_fx ${!codigo_apertura_old_val ? 'd-none' : ''}">
+                        <span class="cl_campo">Código apertura anterior:</span>
+                        <span>${codigo_apertura_old_val}</span>
+                    </span>
                     <span class="linea_fx ${!codigo_apertura_val ? 'd-none' : ''}">
                         <span class="cl_campo">Código apertura:</span>
                         <span>${codigo_apertura_val}</span>
@@ -201,6 +218,15 @@ function buildTaquilla(taquilla_action = null){
                     <input id="nombre" type="text" name="nombre" required="" placeholder=" " value="${nombre_val}">
                     <label for="nombre">Nombre de la taquilla</label>
                 </div>
+
+
+                <!-- Almacén relacionado -->
+                <div class="form_group wr_input_general">
+                    <select id="id_almacen" name="id_almacen" class="sel_almacenes_select sel_opt" required="">
+                        <!-- aki almacenes -->
+                    </select>
+                    <label for="id_almacen">Almacén relacionado</label>
+                </div>
                
 
                 <!-- codigo_taquilla -->
@@ -208,8 +234,34 @@ function buildTaquilla(taquilla_action = null){
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#codigo_taquilla')">
                         <img src="images/x_white.png">
                     </div>
-                    <input id="codigo_taquilla" type="text" name="codigo_taquilla" required="" placeholder=" " value="${codigo_taquilla_val}">
+                    <input 
+                        id="codigo_taquilla" 
+                        type="text" 
+                        name="codigo_taquilla" 
+                        pattern="[0-9]{4}" 
+                        required="" 
+                        placeholder=" " 
+                        value="${codigo_taquilla_val}"
+                    >
                     <label for="codigo_taquilla">Código taquilla (identificación)</label>
+                </div>
+
+
+                <!-- codigo_apertura_old -->
+                <div class="form_group wr_input_general">
+                    <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#codigo_apertura_old')">
+                        <img src="images/x_white.png">
+                    </div>
+                    <input
+                        id="codigo_apertura_old"
+                        type="text"
+                        name="codigo_apertura_old"
+                        pattern="[0-9]{4}B"
+                        maxlength="5"
+                        placeholder=" "
+                        value="${codigo_apertura_old_val}"
+                    >
+                    <label for="codigo_apertura_old">Código apertura anterior (Ej.: 1234B)</label>
                 </div>
 
 
@@ -218,13 +270,21 @@ function buildTaquilla(taquilla_action = null){
                     <div class="d_limpiar_input ${cl_d_limpiar_input}" onclick="limpiarInput('#codigo_apertura')">
                         <img src="images/x_white.png">
                     </div>
-                    <input id="codigo_apertura" type="text" name="codigo_apertura" required="" placeholder=" " value="${codigo_apertura_val}">
-                    <label for="codigo_apertura">Código apertura</label>
+                    <input
+                        id="codigo_apertura"
+                        type="text"
+                        name="codigo_apertura"
+                        pattern="[0-9]{4}B"
+                        maxlength="5"
+                        placeholder=" "
+                        value="${codigo_apertura_val}"
+                    >
+                    <label for="codigo_apertura">Código apertura (Ej.: 1234B)</label>
                 </div>
 
 
                 <!-- estado_taquilla -->
-                <div id="wr_estado_taquilla" class="wr_sel_opt_estado ${objTaquilla?.estado_taquilla || ''}">
+                <div id="wr_estado_taquilla" class="wr_sel_opt_estado ${objTaquilla?.estado_taquilla || 'libre'}">
                     <h5>Estado de taquilla:</h5>
                     <select id="estado_taquilla" class="sel_opt_find">
                         <option value="libre">Libre</option>
@@ -262,13 +322,61 @@ function buildTaquilla(taquilla_action = null){
         }
     }
 
+    //patterns para: codigo_taquilla, codigo_apertura_old, codigo_apertura
+    const patterns = {
+        codigo_taquilla: {
+            pattern: '[0-9]{4}',
+            regex: /[^0-9]/g,//solo permite '1111' -> 4 digitos
+            maxlength: 4
+        },
+        codigo_apertura_old: {
+            pattern: '[0-9]{4}B',
+            regex: /[^0-9B]/g,//solo permite '1111B' -> 4 digitos y letra 'B'
+            maxlength: 5
+        },
+        codigo_apertura: {
+            pattern: '[0-9]{4}B',
+            regex: /[^0-9B]/g,//solo permite '1111B' -> 4 digitos y letra 'B'
+            maxlength: 5
+        }
+    };
+
+    //los inputs para MAYÚSCULAS
+    Object.entries(patterns).forEach(([id, config]) => {
+        const input = form_taquilla.querySelector(`#${id}`);
+    
+        if (!input) return;
+
+        input.pattern = config.pattern;
+        input.maxLength = config.maxlength;
+
+        input.oninput = () => {
+            let valor = input.value.toUpperCase().replace(config.regex, '');
+
+            if (['codigo_apertura_old', 'codigo_apertura'].includes(id)){//codigo_apertura_old, codigo_apertura
+                //si son 5 carácteres y el ultimo carácter no es 'B', lo recorto a 4 carácteres
+                if (valor.length === 5 && valor[4] !== 'B') {
+                    valor = valor.slice(0, 4);
+                }
+            }
+
+            input.value = valor.slice(0, config.maxlength);
+        };
+    });
+
     //estado_taquilla
     const eid_estado_taquilla = form_taquilla.querySelector('#estado_taquilla');
     const eid_wr_estado_taquilla = form_taquilla.querySelector('#wr_estado_taquilla');
-    eid_estado_taquilla.value = objTaquilla?.estado_taquilla || '';
+    eid_estado_taquilla.value = objTaquilla?.estado_taquilla || 'libre';//por defecto -> libre
     eid_estado_taquilla.onchange = async (e) => {
         pintContenedorEstado(eid_wr_estado_taquilla, eid_estado_taquilla.value);
     }
+
+    //al crear una taquilla, siempre está libre
+    if(taquilla_action == 'nuevo'){
+        pintContenedorEstado(eid_wr_estado_taquilla, 'libre');//por defecto -> libre
+    }
+
 
     //Reasigno el contenedor
     if(['ver_sm','eliminar'].includes(taquilla_action)){ 
@@ -280,9 +388,41 @@ function buildTaquilla(taquilla_action = null){
         }
     }
 
+    pintAlmacenesOptionsEnSelect(contenedor.querySelector('.sel_almacenes_select'), id_almacen_val);//relleno select de almacenes
+
     eid_bl_modalFullInner.append(contenedor);
 
     console.log('fin func');
+}
+
+
+function pintAlmacenesOptionsEnSelect(selectElement, id_almacen_selected = null){
+    console.log('=== function pintAlmacenesOptionsEnSelect() ===');
+    
+    if(!selectElement){
+        return;
+    }
+
+    selectElement.innerHTML = '';//reset
+
+    if(!id_almacen_selected){
+        //añado opción por defecto para no seleccionar ningún almacen
+        selectElement.innerHTML = `
+            <option value="" disabled="" selected="" hidden=""></option>
+        `;
+    }
+
+
+    //Recorrer objDataAlmacenes
+    Object.values(objDataAlmacenes.arr_data).forEach( (almacen, i) => {
+        const option = document.createElement('option');
+        option.value = almacen.id_almacen;
+        if(id_almacen_selected && almacen.id_almacen == id_almacen_selected){
+            option.selected = true;
+        }
+        option.innerHTML = `${almacen.id_almacen}. ${almacen.nombre}`;
+        selectElement.append(option);
+    });
 }
 
 
@@ -307,11 +447,13 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
 
         const form_taquilla = document.getElementById('form_taquilla');
 
-        let nombre = form_taquilla?.querySelector('#nombre').value.trim();
-        let comentario = form_taquilla?.querySelector('#comentario').value.trim();
-        let codigo_taquilla = form_taquilla?.querySelector('#codigo_taquilla').value.trim();
-        let codigo_apertura = form_taquilla?.querySelector('#codigo_apertura').value.trim();
-        let estado_taquilla = form_taquilla?.querySelector('#estado_taquilla').value.trim();
+        const id_almacen = form_taquilla?.querySelector('#id_almacen').value.trim();
+        const nombre = form_taquilla?.querySelector('#nombre').value.trim();
+        const comentario = form_taquilla?.querySelector('#comentario').value.trim();
+        const codigo_taquilla = form_taquilla?.querySelector('#codigo_taquilla').value.trim();
+        const codigo_apertura_old = form_taquilla?.querySelector('#codigo_apertura_old').value.trim();
+        const codigo_apertura = form_taquilla?.querySelector('#codigo_apertura').value.trim();
+        const estado_taquilla = form_taquilla?.querySelector('#estado_taquilla').value.trim();
     
         let errors = [];
 
@@ -319,6 +461,9 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
             nombre = objTaquilla.nombre;
         }
 
+        if(id_almacen == ''){
+            errors.push('Almacén de la taquilla');
+        }
         if(nombre == ''){
             errors.push('Nombre de la taquilla');
         }
@@ -339,9 +484,11 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
 
         const objTaquillaToSend = {
             id_taquilla: id_taquilla || null, //ya que se añade un nuevo taquilla, entonces no hay id_taquilla
+            id_almacen,
             nombre,
             comentario,
             codigo_taquilla,
+            codigo_apertura_old,
             codigo_apertura,
             estado_taquilla,
         }
@@ -572,7 +719,7 @@ async function deleteTaquilla(event){
                 objTaquilla = {};//reseteo objeto song
 
                 //al eliminar uno pinto todos los registros para actualizar div filtros aplicados
-                loadTaquillasAll();
+                await loadTaquillasAll();
 
                 showToast('ok', text_show, 5000);
             }
@@ -701,7 +848,7 @@ async function loadTaquillasAll(){
     `;
     
     const objDataPint = {
-        f_frase: '(Todos taquillas)',
+        f_frase: '(Todas taquillas)',
         f_num: objDataTaquillas?.totalRows || 0,
         element_inner: wr_filtros_aplicados_inner,
     }
@@ -709,6 +856,12 @@ async function loadTaquillasAll(){
     pintFiltrosAplicados(eid_bl_buscar_taquillas, objDataPint);
     
     pintTaquillasAll();
+
+    if(id_almacen_uso){//si hay almacen elegido, entonces muestro solo ese almacen
+        showTaquillasByAlmacen(id_almacen_uso);
+    }else{
+        showTaquillasByAlmacen('todos');//muestro todos los almacenes
+    }
 
 }
 
@@ -722,6 +875,7 @@ async function pintTaquillasAll(){//pintar todos los div de taquillas, o al load
     //     return;
     // }
 
+    eid_d_almacenes.innerHTML = '';//reset contenedor de botones de almacenes
     eid_contenedor_taquillas.innerHTML = '';//reset contenedor de taquillas
 
     const hay_datos = (esObjeto(objDataTaquillas) && objDataTaquillas.arr_data?.length > 0);//true o false
@@ -772,12 +926,95 @@ async function pintTaquillasAll(){//pintar todos los div de taquillas, o al load
         addFilterListener(contenedor_filtro, sp_icon_filtro, el_input, selector_items, arr_spans);
         */
 
-        //CREAR DIV'S Y P'S
-        //Recorrer taquillas encontradas... 
-        objDataTaquillas.arr_data.forEach( obj => {
-            console.log('obj: ', obj);
+        //crear botones de qué almacen mostrar
+        eid_d_almacenes.innerHTML = '';//reset
 
-            pintTaquillaOne(obj, 'abajo');//cada div de taquilla se pinta al final (abajo)
+        //boton para mostrar todos almacenes
+        const dbtn_almacen = document.createElement('div');
+        dbtn_almacen.className = 'dbtn';
+        dbtn_almacen.dataset.value = 'todos';
+        dbtn_almacen.textContent = 'Todos';
+        dbtn_almacen.onclick = () => {
+            showTaquillasByAlmacen('todos');
+        }
+        // Añado al DOM
+        eid_d_almacenes.append(dbtn_almacen);
+
+        //pintar taquillas según almacén
+        objDataAlmacenes.arr_data.forEach(objAlmacen => {
+
+            console.log('objAlmacen: ', objAlmacen); 
+
+            const id_almacen = objAlmacen.id_almacen;
+
+            //creo boton de taquillas según almacen
+            const dbtn_almacen = document.createElement('div');
+            dbtn_almacen.className = 'dbtn';
+            dbtn_almacen.dataset.value = id_almacen;
+            dbtn_almacen.textContent = objAlmacen.nombre;
+            dbtn_almacen.onclick = () => {
+                showTaquillasByAlmacen(id_almacen);
+            }
+            // Añado al DOM
+            eid_d_almacenes.append(dbtn_almacen);
+
+            //creo contenedor de taquillas según almacen
+            const contenedor = document.createElement('div');
+            contenedor.id = `contenedor_taquillas_almacen${id_almacen}`;
+            contenedor.dataset.id_almacen = id_almacen;
+            contenedor.className = `contenedor_taquillas_almacen`;            
+            
+            let cl_grid_almacen = '';
+
+            if([1,2].includes(id_almacen)){
+                cl_grid_almacen = obj_classes_almacen_grid[id_almacen];//grid_a,grid_f
+            }else{
+                cl_grid_almacen = obj_classes_almacen_grid['default'];//grid_o
+            }
+
+            contenedor.innerHTML = `
+                <h5>${objAlmacen.nombre}</h5>
+                <div class="contenedor_taquillas_inner wr_d_taquillas ${cl_grid_almacen}"></div>
+            `;
+            
+            //meto en array de contenedores
+            contenedores_taquillas[id_almacen] = contenedor;
+
+            // Añadir al DOM principal
+            eid_contenedor_taquillas.append(contenedor);
+
+            //filtro taquillas según almacen
+            objDataTaquillasByAlmacen.arr_data = objDataTaquillas?.arr_data?.filter(obj => obj.id_almacen == id_almacen);
+
+            //hay taquillas en almacen
+            if(objDataTaquillasByAlmacen.arr_data.length > 0){
+                console.log(`Hay ${objDataTaquillasByAlmacen.arr_data.length} taquillas en el almacen ${id_almacen}`);
+
+                //CREAR DIV'S de taquillas según almacen
+                //Recorrer taquillas ... 
+                objDataTaquillasByAlmacen.arr_data.forEach(obj => {
+                    console.log('obj: ', obj);
+
+                    //cada div de taquilla se pinta al final (abajo) en su contenedor correspondiente al almacen
+                    pintTaquillaOne(contenedor, obj, 'abajo');
+                });
+
+                if(id_almacen_uso == 1){//Alcorcón (51 taquillas)
+                    addDivsInvisible(contenedor, '.d_taquilla');
+                }
+
+            }else{//no hay taquillas en almacen
+
+                const d_prim = document.createElement('div');
+                d_prim.className = 'prim';
+                d_prim.innerHTML = `
+                    <span>Almacen no tiene taquillas.</span>
+                `;
+                //quito grid_almacen para que el mensaje se vea centrado y no en grid
+                contenedor.querySelector('.contenedor_taquillas_inner').classList.remove(cl_grid_almacen);//quito 'grid_o'
+                contenedor.querySelector('.contenedor_taquillas_inner').append(d_prim);
+            }            
+
         });
 
     }
@@ -787,7 +1024,7 @@ async function pintTaquillasAll(){//pintar todos los div de taquillas, o al load
 }
 
 
-function pintTaquillaOne(objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar solo un div de un taquilla, o al load, o al crear, o al find
+function pintTaquillaOne(contenedorTaquilla, objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar solo un div de un taquilla, o al load, o al crear, o al find
     console.log('=== function pintTaquillaOne() === ');
 
     if(!objTaquillaOne){
@@ -800,10 +1037,12 @@ function pintTaquillaOne(objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar sol
     const d_taquilla = document.createElement('div');
     d_taquilla.className = `d_taquilla d_art ${objTaquillaOne.estado_taquilla || ''}`;
     d_taquilla.dataset.id_taquilla = objTaquillaOne.id_taquilla;
+    d_taquilla.dataset.id_almacen = objTaquillaOne.id_almacen;
     d_taquilla.dataset.tipo_art = 'taquilla';
     d_taquilla.innerHTML = `
         <div class="datos_taquilla datos_art">
             <div class="da_nombre">${escaparHTML(objTaquillaOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="da_codigo_apertura ${objTaquillaOne.codigo_apertura ? '' : 'd-none'}">${objTaquillaOne.codigo_apertura || ''}</div>
         </div>
 
         <div class="tres_puntos">
@@ -908,9 +1147,9 @@ function pintTaquillaOne(objTaquillaOne, lugar_de_pintar = 'abajo'){//pintar sol
     }
 
     if(lugar_de_pintar == 'abajo'){
-        eid_contenedor_taquillas.append(d_taquilla);
+        contenedorTaquilla.querySelector('.contenedor_taquillas_inner').append(d_taquilla);
     }else if(lugar_de_pintar == 'arriba'){
-        eid_contenedor_taquillas.prepend(d_taquilla);
+        contenedorTaquilla.querySelector('.contenedor_taquillas_inner').prepend(d_taquilla);
     }
 }
 
@@ -1444,21 +1683,22 @@ function pintTaquillaActiveSoloDatos(){
     const div_da_nombre = d_taquilla.querySelector('.da_nombre');
     // const div_da_com = d_taquilla.querySelector('.da_com');
     // const div_da_codigo_taquilla = d_taquilla.querySelector('.da_codigo_taquilla');
-    // const div_da_codigo_apertura = d_taquilla.querySelector('.da_codigo_apertura');
+    const div_da_codigo_apertura = d_taquilla.querySelector('.da_codigo_apertura');
 
     //nombre
     div_da_nombre.textContent = objTaquilla.nombre || '(nombre no asignado)';
     div_da_nombre.classList.remove('d-none');//muestro tenga o no el nombre
     
-    /*
+    
     //codigo_taquilla
-    div_da_codigo_taquilla.textContent = objTaquilla.codigo_taquilla || '(valor no asignado)';
-    div_da_codigo_taquilla.classList.remove('d-none');//muestro tenga o no el precio
+    // div_da_codigo_taquilla.textContent = objTaquilla.codigo_taquilla || '(valor no asignado)';
+    // div_da_codigo_taquilla.classList.remove('d-none');//muestro tenga o no el precio
 
     //codigo_apertura
-    div_da_codigo_apertura.textContent = objTaquilla.codigo_apertura || '(valor no asignado)';
-    div_da_codigo_apertura.classList.remove('d-none');//muestro tenga o no el precio
+    div_da_codigo_apertura.textContent = objTaquilla.codigo_apertura || '';
+    div_da_codigo_apertura.classList.toggle('d-none',!objTaquilla.codigo_apertura);//muestro tenga o no el precio
 
+    /*
     //comentario
     div_da_com.textContent = objTaquilla.comentario || '(sin comentario)';
     //si '!objTaquilla.comentario' es true  (no tiene comentario) -> pone  'd-none' -> oculta
@@ -1541,4 +1781,24 @@ async function update_objFindParamsTaquilla(){
 
     obj_ajustes.objFindParamsTaquilla = objFindParamsTaquilla;
     await update_obj_ajustes();
+}
+
+function showTaquillasByAlmacen(valor){//todos, 1 (Fuenlabrada), 2 (Alcorcón)
+    console.log('=== function showTaquillasByAlmacen() ===');
+
+    pintDivSelected('d_almacenes', eid_d_almacenes, valor);
+
+    //recorrer almacenes
+    eid_contenedor_taquillas.querySelectorAll('.contenedor_taquillas_almacen').forEach(el => {
+            
+        if(valor == 'todos'){
+            el.classList.add('shown');
+        }else{
+            if(el.dataset.id_almacen == valor){
+                el.classList.add('shown');
+            }else{
+                el.classList.remove('shown');
+            }
+        }            
+    });
 }

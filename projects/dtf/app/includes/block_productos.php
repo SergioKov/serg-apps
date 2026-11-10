@@ -92,7 +92,7 @@
 
                 </div><!--/#contenedor_productos -->
 
-                <button id="btn_add_producto" class="btn_add" onclick="openModal('full', 'Crear Producto', null, 'buildProducto', true, 'nuevo');">+</button>
+                <button id="btn_add_producto" class="btn_add" onclick="addProducto()">+</button>
 
             </div><!--/#block_productos_inner -->
         </div><!--/#block_productos -->

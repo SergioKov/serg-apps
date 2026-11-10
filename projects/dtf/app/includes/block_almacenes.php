@@ -85,7 +85,7 @@
 
                 </div><!--/.wr_d_almacenes -->
 
-                <button id="btn_add_almacen" class="btn_add" onclick="openModal('full', 'Crear Almacen', null, 'buildAlmacen', true, 'nuevo');">+</button>
+                <button id="btn_add_almacen" class="btn_add" onclick="addAlmacen()">+</button>
 
             </div><!--/#block_almacenes_inner -->
         </div><!--/#block_almacenes -->

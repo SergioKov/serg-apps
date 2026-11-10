@@ -85,7 +85,7 @@
 
                 </div><!--/#contenedor_clientes -->
 
-                <button id="btn_add_cliente" class="btn_add" onclick="openModal('full', 'Crear Cliente', null, 'buildCliente', true, 'nuevo');">+</button>
+                <button id="btn_add_cliente" class="btn_add" onclick="addCliente()">+</button>
 
             </div><!--/#block_clientes_inner -->
         </div><!--/#block_clientes -->

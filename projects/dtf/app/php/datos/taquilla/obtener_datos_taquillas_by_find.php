@@ -77,7 +77,7 @@ switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
     default:
         //'t.taquilla_search' -> campo optimizado para busquedas con indice fulltext 
-        $arr_campos = ['t.id_taquilla', 't.nombre', 't.comentario', 't.taquilla_search'];
+        $arr_campos = ['t.id_taquilla', 't.nombre', 't.codigo_taquilla', 't.codigo_apertura_old', 't.codigo_apertura', 't.comentario', 't.taquilla_search'];
         break;
 
     case '2'://Todos los campos disponibles (lento)
@@ -114,10 +114,13 @@ $where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
 //test modos de where
 $sql_init = "SELECT 
                 t.id_taquilla,
+                t.id_almacen,
+
                 t.nombre, 
                 t.comentario, 
 
                 t.codigo_taquilla,
+                t.codigo_apertura_old,
                 t.codigo_apertura,
                 t.estado_taquilla,
 
@@ -185,10 +188,13 @@ if($result->num_rows > 0){
             'success' => true,
 
             'id_taquilla' => $row['id_taquilla'],
+            'id_almacen' => $row['id_almacen'],
+
             'nombre' => $row['nombre'],
             'comentario' => $row['comentario'],
 
             'codigo_taquilla' => $row['codigo_taquilla'],
+            'codigo_apertura_old' => $row['codigo_apertura_old'],
             'codigo_apertura' => $row['codigo_apertura'],
             'estado_taquilla' => $row['estado_taquilla'],
     

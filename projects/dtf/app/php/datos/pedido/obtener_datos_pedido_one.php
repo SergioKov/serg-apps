@@ -60,8 +60,11 @@ include($niveles_para_subir . 'includes/connect_db.php');
 //Consula el pedidos por su id 
 $sql = "SELECT
             p.id_pedido, 
+            p.id_almacen, 
             p.id_cliente, 
-            p.id_taquilla, 
+            p.id_taquilla,
+
+            a.nombre AS a_nombre, 
 
             c.nombre,
             c.telefono,
@@ -75,8 +78,10 @@ $sql = "SELECT
             p.canal_aviso, 
 
             p.estado_pedido,
-            p.estado_pago,
+            
+            p.tipo_pago,
             p.metodo_pago,
+            p.estado_pago,
 
             p.subtotal,
             p.iva_incluido,
@@ -90,6 +95,8 @@ $sql = "SELECT
             p.updated_at
 
         FROM pedidos p
+
+        LEFT JOIN almacenes a ON a.id_almacen = p.id_almacen  
 
         LEFT JOIN clientes c ON c.id_cliente = p.id_cliente  
 
@@ -181,9 +188,13 @@ if($row){
         'success' => true,
 
         'id_pedido' => $row['id_pedido'],
+        'id_almacen' => $row['id_almacen'],
         'id_cliente' => $row['id_cliente'],
         'id_taquilla' => $row['id_taquilla'],
         
+        //almacen
+        'a_nombre' => $row['a_nombre'],
+
         //cliente
         'nombre' => $row['nombre'],
         'telefono' => $row['telefono'],
@@ -192,14 +203,16 @@ if($row){
         //taquilla
         't_nombre' => $row['t_nombre'],
         'estado_taquilla' => $row['estado_taquilla'],
-
+        
         'fecha_pedido' => $row['fecha_pedido'],
         'canal_venta' => $row['canal_venta'],
         'canal_aviso' => $row['canal_aviso'],
 
         'estado_pedido' => $row['estado_pedido'],
-        'estado_pago' => $row['estado_pago'],
+        
+        'tipo_pago' => $row['tipo_pago'],
         'metodo_pago' => $row['metodo_pago'],
+        'estado_pago' => $row['estado_pago'],
         
         'subtotal' => $row['subtotal'],
         'iva_incluido' => $row['iva_incluido'],

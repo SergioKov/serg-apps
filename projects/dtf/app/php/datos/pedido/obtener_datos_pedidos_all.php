@@ -47,9 +47,12 @@ include($niveles_para_subir . 'includes/connect_db.php');
 
 //Consula todos los pedidos no eliminados 
 $sql_init = "SELECT 
-            p.id_pedido, 
+            p.id_pedido,
+            p.id_almacen, 
             p.id_cliente, 
             p.id_taquilla, 
+
+            a.nombre AS a_nombre,
 
             c.nombre,
             c.telefono,
@@ -63,8 +66,10 @@ $sql_init = "SELECT
             p.canal_aviso, 
 
             p.estado_pedido,
-            p.estado_pago,
+            
+            p.tipo_pago,
             p.metodo_pago,
+            p.estado_pago,
 
             p.subtotal,
             p.iva_incluido,
@@ -79,13 +84,15 @@ $sql_init = "SELECT
                 
             FROM pedidos p
 
+            LEFT JOIN almacenes a ON a.id_almacen = p.id_almacen
+            
             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente
             
             LEFT JOIN taquillas t ON t.id_taquilla = p.id_taquilla
             
             WHERE p.is_deleted = 0
 
-            ORDER BY p.id_pedido DESC, p.fecha_pedido, p.canal_venta
+            ORDER BY p.fecha_pedido, p.canal_venta
 ";
 $stmt = $conn->prepare($sql_init);
 //$stmt->bind_param();//aki no hace falta por no haber '?'; //ejemplo: $stmt->bind_param("i", $id_pedido);
@@ -200,8 +207,12 @@ if($result->num_rows > 0){
             'success' => true,
 
             'id_pedido' => $row['id_pedido'],
+            'id_almacen' => $row['id_almacen'],
             'id_cliente' => $row['id_cliente'],
             'id_taquilla' => $row['id_taquilla'],
+
+            //almacen
+            'a_nombre' => $row['a_nombre'],
             
             //cliente
             'nombre' => $row['nombre'],
@@ -217,8 +228,10 @@ if($result->num_rows > 0){
             'canal_aviso' => $row['canal_aviso'],
     
             'estado_pedido' => $row['estado_pedido'],
-            'estado_pago' => $row['estado_pago'],
+
+            'tipo_pago' => $row['tipo_pago'],
             'metodo_pago' => $row['metodo_pago'],
+            'estado_pago' => $row['estado_pago'],
             
             'subtotal' => $row['subtotal'],
             'iva_incluido' => $row['iva_incluido'],

@@ -92,7 +92,7 @@
 
                 </div><!--/#contenedor_servicios -->
 
-                <button id="btn_add_servicio" class="btn_add" onclick="openModal('full', 'Crear Servicio', null, 'buildServicio', true, 'nuevo');">+</button>
+                <button id="btn_add_servicio" class="btn_add" onclick="addServicio()">+</button>
 
             </div><!--/#block_servicios_inner -->
         </div><!--/#block_servicios -->

@@ -29,6 +29,12 @@ form input.pad_2_btms {
     padding-right: 80px;
 }
 
+form input[type="datetime-local"],
+form .wr_importe
+{
+    max-width: 190px;
+}
+
 form textarea {
     resize: vertical;
     min-height: calc(1.2em * 3 + 16px); /* altura mínima para 3 líneas + padding */

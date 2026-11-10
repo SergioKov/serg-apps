@@ -75,9 +75,12 @@ $id_user_logged = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null ;
 // Preparar y ejecutar la consulta
 $sql_init = "SELECT 
                 id_taquilla, 
+                id_almacen,
+
                 nombre, 
                 comentario, 
                 codigo_taquilla,
+                codigo_apertura_old,
                 codigo_apertura,
                 estado_taquilla,
                 created_at, 
@@ -102,10 +105,13 @@ if($result->num_rows > 0){
     $id_taquilla_bd = $row['id_taquilla'];
     $data = [
         'success' => true,
+        
         'id_taquilla' => $row['id_taquilla'],
+        'id_almacen' => $row['id_almacen'],
         'nombre' => $row['nombre'],
         'comentario' => $row['comentario'],
         'codigo_taquilla' => $row['codigo_taquilla'],
+        'codigo_apertura_old' => $row['codigo_apertura_old'],
         'codigo_apertura' => $row['codigo_apertura'],
         'estado_taquilla' => $row['estado_taquilla'],
         'created_at' => $row['created_at'],

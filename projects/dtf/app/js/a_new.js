@@ -63,7 +63,6 @@ function crearItemsSelector({
             const element = e.currentTarget;
             console.log('element:', element );
 
-
             const id_item = element.dataset.id_item;
             const nombre_item = element.dataset.nombre;
             const precio_item = Number(element.dataset.precio);
@@ -132,8 +131,8 @@ function crearItemsSelector({
                 );
             }
             
-            // Recalcular subtotal del pedido
-            calcularSubtotal();
+            // Recalcular total del pedido
+            calcularTotal();
         };
 
         //añado al DOM
@@ -177,4 +176,13 @@ function closeDivBySelector(selectorElemento){//=> 'd-none'
     if(!divElement) return;
 
     divElement.classList.add('d-none');
+}
+
+
+function formatoImporte(valor) {
+    return (Number(valor) || 0).toLocaleString('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true
+    }).replace(/\./g, ' ').replace(',', '.');
 }

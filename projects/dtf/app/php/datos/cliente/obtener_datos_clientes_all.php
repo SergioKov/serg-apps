@@ -50,7 +50,8 @@ $sql_init = "SELECT
                 c.id_cliente, 
                 c.nombre, 
                 c.telefono, 
-                c.codigo_cliente, 
+                c.codigo_cliente,
+                c.email,
                 c.direccion,
                 c.comentario, 
 
@@ -58,7 +59,12 @@ $sql_init = "SELECT
                 c.descuento,
                 c.precio_fijo_dtf,
                 c.precio_fijo_uv,
-                c.saldo,
+
+                (
+                    SELECT COALESCE(SUM(m.importe), 0)
+                    FROM movimientos m
+                    WHERE m.id_cliente = c.id_cliente
+                ) AS saldo,
 
                 c.created_at, 
                 c.updated_at
@@ -105,6 +111,7 @@ if($result->num_rows > 0){
             'nombre' => $row['nombre'],
             'telefono' => $row['telefono'],
             'codigo_cliente' => $row['codigo_cliente'],
+            'email' => $row['email'],
             'direccion' => $row['direccion'],
             'comentario' => $row['comentario'],
 

@@ -115,6 +115,8 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $nombre = $datos['nombre'];
     $telefono = $datos['telefono'];
     $codigo_cliente = ($datos['codigo_cliente'] === '') ? null : $datos['codigo_cliente'];//si viene vacio => null
+    //$email = ($datos['email'] === '') ? null : $datos['email'];//si viene vacio => null
+    $email = $datos['email'];
     $direccion = $datos['direccion'];
     $comentario = $datos['comentario'];
     $taquilla = ($datos['taquilla'] === '') ? null : $datos['taquilla'];//si viene vacio => null
@@ -191,6 +193,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
                         telefono,
                         codigo_cliente,
+                        email,
                     
                         direccion,
                         comentario,
@@ -209,7 +212,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         ?, ?, 
                         
-                        ?, ?,
+                        ?, ?, ?,
                     
                         ?, ?, ?, ?,
 
@@ -225,6 +228,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         telefono = VALUES(telefono),
                         codigo_cliente = VALUES(codigo_cliente),
+                        email = VALUES(email),
 
                         direccion = VALUES(direccion),
                         comentario = VALUES(comentario),
@@ -250,7 +254,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "isssssssiddd",
+        "issssssssiddd",
     
         $id_cliente_upsert,
     
@@ -259,6 +263,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
         $telefono,
         $codigo_cliente,
+        $email,
     
         $direccion,
         $comentario,
