@@ -72,6 +72,7 @@ $sql = "SELECT
             
             t.nombre AS t_nombre,
             t.estado_taquilla,
+            t.codigo_apertura,
 
             p.fecha_pedido, 
             p.canal_venta, 
@@ -101,7 +102,7 @@ $sql = "SELECT
         LEFT JOIN clientes c ON c.id_cliente = p.id_cliente  
 
         LEFT JOIN taquillas t ON t.id_taquilla = p.id_taquilla
-
+        
         WHERE p.id_pedido = ?
 ";
 $stmt = $conn->prepare($sql);
@@ -117,7 +118,9 @@ $row = $result->fetch_assoc();
 if($row){   
     //echo_json_x($row, 'row']);
 
-    // Consultar las líneas del pedido
+    //====================================================================//
+    // start - Consultar las líneas del pedido
+    //====================================================================//
     $sql_items = "SELECT
                     id_pedido_item,
                     tipo_item,
@@ -133,24 +136,21 @@ if($row){
                 ORDER BY id_pedido_item ASC
     ";
     $stmt_items = $conn->prepare($sql_items);
-
     if (!$stmt_items) {
         throw new Exception(
             'Error al preparar la consulta de pedido_items: ' . $conn->error
         );
     }
-
     $stmt_items->bind_param("i", $id_pedido);
     $stmt_items->execute();
-
     $result_items = $stmt_items->get_result();
 
     // Preparar el array único de líneas del pedido
-    $arr_items_pedido = [];
+    $arr_items = [];
 
     while ($item = $result_items->fetch_assoc()) {
 
-        // Obtener el ID según el tipo de concepto
+        // Obtener el ID según el tipo de item
         switch ($item['tipo_item']) {
             case 'producto':
                 $id_item = $item['id_producto'];
@@ -168,8 +168,8 @@ if($row){
                 continue 2;
         }
 
-        $arr_items_pedido[] = [
-            'tipo_concepto' => $item['tipo_item'],
+        $arr_items[] = [
+            'tipo_item' => $item['tipo_item'],
             'id'            => $id_item,
             'nombre'        => $item['nombre'],
             'cantidad'      => (float) $item['cantidad'],
@@ -177,11 +177,64 @@ if($row){
             'importe'       => (float) $item['importe']
         ];
     }
-
     $stmt_items->close();
+    //====================================================================//
+    // end - Consultar las líneas del pedido
+    //====================================================================//
 
 
+    //====================================================================//
+    // start - Consultar las líneas pagos del pedido
+    //====================================================================//
+    $sql_mov = "SELECT
+                    id_movimiento,
+                    tipo_movimiento,
+                    id_concepto,
+                    id_cliente,
+                    id_pedido,
+                    fecha_movimiento,
+                    importe,
+                    metodo_pago,
+                    titulo,
+                    comentario,
+                    confirmado
+                FROM movimientos
+                WHERE id_pedido = ?
+                ORDER BY fecha_movimiento ASC
+    ";
+    $stmt_mov = $conn->prepare($sql_mov);
+    if (!$stmt_mov) {
+        throw new Exception(
+            'Error al preparar la consulta de pagos en movimientos: ' . $conn->error
+        );
+    }
+    $stmt_mov->bind_param("i", $id_pedido);
+    $stmt_mov->execute();
+    $result_mov = $stmt_mov->get_result();
 
+    // Preparar el array único de líneas de movimientos de pedido
+    $arr_pagos = [];
+
+    while ($item = $result_mov->fetch_assoc()) {
+
+        $arr_pagos[] = [
+            'id_movimiento'     => $item['id_movimiento'],
+            'tipo_movimiento'   => $item['tipo_movimiento'],
+            'id_concepto'       => $item['id_concepto'],
+            'id_cliente'        => $item['id_cliente'],
+            'id_pedido'         => $item['id_pedido'],
+            'fecha_movimiento'  => $item['fecha_movimiento'],
+            'importe'           => (float) $item['importe'],
+            'metodo_pago'       => $item['metodo_pago'],
+            'titulo'            => $item['titulo'],
+            'comentario'        => $item['comentario'],
+            'confirmado'        => $item['confirmado'],
+        ];
+    }
+    $stmt_mov->close();
+    //====================================================================//
+    // end - Consultar las líneas pagos del pedido
+    //====================================================================//
 
 
     $data = [
@@ -203,6 +256,7 @@ if($row){
         //taquilla
         't_nombre' => $row['t_nombre'],
         'estado_taquilla' => $row['estado_taquilla'],
+        'codigo_apertura' => $row['codigo_apertura'],
         
         'fecha_pedido' => $row['fecha_pedido'],
         'canal_venta' => $row['canal_venta'],
@@ -225,8 +279,11 @@ if($row){
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at'],
 
-        // Líneas del pedido
-        'arr_items' => $arr_items_pedido,
+        // Líneas de items del pedido
+        'arr_items' => $arr_items,
+
+        // Líneas de pagos del pedido
+        'arr_pagos' => $arr_pagos,
     
         'valorData' => 'hay_datos'
     ];

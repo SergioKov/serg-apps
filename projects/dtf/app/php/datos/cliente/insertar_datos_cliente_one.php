@@ -123,7 +123,6 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $descuento = ($datos['descuento'] === '') ? null : $datos['descuento'];//si viene vacio => null
     $precio_fijo_dtf = ($datos['precio_fijo_dtf'] === '') ? null : $datos['precio_fijo_dtf'];//si viene vacio => null
     $precio_fijo_uv = ($datos['precio_fijo_uv'] === '') ? null : $datos['precio_fijo_uv'];//si viene vacio => null
-    $saldo = ($datos['saldo'] === '') ? null : $datos['saldo'];//si viene vacio => null
     
     //variables de busqueda
     $cliente_search = normalizeSearchText($nombre ?? '');
@@ -202,7 +201,6 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         precio_fijo_dtf,
                         precio_fijo_uv,
-                        saldo,
                     
                         created_at
                     )        
@@ -216,7 +214,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         ?, ?, ?, ?,
 
-                        ?, ?, ?,
+                        ?, ?,
                     
                         NOW()
                     )
@@ -237,7 +235,6 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     
                         precio_fijo_dtf = VALUES(precio_fijo_dtf),
                         precio_fijo_uv = VALUES(precio_fijo_uv),
-                        saldo = VALUES(saldo),
                     
                         updated_at = NOW()
     ";
@@ -254,7 +251,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "issssssssiddd",
+        "issssssssidd",
     
         $id_cliente_upsert,
     
@@ -271,8 +268,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         $descuento,
     
         $precio_fijo_dtf,
-        $precio_fijo_uv,
-        $saldo
+        $precio_fijo_uv
     );
     $result2 = $stmt->execute();
     $id_cliente_insertado = $conn->insert_id;//importante! si se inserta tendrá id de insert, lo guardo en esta variable ya que con otras consultas (si hay) $conn->insert_id se modifica y no es el valor correcto para mi!!!

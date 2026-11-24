@@ -46,6 +46,7 @@ async function buildPedido(pedido_action = null){
     //taquilla
     let t_nombre_val = '';
     let estado_taquilla_val = '';
+    let codigo_apertura_val = '';
     
     let comentario_val = '';
 
@@ -77,6 +78,7 @@ async function buildPedido(pedido_action = null){
     let importe_pagado_text = '';
 
     let cantidad_pedido_items = 0;//por defecto. si los hay, se modifica
+    let cantidad_pagos = 0;//por defecto. si los hay, se modifica
 
     //elemento de título en el top
     const p_mensaje = document.createElement('p');
@@ -92,12 +94,17 @@ async function buildPedido(pedido_action = null){
 
     let contenedor;//general. se asigna luego  
     
-    if(pedido_action == 'nuevo'){//si es nueva
+    if(pedido_action == 'nuevo'){//si es nuevo pedido
         console.log('es pedido nuevo');
+
+        id_pedido = null;//reset ya que se va a crear un id_pedido nuevo
+        objPedido = {};//reset
+        objCliente = {};//reset para que no construya eid_datos_cliente_finded
 
         //reseteo pedido
         pedido = {
-            arr_items_pedido: [],
+            arr_items: [],
+            arr_pagos: [],
             subtotal: 0,
             iva_incluido: 1,
             iva_total: 0,
@@ -125,13 +132,13 @@ async function buildPedido(pedido_action = null){
         id_cliente_val = objPedido.id_cliente;
         id_taquilla_val = objPedido.id_taquilla || '';
 
-        //reasigno objeto de cliente según el cliente del pedido
+        // reasigno objeto de cliente según el cliente del pedido
         // objCliente = objDataClientes?.arr_data?.find(cliente => cliente.id_cliente == objPedido.id_cliente) || {};
         
         // en vez de cojer datos del objCliente de objDataClientes, 
         //cojo los datos del pedido directamente de la bd
         id_cliente = objPedido.id_cliente;
-        objCliente = await getDataClienteFromBd();//IMPORTANTE para cojer todos los datos necesarios
+        objCliente = await getDataClienteFromBd(id_cliente);//IMPORTANTE para cojer todos los datos necesarios
         console.log('objCliente: ', objCliente);
 
         //cliente
@@ -146,6 +153,7 @@ async function buildPedido(pedido_action = null){
         //taquilla
         t_nombre_val = escaparHTML(objPedido.t_nombre);// 't_nombre' = 't.nombre' //el numero de taquilla
         estado_taquilla_val = escaparHTML(objPedido.estado_taquilla);
+        codigo_apertura_val = objPedido.codigo_apertura;
     
         comentario_val = escaparHTML(objPedido.comentario) || '';
 
@@ -182,14 +190,23 @@ async function buildPedido(pedido_action = null){
         importe_pagado_text = (objPedido.importe_pagado) ? `${importe_pagado_val} €` : '--';
 
         if(objPedido.arr_items){
-            pedido.arr_items_pedido = structuredClone(objPedido.arr_items);//aki imprescindible structuredClone() y no [...array_new]
-            console.log('pedido.arr_items_pedido:', pedido.arr_items_pedido);
+            pedido.arr_items = structuredClone(objPedido.arr_items);//aki imprescindible structuredClone() y no [...array_new]
+            console.log('pedido.arr_items:', pedido.arr_items);
 
             pedido.importe_pagado = Number(objPedido.importe_pagado) || 0;
             pedido.saldo = Math.round((objPedido.importe_pagado - objPedido.total) * 100) / 100;
         }
+        
+        if(objPedido.arr_pagos){
+            pedido.arr_pagos = structuredClone(objPedido.arr_pagos);//aki imprescindible structuredClone() y no [...array_new]
+            console.log('pedido.arr_pagos:', pedido.arr_pagos);
 
-        cantidad_pedido_items = pedido.arr_items_pedido.length;
+            // pedido.importe_pagado = Number(objPedido.importe_pagado) || 0;
+            // pedido.saldo = Math.round((objPedido.importe_pagado - objPedido.total) * 100) / 100;
+        }
+
+        cantidad_pedido_items = pedido.arr_items.length;
+        cantidad_pagos = pedido.arr_pagos.length;
     }
 
     //si es ver o editar, muestro id
@@ -211,19 +228,12 @@ async function buildPedido(pedido_action = null){
         }
     }
 
+    //solo clases aki
     switch (pedido_action) {
         case 'nuevo'://Nueva Pedido
             p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un pedido <b class="c_blue">NUEVO</b>.</span>
             `;
-            // si antes fue seleccionada una lista, entonces reseteo id_pedido
-            if(id_pedido){
-                id_pedido = null;//reset ya que se va a crear un id_pedido nuevo
-            }else{
-                //id_pedido es null, no hago nada.
-                // no reseteo arr_lista ya que hace falta crear una lista nueva con las canciones ya seleccionadas (añadidas a arr_lista) y no quiero perderlas.
-            }
-            objPedido = {};//reset
             cl_d_limpiar_input = 'd-flex';//muestro porque es 'nuevo'
             if(id_cliente_val){
                 cl_wr_saldo_cliente = 'd-flex';//muestro porque es 'nuevo' y hay cliente seleccionado
@@ -363,7 +373,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- id_almacen -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Almacen de uso:</label>
+                    <label class="lab_varios_btns">Almacen de uso</label>
                     <div id="d_almacen_uso" class="wr_varios_btns ">
                         <div class="dbtn active w_100 cursor_def">${objAlmacenUso?.nombre || '(almacén no asignado)'}</div>
                     </div>
@@ -374,10 +384,10 @@ async function buildPedido(pedido_action = null){
 
                 
                 <!-- buscar cliente -->
-                <div class="wr_buscar_cliente ${cl_solo_ver}">
+                <div class="wr_buscar_cliente d_buscar_by_id ${cl_solo_ver}">
 
                     <div class="wr_bl_buscar_head">
-                        <h5>Cliente:</h5>
+                        <h5>Cliente</h5>
                         <div id="lupa_buscar_cliente" class="wr_btn_lupa wr_btn_img">
                             <img class="btn_img" src="./images/search_zoom_icon_white.svg">
                         </div>
@@ -402,7 +412,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- canal_venta -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Canal de venta:</label>
+                    <label class="lab_varios_btns">Canal de venta</label>
                     <div id="d_canal_venta" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn" data-value="whatsapp">WhatsApp</div>
                         <div class="dbtn" data-value="mail">Mail</div>
@@ -413,11 +423,11 @@ async function buildPedido(pedido_action = null){
                 <!-- /canal_venta -->                
 
 
-                <!-- Tipo de concepto -->
-                <div id="wr_tipo_conceptos" class="wr_sel_opt_estado ${cl_solo_ver}">
+                <!-- Tipo de item -->
+                <div id="wr_tipo_items" class="wr_sel_opt_estado ${cl_solo_ver}">
 
-                    <h5>Tipo de concepto:</h5>
-                    <div id="d_tipo_concepto" class="wr_varios_btns ${cl_solo_ver}">
+                    <h5>Tipo de item</h5>
+                    <div id="d_tipo_item" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn active" data-value="producto">Producto</div>
                         <div class="dbtn" data-value="bono">Bono</div>
                         <div class="dbtn" data-value="servicio">Servicio</div>
@@ -440,12 +450,12 @@ async function buildPedido(pedido_action = null){
                     </div> 
 
                 </div>
-                <!-- /Tipo de concepto -->
+                <!-- /Tipo de item -->
 
 
                 <!-- items_pedido -->
                 <div id="wr_items_pedido" class="wr_sel_opt_estado ${cl_solo_ver}">
-                    <h5>Lista de elementos de pedido:</h5>
+                    <h5>Lista de artículos de pedido</h5>
 
                     <div id="contenedor_lista_items" class="">
                         <!-- aki divs de items de pedido seleccionados -->
@@ -454,18 +464,20 @@ async function buildPedido(pedido_action = null){
                         </div>
                     </div>
                    
-                    <div id="contenedor_totales" class="bl_totales">                        
-                        <div class="row_tot d_subtotal ${cl_d_subtotal}">
-                            <span>Subtotal:</span> 
-                            <span class="sp_subtotal">${subtotal_val || '0.00'} €</span>
-                        </div>
-                        <div class="row_tot d_iva_total ${cl_d_iva_total}">
-                            <span>IVA Total:</span> 
-                            <span class="sp_iva_total">${iva_total_val || '0.00'} €</span>
-                        </div>
-                        <div class="row_tot d_total">
-                            <span>Total:</span> 
-                            <span class="sp_total">${total_val || '0.00'} €</span>
+                    <div id="contenedor_totales" class="bl_totales">
+                        <div class="bl_totales_inner">
+                            <div class="row_tot d_subtotal ${cl_d_subtotal}">
+                                <span>Subtotal:</span> 
+                                <span class="sp_subtotal">${subtotal_val || '0.00'} €</span>
+                            </div>
+                            <div class="row_tot d_iva_total ${cl_d_iva_total}">
+                                <span>IVA Total:</span> 
+                                <span class="sp_iva_total">${iva_total_val || '0.00'} €</span>
+                            </div>
+                            <div class="row_tot d_total">
+                                <span>Total:</span> 
+                                <span class="sp_total">${total_val || '0.00'} €</span>
+                            </div>
                         </div>
                     </div>
 
@@ -479,7 +491,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- iva_incluido -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Iva incluido:</label>
+                    <label class="lab_varios_btns">Iva incluido</label>
                     <div id="d_iva_incluido" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn dbtn_no" data-value="0">Sin IVA</div>
                         <div class="dbtn dbtn_si" data-value="1">Con IVA</div>
@@ -491,7 +503,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- taquilla asignada -->
                 <div id="wr_taquilla_asignada" class="wr_sel_opt_estado ${cl_solo_ver}">
-                    <h5>Taquilla:</h5>
+                    <h5>Taquilla</h5>
 
                     <input id="id_taquilla" type="hidden" name="id_taquilla" value="${id_taquilla_val}">
 
@@ -514,7 +526,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- estado_pedido -->
                 <div id="wr_estado_pedido" class="wr_sel_opt_estado ${objPedido?.estado_pedido || ''}">
-                    <h5>Estado de pedido:</h5>
+                    <h5>Estado de pedido</h5>
                     <select id="estado_pedido" class="sel_opt_find">
                         <option value="">(no asignado)</option>
                         <option value="en_preparacion">En preparación</option>
@@ -528,7 +540,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- tipo_pago -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Tipo de pago:</label>
+                    <label class="lab_varios_btns">Tipo de pago</label>
                     <div id="d_tipo_pago" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn" data-value="normal">Normal</div>
                         <div class="dbtn" data-value="recurrente">Recurrente</div>
@@ -540,7 +552,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- metodo_pago -->
                 <div id="wr_metodo_pago" class="wr_sel_opt_estado ${objPedido?.metodo_pago || ''}">
-                    <h5>Método de pago:</h5>
+                    <h5>Método de pago</h5>
                     <select id="metodo_pago" class="sel_opt_find">
                         <option value="">(no asignado)</option>
                         <option value="efectivo">Efectivo</option>
@@ -567,9 +579,37 @@ async function buildPedido(pedido_action = null){
                         placeholder=" " 
                         value="${importe_pagado_val}"
                     >
-                    <label for="importe_pagado">Importe pagado:</label>
+                    <label for="importe_pagado">Importe pagado</label>
                 </div>
                 <!-- /importe_pagado -->
+                
+                
+                
+                
+                
+                
+                
+                <!-- wr_pagos -->
+                <div id="wr_pagos" class="wr_sel_opt_estado ${cl_solo_ver}">
+                    <h5>
+                        <span>Pagos:</span>
+                        <div class="d_info_sm" onclick="showInfo('pagos')">i</div>                    
+                    </h5>                   
+                    <div id="contenedor_pagos" class="bl_totales">
+                        <div class="bl_totales_inner">
+                            <!-- aki los pagos fracionados -->
+                            <div class="prim">No existen pagos del pedido. Para añadir uno pulsa <b>+</b>.</div>                        
+                        </div>
+                    </div>
+                    
+                    <div class="wr_pago_plus">
+                        <div id="btn_pago_plus" class="btn">+</div>
+                    </div>
+                </div>
+                <!-- wr_pagos -->
+
+
+
 
 
                 <!-- estado_pago -->
@@ -591,17 +631,19 @@ async function buildPedido(pedido_action = null){
                     
                     </h5>                   
                     <div id="contenedor_pago" class="bl_totales">
-                        <div class="row_tot d_total">
-                            <span>Total del pedido:</span> 
-                            <span class="sp_importe_total">-- €</span>
-                        </div>
-                        <div class="row_tot d_pagado">
-                            <span>Importe pagado:</span> 
-                            <span class="sp_importe_pagado">-- €</span>
-                        </div>
-                        <div class="row_tot d_saldo d_saldo">
-                            <span class="sp_title_saldo">Saldo:</span> 
-                            <span class="sp_saldo">-- €</span>
+                        <div class="bl_totales_inner">
+                            <div class="row_tot d_total">
+                                <span>Total del pedido:</span> 
+                                <span class="sp_importe_total">-- €</span>
+                            </div>
+                            <div class="row_tot d_pagado">
+                                <span>Importe pagado:</span> 
+                                <span class="sp_importe_pagado">-- €</span>
+                            </div>
+                            <div class="row_tot d_saldo d_saldo">
+                                <span class="sp_title_saldo">Saldo:</span> 
+                                <span class="sp_saldo">-- €</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -616,17 +658,19 @@ async function buildPedido(pedido_action = null){
                     
                     </h5>                   
                     <div id="contenedor_saldo_cliente" class="bl_totales">
-                        <div class="row_tot d_saldo_actual">
-                            <span>Saldo actual:</span> 
-                            <span class="sp_saldo_actual">-- €</span>
-                        </div>
-                        <div class="row_tot d_saldo_pedido">
-                            <span>Saldo del pedido:</span> 
-                            <span class="sp_saldo_pedido">-- €</span>
-                        </div>
-                        <div class="row_tot d_saldo d_saldo_new $ {cl_saldo_new}">
-                            <span>Saldo nuevo (al guardar este pedido):</span> 
-                            <span class="sp_saldo_new">-- €</span>
+                        <div class="bl_totales_inner">
+                            <div class="row_tot d_saldo_actual">
+                                <span>Saldo actual:</span> 
+                                <span class="sp_saldo_actual">-- €</span>
+                            </div>
+                            <div class="row_tot d_saldo_pedido">
+                                <span>Saldo del pedido:</span> 
+                                <span class="sp_saldo_pedido">-- €</span>
+                            </div>
+                            <div class="row_tot d_saldo d_saldo_new">
+                                <span>Saldo nuevo (al guardar este pedido):</span> 
+                                <span class="sp_saldo_new">-- €</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -635,7 +679,7 @@ async function buildPedido(pedido_action = null){
 
                 <!-- canal_aviso -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Canal de aviso:</label>
+                    <label class="lab_varios_btns">Canal de aviso</label>
                     <div id="d_canal_aviso" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn" data-value="whatsapp">WhatsApp</div>
                         <div class="dbtn" data-value="mail">Mail</div>
@@ -665,8 +709,8 @@ async function buildPedido(pedido_action = null){
     
     const eid_datos_cliente_finded = form_pedido.querySelector('#datos_cliente_finded');
 
-    //tipo_concepto // no se guarda en bd. solo para seleccionar concepto_venta para items_pedido
-    const eid_d_tipo_concepto = form_pedido.querySelector('#d_tipo_concepto');
+    //tipo_item // no se guarda en bd. solo para seleccionar concepto_venta para items_pedido
+    const eid_d_tipo_item = form_pedido.querySelector('#d_tipo_item');
 
     //buscar_cliente
     const eid_lupa_buscar_cliente = form_pedido.querySelector('#lupa_buscar_cliente');
@@ -706,6 +750,12 @@ async function buildPedido(pedido_action = null){
     //importe_pagado
     const eid_wr_importe_pagado = form_pedido.querySelector('#wr_importe_pagado');
     const input_importe_pagado = form_pedido.querySelector('#importe_pagado');
+    
+    //pagos
+    const eid_wr_pagos = form_pedido.querySelector('#wr_pagos');
+    const contenedor_pagos = form_pedido.querySelector('#contenedor_pagos');
+    const eid_wr_pago_plus = form_pedido.querySelector('#wr_pago_plus');
+    const eid_btn_pago_plus = form_pedido.querySelector('#btn_pago_plus');
 
     const arr_elementos_importe = [eid_wr_importe_pagado]; 
 
@@ -721,8 +771,8 @@ async function buildPedido(pedido_action = null){
         buildModalBuscarCliente(input_id_cliente);
     }
     
-    let tipo_concepto_anterior_val = 'producto';//por defecto
-    eid_d_tipo_concepto.onclick = (e) => {
+    let tipo_item_anterior_val = 'producto';//por defecto
+    eid_d_tipo_item.onclick = (e) => {
         console.log('e.currentTarget: ', e.currentTarget);
         console.log('e.target: ', e.target);
 
@@ -733,17 +783,26 @@ async function buildPedido(pedido_action = null){
             return;//no dejo cambiar el valor si es form_ver
         }
 
-        const tipo_concepto_val = btn.dataset.value;
+        const tipo_item_val = btn.dataset.value;
 
-        if(tipo_concepto_val == tipo_concepto_anterior_val){
+        if(tipo_item_val == tipo_item_anterior_val){
             console.log('es el click sobre el mismo valor. no hago nada');
             return;
         }
 
-        pintDivSelected('d_tipo_concepto', eid_d_tipo_concepto, tipo_concepto_val);
-        pintDivSelected('contenedor_tipos', eid_contenedor_tipos, tipo_concepto_val, 'todos_items');
+        pintDivSelected('d_tipo_item', eid_d_tipo_item, tipo_item_val);
+        pintDivSelected('contenedor_tipos', eid_contenedor_tipos, tipo_item_val, 'todos_items');
 
-        tipo_concepto_anterior_val = tipo_concepto_val;
+        tipo_item_anterior_val = tipo_item_val;
+    }
+
+    //btn añadir pago nuevo
+    eid_btn_pago_plus.onclick = (e) => {
+        
+        if(eid_wr_pagos.classList.contains('solo_ver')){
+            return;//no dejo cambiar el valor si es form_ver
+        }
+        buildModalPago(pedido_action);//aki solo añadir pago nuevo
     }
         
     //=============================================================================//
@@ -753,7 +812,7 @@ async function buildPedido(pedido_action = null){
 
     // PRODUCTOS
     crearItemsSelector({
-        tipo_concepto: 'producto',
+        tipo_item: 'producto',
         datos: objDataProductos?.arr_data,
         contenedor: eid_contenedor_select_producto,
         contenedor_lista_items: eid_contenedor_lista_items,
@@ -766,7 +825,7 @@ async function buildPedido(pedido_action = null){
 
     // BONOS
     crearItemsSelector({
-        tipo_concepto: 'bono',
+        tipo_item: 'bono',
         datos: objDataBonos?.arr_data,
         contenedor: eid_contenedor_select_bono,
         contenedor_lista_items: eid_contenedor_lista_items,
@@ -779,7 +838,7 @@ async function buildPedido(pedido_action = null){
 
     // SERVICIOS
     crearItemsSelector({
-        tipo_concepto: 'servicio',
+        tipo_item: 'servicio',
         datos: objDataServicios?.arr_data,
         contenedor: eid_contenedor_select_servicio,
         contenedor_lista_items: eid_contenedor_lista_items,
@@ -796,25 +855,25 @@ async function buildPedido(pedido_action = null){
 
     if(cantidad_pedido_items){
         
-        //ordenar por tipo_concepto
+        //ordenar por tipo_item
         const orden = {
             producto: 1,
             bono: 2,
             servicio: 3
         };
         
-        pedido.arr_items_pedido.sort((a, b) =>
-            orden[a.tipo_concepto] - orden[b.tipo_concepto]
+        pedido.arr_items.sort((a, b) =>
+            orden[a.tipo_item] - orden[b.tipo_item]
         );
 
         //Recorrer los artículos de pedido
-        pedido.arr_items_pedido.forEach(item => {
+        pedido.arr_items.forEach(item => {
 
             console.log('item:', item);
         
             // Crear el artículo del pedido
             const item_pedido = {
-                tipo_concepto: item.tipo_concepto,
+                tipo_item: item.tipo_item,
                 id: item.id,
                 nombre: item.nombre,
                 cantidad: item.cantidad,
@@ -835,11 +894,16 @@ async function buildPedido(pedido_action = null){
         calcularTotal();
         
     }
+
+
+    if(cantidad_pagos){
+        pintPagosFraccionadosEnContenedor(contenedor_pagos, pedido_action);
+    }
  
 
     if(id_taquilla_val){
         //creo kvadrat de taquilla asignada
-        const eid_d_taq_asignada = crearTaquillaAsignada(id_taquilla_val, t_nombre_val, estado_taquilla_val);
+        const eid_d_taq_asignada = crearTaquillaAsignada(id_taquilla_val, t_nombre_val, estado_taquilla_val, codigo_apertura_val);
         eid_contenedor_una_taquilla_asignada.append(eid_d_taq_asignada);
     }else{
         const d_prim = document.createElement('div');
@@ -875,14 +939,20 @@ async function buildPedido(pedido_action = null){
                 d_taq.dataset.id_taquilla = objTaquilla.id_taquilla; 
                 d_taq.dataset.t_nombre = objTaquilla.nombre;//es el numero de taquilla
                 d_taq.dataset.estado_taquilla = objTaquilla.estado_taquilla;
+                d_taq.dataset.codigo_apertura = objTaquilla.codigo_apertura;
                 d_taq.textContent = objTaquilla.nombre;//es el numero de taquilla
                 d_taq.onclick = () => {
                     //alert(objTaquilla.nombre);
                     //si no es ocupado, lo permito seleccionar
                     if(!d_taq.classList.contains('ocupado')){
                         eid_contenedor_una_taquilla_asignada.innerHTML = '';//reset
+
+                        const id_taquilla = d_taq.dataset.id_taquilla;
+                        const t_nombre = d_taq.dataset.t_nombre;
+                        const estado_taquilla = d_taq.dataset.estado_taquilla;
+                        const codigo_apertura = (d_taq.dataset.codigo_apertura == 'null') ? null : d_taq.dataset.codigo_apertura;
     
-                        const taq_asignada_new = crearTaquillaAsignada(d_taq.dataset.id_taquilla, d_taq.dataset.t_nombre, d_taq.dataset.estado_taquilla);
+                        const taq_asignada_new = crearTaquillaAsignada(id_taquilla, t_nombre, estado_taquilla, codigo_apertura);
                         eid_contenedor_una_taquilla_asignada.append(taq_asignada_new);
                         
                         input_id_taquilla.value = objTaquilla.id_taquilla;
@@ -1194,7 +1264,7 @@ function addDivsInvisible(contenedor, selectorElement) {
     });
 }
 
-function crearTaquillaAsignada(id_taquilla, t_nombre, estado_taquilla){
+function crearTaquillaAsignada(id_taquilla, t_nombre, estado_taquilla, codigo_apertura){
     console.log('=== function crearTaquillaAsignada() ===');
     
 
@@ -1205,7 +1275,10 @@ function crearTaquillaAsignada(id_taquilla, t_nombre, estado_taquilla){
         <div class="wr_close_taq">
             <span class="close">✕</span>
         </div>
-        <div class="n_taq">${t_nombre}</div>
+        <div class="d_taq">
+            <div class="taq_nombre">${t_nombre}</div>
+            <div class="taq_codigo_apertura ${codigo_apertura ? '' : 'd-none'}">${codigo_apertura}</div>
+        </div>
     `;
     taq.onclick= (e) => {
         console.log('taq.onclick');
@@ -1246,7 +1319,7 @@ function crearDivItem(obj){
     
     let cantidad_text = '';
     
-    if(obj.tipo_concepto == 'producto'){
+    if(obj.tipo_item == 'producto'){
         cantidad_text = 'm';
     }else{//bono, servicio
         cantidad_text = (Number(obj.cantidad) == 1) ? 'ud.' : 'uds.' ;
@@ -1254,7 +1327,7 @@ function crearDivItem(obj){
 
     const div_item = document.createElement('div');
     div_item.className = `div_item`;
-    div_item.dataset.tipo_concepto = obj.tipo_concepto;
+    div_item.dataset.tipo_item = obj.tipo_item;
     div_item.dataset.id_item = obj.id;
     div_item.dataset.nombre = obj.nombre;
     div_item.dataset.precio = obj.precio;
@@ -1299,19 +1372,19 @@ function crearDivItem(obj){
         // Click en X para eliminar el div_item del pedido
         if(e.target.closest('.wr_close_item')){//click sobre 'X' de cerrar div_item
             const id_item = div_item.dataset.id_item;
-            const tipo_concepto = div_item.dataset.tipo_concepto;
+            const tipo_item = div_item.dataset.tipo_item;
 
-            pedido.arr_items_pedido = pedido.arr_items_pedido.filter(
+            pedido.arr_items = pedido.arr_items.filter(
                 item =>
                     String(item.id) !== String(id_item) ||
-                    item.tipo_concepto !== tipo_concepto
+                    item.tipo_item !== tipo_item
             );
 
             div_item.remove();
             calcularTotal();
 
             // Mostrar mensaje si la lista queda vacía
-            if (pedido.arr_items_pedido.length === 0) {
+            if (pedido.arr_items.length === 0) {
                 const d_prim = document.createElement('div');
                 d_prim.className = 'prim';
                 d_prim.textContent = 'Lista de elementos de pedido vacía.';
@@ -1338,7 +1411,7 @@ function crearDivItem(obj){
             // Cerrar otros menús abiertos
             removeElementosAll('.wr_btns_menos_mas');
 
-            let cl_row_sm = (div_item.dataset.tipo_concepto === 'producto') ? 'd-flex' : 'd-none';
+            let cl_row_sm = (div_item.dataset.tipo_item === 'producto') ? 'd-flex' : 'd-none';
 
             // Creo el menú de manejar cantidad
             const wr_btns_menos_mas = document.createElement('div');
@@ -1402,14 +1475,14 @@ function removeElementosAll(selectorElement) {//quita/elimina todos los elemento
 function cambiarValor(contenedor, incremento) {
     console.log('=== function cambiarValor() ===');
 
-    const tipo_concepto = contenedor.dataset.tipo_concepto;
+    const tipo_item = contenedor.dataset.tipo_item;
     const id_item = contenedor.dataset.id_item;
 
     // Buscar el artículo en el array único
-    const item = pedido.arr_items_pedido.find(
+    const item = pedido.arr_items.find(
         item =>
             String(item.id) === String(id_item) &&
-            item.tipo_concepto === tipo_concepto
+            item.tipo_item === tipo_item
     );
 
     if (!item) return;
@@ -1426,7 +1499,7 @@ function cambiarValor(contenedor, incremento) {
     item.cantidad = cantidad_item;
 
     //si es producto,saco su precio de tarifas según cantidad de metros                    
-    if(item.tipo_concepto === 'producto'){
+    if(item.tipo_item === 'producto'){
         // Actualizar precio según la tarifa de los metros actuales
         actualizarPrecioProductoSegunTarifa(item, contenedor);
     }
@@ -1447,7 +1520,7 @@ function calcularImporteItem(contenedor, cantidad, precio) {
 
     let cantidad_text = '';
     
-    if (contenedor.dataset.tipo_concepto === 'producto') {
+    if (contenedor.dataset.tipo_item === 'producto') {
         cantidad_text = 'm';
     } else {
         cantidad_text = (Number(cantidad_val) === 1) ? 'ud.' : 'uds.';
@@ -1471,12 +1544,12 @@ function calcularImporteItem(contenedor, cantidad, precio) {
 
     // Actualizar objeto pedido
     const id_item = contenedor.dataset.id_item;
-    const tipo_concepto_item = contenedor.dataset.tipo_concepto;
+    const tipo_item_item = contenedor.dataset.tipo_item;
 
-    const item_pedido = pedido.arr_items_pedido.find(
+    const item_pedido = pedido.arr_items.find(
         item =>
             String(item.id) === String(id_item) &&
-            item.tipo_concepto === tipo_concepto_item
+            item.tipo_item === tipo_item_item
     );
 
     if (item_pedido) {
@@ -1492,7 +1565,7 @@ function calcularTotal() {
     console.log('=== function calcularTotal() ===');
 
     // Sumar los subtotales de productos y servicios
-    const subtotal_items = pedido.arr_items_pedido.reduce(
+    const subtotal_items = pedido.arr_items.reduce(
         (total, item) => total + (parseFloat(item.importe) || 0),
         0
     );
@@ -1794,11 +1867,6 @@ async function guardarPedido(event, modo_guardar = 'normal'){
         const metodo_pago = form_pedido?.querySelector('#metodo_pago').value.trim();
         const importe_pagado = form_pedido?.querySelector('#importe_pagado').value.trim();
         const estado_pago = form_pedido?.querySelector('#estado_pago').value.trim();
-
-        // const subtotal = form_pedido?.querySelector('#subtotal').value.trim();
-        // const iva_incluido = form_pedido?.querySelector('#iva_incluido').value.trim();
-        // const iva_total = form_pedido?.querySelector('#iva_total').value.trim();
-        // const total = form_pedido?.querySelector('#total').value.trim();
     
         let errors = [];
 
@@ -1833,7 +1901,11 @@ async function guardarPedido(event, modo_guardar = 'normal'){
         }
 
         if(metodo_pago != '' && importe_pagado == ''){
-            let aviso_text = `<p>Con el método de pago distinto a <b>(no asignado)</b> el importe pagado no puede ser vacío. <br>Introduce el importe pagado. Si no se ha pagado nada, introduce '0' (cero).</p>`;
+            let aviso_text = `
+                <p>Con el método de pago distinto a <b>(no asignado)</b> el importe pagado no puede ser vacío. Introduce el importe pagado.</p>
+                <p>Si se conoce el método de pago y no se ha pagado nada, introduce '0' (cero).</p>
+                <p>Si todavía no se conoce el método de pago selecciona <b>(no asignado)</b></p>
+            `;
             showToast('error', aviso_text, 50, 'center', true, 'Error en el campo </b>Importe pagado</b>');
             return;
         }
@@ -1862,7 +1934,10 @@ async function guardarPedido(event, modo_guardar = 'normal'){
             importe_pagado,
 
             // Líneas del pedido
-            arr_items: pedido.arr_items_pedido
+            arr_items: pedido.arr_items,
+            
+            // Líneas de pagos del pedido
+            arr_pagos: pedido.arr_pagos
         }
         console.log('objPedidoToSend: ',objPedidoToSend);
     
@@ -1894,8 +1969,11 @@ async function guardarPedido(event, modo_guardar = 'normal'){
                 console.log('id_pedido: ', data.id_pedido);
                 id_pedido = data.id_pedido;//guardo el id del pedido recién creada
 
+                //guardo el objeto antiguo para comparar después con el nuevo
+                const objPedidoOld = structuredClone(objPedido);
+
                 //Cojo datos del pedido desde BD
-                objPedido = await getDataPedidoFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objPedido = await getDataPedidoFromBd(id_pedido);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objPedido: ', objPedido);
 
                 const itemPedidoUpdate = objDataPedidos?.arr_data?.find(item => item.id_pedido == id_pedido);
@@ -1907,9 +1985,16 @@ async function guardarPedido(event, modo_guardar = 'normal'){
                     //Actualizo d_art 
                     pintPedidoActiveSoloDatos();//en el contenedor_pedidos
 
+                    //si se ha cambiado importe_pagado, hago load de todos movimientos
+                    if(importe_pagado != objPedidoOld.importe_pagado){
+                        //actualizo movimientos y obj y DOM
+                        await loadClientesAll();//para actualizar su saldo
+                        await loadMovimientosAll();//para actualizar movimientos
+                    }
+
                 } else {//es insert del pedido nuevo
     
-                    console.warn('No encontrado objPedido.id_pedido en objDataPedidos.arr_data');
+                    console.log('No encontrado objPedido.id_pedido en objDataPedidos.arr_data');
                     //entonces es un pedido nuevo que se crea
 
                     //1.debo añadir objPedido en objDataPedidos.arr_data al inicio (si existe!)
@@ -2099,7 +2184,7 @@ async function deletePedido(event){
                 await loadPedidosAll();
 
                 //actualizo taquillas
-                loadTaquillasAll();
+                await loadTaquillasAll();
 
                 showToast('ok', text_show, 5000);
             }
@@ -2328,8 +2413,10 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
     const subtotal_text = (objPedidoOne.subtotal) ? `${objPedidoOne.subtotal} €` : '--' ;
     const iva_total_text = (objPedidoOne.iva_total) ? `${objPedidoOne.iva_total} €` : '--' ;
     const total_text = (objPedidoOne.total) ? `${objPedidoOne.total} €` : '--' ;
+    const importe_pagado_text = (objPedidoOne.importe_pagado) ? `${objPedidoOne.importe_pagado} €` : '--' ;
 
     let cl_iva_incluido = (objPedidoOne.iva_incluido) ? '' : 'd-none';
+    let cl_importe_pagado = (objPedidoOne.importe_pagado) ? '' : 'd-none';
     let cl_wr_kvadrat = '';
     let cl_da_kvadrat = '';
     let da_kvadrat_html = '';
@@ -2341,10 +2428,15 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
         cl_wr_kvadrat = '';
         if(condicion_tiene_taquilla_ocupada){
             cl_da_kvadrat = 'ocupado';
-            da_kvadrat_html = objPedidoOne.t_nombre;
+            da_kvadrat_html = `
+                <div class="taq_nombre">${objPedidoOne.t_nombre}</div>
+                <div class="taq_codigo_apertura ${objPedidoOne.codigo_apertura ? '' : 'd-none'}">${objPedidoOne.codigo_apertura}</div>
+            `;
         }        
         if(condicion_esta_entregado){
-            da_kvadrat_html = `<img class="btn_img" src="./images/icon_ok_green.svg">`;
+            da_kvadrat_html = `
+                <img class="btn_img" src="./images/icon_ok_green.svg">
+            `;
         }
     }else{
         cl_wr_kvadrat = 'd-none';
@@ -2358,7 +2450,10 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
     d_pedido.dataset.tipo_art = 'pedido';
     d_pedido.innerHTML = `
         <div class="datos_pedido datos_art">
-            <div class="da_diasem">${diaSemana_val}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objPedidoOne.id_pedido}</div>
+                <div class="da_diasem">${diaSemana_val}</div>
+            </div>
             <div class="da_fechahora">
                 <div class="da_fecha">${fecha_val}</div>
                 <div class="da_hora">${hora_val}</div>
@@ -2380,8 +2475,8 @@ function pintPedidoOne(objPedidoOne, lugar_de_pintar = 'abajo'){//pintar solo un
             <div class="da_subtotal ${cl_iva_incluido}">${subtotal_text}</div>
             <div class="da_iva_total ${cl_iva_incluido}">${iva_total_text}</div>
             <div class="da_total">${total_text}</div>
+            <div class="da_importe_pagado ${cl_importe_pagado}">${importe_pagado_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -2776,7 +2871,7 @@ function buildBuscarPedido(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_pedido" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -2798,7 +2893,7 @@ function buildBuscarPedido(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_pedido" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -2927,11 +3022,7 @@ async function getDataPedidosFromBdByFind(objFindParamsPedido){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsPedido), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -3018,6 +3109,7 @@ function pintPedidoActiveSoloDatos(){
     const div_da_subtotal = d_pedido.querySelector('.da_subtotal');
     const div_da_iva_total = d_pedido.querySelector('.da_iva_total');
     const div_da_total = d_pedido.querySelector('.da_total');
+    const div_da_importe_pagado = d_pedido.querySelector('.da_importe_pagado');
 
     //datos
     const diaSemana_val = convertirToTitleCase(getDiaSemana(objPedido.fecha_pedido));
@@ -3028,6 +3120,7 @@ function pintPedidoActiveSoloDatos(){
     const subtotal_text = (objPedido.subtotal) ? `${objPedido.subtotal} €` : '--' ;
     const iva_total_text = (objPedido.iva_total) ? `${objPedido.iva_total} €` : '--' ;
     const total_text = (objPedido.total) ? `${objPedido.total} €` : '--' ;
+    const importe_pagado_text = (objPedido.importe_pagado) ? `${objPedido.importe_pagado} €` : '--' ;
 
     let cl_iva_incluido = (objPedido.iva_incluido) ? '' : 'd-none';
     let cl_wr_kvadrat = '';
@@ -3041,10 +3134,15 @@ function pintPedidoActiveSoloDatos(){
         cl_wr_kvadrat = '';
         if(condicion_tiene_taquilla_ocupada){
             cl_da_kvadrat = 'ocupado';
-            da_kvadrat_html = objPedido.t_nombre;
+            da_kvadrat_html = `
+                <div class="taq_nombre">${objPedido.t_nombre}</div>
+                <div class="taq_codigo_apertura ${objPedido.codigo_apertura ? '' : 'd-none'}">${objPedido.codigo_apertura}</div>
+            `;
         }        
         if(condicion_esta_entregado){
-            da_kvadrat_html = `<img class="btn_img" src="./images/icon_ok_green.svg">`;
+            da_kvadrat_html = `
+                <img class="btn_img" src="./images/icon_ok_green.svg">
+            `;
         }
     }else{
         cl_wr_kvadrat = 'd-none';
@@ -3080,12 +3178,16 @@ function pintPedidoActiveSoloDatos(){
 
     //iva_total
     div_da_iva_total.textContent = iva_total_text;
-    //div_da_iva_total.classList.remove('d-none');//muestro tenga o no el subtotal
+    //div_da_iva_total.classList.remove('d-none');//muestro tenga o no iva_incluido
     div_da_iva_total.classList.toggle('d-none', !objPedido.iva_incluido);
 
     //total
     div_da_total.textContent = total_text;
     div_da_total.classList.remove('d-none');//muestro tenga o no el subtotal
+
+    //importe_pagado
+    div_da_importe_pagado.textContent = importe_pagado_text;
+    div_da_importe_pagado.classList.toggle('d-none', !objPedido.importe_pagado);
 
     //comentario
     //div_da_com.textContent = objPedido.comentario || '(sin comentario)';
@@ -3095,7 +3197,7 @@ function pintPedidoActiveSoloDatos(){
 
 }
 
-async function getDataPedidoFromBd(){
+async function getDataPedidoFromBd(id_pedido){
     console.log('=== function getDataPedidoFromBd() ===');
 
     try {
@@ -3173,9 +3275,28 @@ async function update_objFindParamsPedido(){
 function showInfo(tipo_info){
     console.log('=== function showInfo() ===');
 
-    const info_text = (tipo_info == 'pedido')
-        ? pedido.info_saldo_pedido
-        : cliente.info_saldo_cliente;
+    let info_text = 'el texto no está especificado...';
+
+    switch (tipo_info) {
+        case 'pedido':
+            info_text = pedido.info_saldo_pedido;
+            break;
+
+        case 'cliente':
+            info_text = cliente.info_saldo_cliente;
+            break;
+
+        case 'tipo_uso':
+            info_text = `
+                <p>Un concepto sólo puede tener un tipo de uso.</p>
+                <p>Si se selecciona el mismo tipo de uso para varios conceptos, entonces el tipo de uso seleccionado sólo se asigna al último concepto con este tipo de uso.</p>
+                <p>El anterior concepto ya no tendrá este tipo de uso.</p>
+            `;
+            break;
+    
+        default:
+            break;
+    }
 
     showToast('warn', info_text, 50, 'center', true, 'Info');
 }

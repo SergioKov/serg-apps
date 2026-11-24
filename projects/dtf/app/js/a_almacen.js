@@ -178,7 +178,7 @@ function buildAlmacen(almacen_action = null){
     const wr_btn_usar_almacen = document.createElement('div');
     wr_btn_usar_almacen.className = 'wr_btn_usar_almacen';
     wr_btn_usar_almacen.innerHTML = `
-        <div id="btn_usar_almacen" class="btn btn_big ${cl_id_almacen_uso}" onclick="usarAlmacen(${id_almacen_val})">${btn_usar_almacen_text}</div>
+        <div id="btn_usar_almacen" class="btn btn_big ${cl_id_almacen_uso}" onclick="usarAlmacen(this, ${id_almacen_val})">${btn_usar_almacen_text}</div>
     `;
 
     
@@ -261,30 +261,46 @@ function buildAlmacen(almacen_action = null){
     console.log('fin func');
 }
 
-function usarAlmacen(id_almacen_val){
-    if(!id_almacen_val) return;
+function usarAlmacen(btn_usar_almacen, id_almacen_val){
+    if(!id_almacen_val || !btn_usar_almacen) return;    
 
-    const btn_usar_almacen = document.getElementById('btn_usar_almacen');
-    btn_usar_almacen.textContent = 'Almacén de uso';
-    btn_usar_almacen.classList.add('uso');
+    //busco obj de este almacen
+    objAlmacenUso = objDataAlmacenes?.arr_data?.find(almacen => almacen.id_almacen == id_almacen_val) || {};
 
-    id_almacen_uso = id_almacen_val;
-    localStorage.setItem('id_almacen_uso', id_almacen_uso);
+    //si existe 
+    if(Object.keys(objAlmacenUso).length > 0){
+        
+        //reasigno id
+        id_almacen_uso = id_almacen_val;
+        localStorage.setItem('id_almacen_uso', id_almacen_uso);
 
-    //filtro taquillas por id_almacen_uso
-    objDataTaquillasByAlmacen.arr_data = objDataTaquillas?.arr_data?.filter(taq => taq.id_almacen == id_almacen_uso);
+        //pinto btn clicked
+        btn_usar_almacen.textContent = 'Almacén de uso';
+        btn_usar_almacen.classList.add('uso');
 
-    //pinto en bg div del almacen de uso en almacenes
-    eid_contenedor_almacenes.querySelectorAll('.d_almacen').forEach(div => {
-        if(div.dataset.id_almacen == id_almacen_uso){
-            div.classList.add('uso');
-        }else{
-            div.classList.remove('uso');
-        }
-    });
+        //pinto y muestro btn en header
+        pintAlmacenUsoInHeader();
 
-    //cambio el almacen de uso en taquillas
-    showTaquillasByAlmacen(id_almacen_uso);
+        //filtro taquillas por id_almacen_uso
+        objDataTaquillasByAlmacen.arr_data = objDataTaquillas?.arr_data?.filter(taq => taq.id_almacen == id_almacen_uso);
+
+        //pinto en bg div del almacen de uso en almacenes
+        eid_contenedor_almacenes.querySelectorAll('.d_almacen').forEach(div => {
+            if(div.dataset.id_almacen == id_almacen_uso){
+                div.classList.add('uso');
+            }else{
+                div.classList.remove('uso');
+            }
+        });
+
+        //cambio el almacen de uso en taquillas
+        showTaquillasByAlmacen(id_almacen_uso);
+
+    }else{
+        const aviso_text = `No existe almacén con el identificador <b>${id_almacen_val}</b>. Revisa los datos de almacenes.`;
+        showToast('warn', aviso_text, 50, 'center', true, 'Ejemplo');
+    }
+    
 }
 
 async function guardarAlmacen(event, modo_guardar = 'normal'){
@@ -378,11 +394,18 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                 const objAlmacenOld = structuredClone(objAlmacen);
 
                 //Cojo datos del almacen desde BD
-                objAlmacen = await getDataAlmacenFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objAlmacen = await getDataAlmacenFromBd(id_almacen);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objAlmacen: ', objAlmacen);
 
+                //si se edita el almacen_uso
+                if(id_almacen == id_almacen_uso){
+                    objAlmacenUso = objAlmacen;
+                    //pinto y muestro btn en header
+                    pintAlmacenUsoInHeader();
+                }
+
                 const itemAlmacenUpdate = objDataAlmacenes?.arr_data?.find(item => item.id_almacen == id_almacen);
-                if (itemAlmacenUpdate) {//es update del cliente existente
+                if (itemAlmacenUpdate) {//es update del almacen existente
                     
                     Object.assign(itemAlmacenUpdate, objAlmacen);
                     // el objeto dentro de arr_data ya está actualizado
@@ -392,7 +415,7 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
 
                 } else {//es insert del almacen nuevo
                     
-                    console.warn('No encontrado objAlmacen.id_almacen en objDataAlmacenes.arr_data');
+                    console.log('No encontrado objAlmacen.id_almacen en objDataAlmacenes.arr_data');
                     //entonces es un cliente nuevo que se crea
 
                     //1.debo añadir objAlmacen en objDataAlmacenes.arr_data al inicio (si existe!)
@@ -406,7 +429,7 @@ async function guardarAlmacen(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_almacen en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintAlmacenOne(objAlmacen, 'arriba');//div de cliente se pinta al inicio (arriba)
-                    loadAlmacenesAll();
+                    await loadAlmacenesAll();
                 } 
                 
                 //compruebo si datos de almacén se han cambiado en edit actual y si es nuevo
@@ -702,6 +725,25 @@ function pintAlmacenActive(){//click en div del contenedor de almacen que ya est
 
 }
 
+async function pintAlmacenUsoInHeader(){
+    console.log('=== function pintAlmacenUsoInHeader(e) === ');
+
+    if(!id_almacen_uso){
+        return;
+    }
+
+    //si el objeto es vacio, lo cargo de bd 
+    if(Object.keys(objAlmacenUso).length === 0){
+        //Cojo datos del almacen desde BD
+        objAlmacenUso = await getDataAlmacenFromBd(id_almacen_uso);//IMPORTANTE para cojer todos los datos necesarios
+        console.log('objAlmacenUso: ', objAlmacenUso);
+    }
+
+    //muestro btn en header
+    head_block_almacen_uso.classList.remove('d-none');
+    head_block_almacen_uso.textContent = objAlmacenUso.nombre;
+}
+
 async function loadAlmacenesAll(){
     console.log('=== function loadAlmacenesAll() === ');
 
@@ -728,6 +770,8 @@ async function loadAlmacenesAll(){
     pintFiltrosAplicados(eid_bl_buscar_almacenes, objDataPint);
     
     pintAlmacenesAll();
+
+    pintAlmacenUsoInHeader();//si hay, lo pinto
 
 }
 
@@ -820,7 +864,10 @@ function pintAlmacenOne(objAlmacenOne, lugar_de_pintar = 'abajo'){//pintar solo 
     d_almacen.dataset.tipo_art = 'cliente';
     d_almacen.innerHTML = `
         <div class="datos_almacen datos_art">
-            <div class="da_nombre">${escaparHTML(objAlmacenOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objAlmacenOne.id_almacen}</div>
+                <div class="da_nombre">${escaparHTML(objAlmacenOne.nombre) || '(nombre no asignado)'}</div>
+            </div>
             <div class="da_dir">${escaparHTML(objAlmacenOne.direccion) || '(dirección no asignada)'}</div>
             <div class="da_com ${cl_da_comm}">${escaparHTML(objAlmacenOne.comentario) || '(sin comentario)'}</div>
         </div>
@@ -1221,7 +1268,7 @@ function buildBuscarAlmacen(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_almacen" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1243,7 +1290,7 @@ function buildBuscarAlmacen(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_almacen" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1372,11 +1419,7 @@ async function getDataAlmacenesFromBdByFind(objFindParamsAlmacen){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsAlmacen), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1468,7 +1511,7 @@ function pintAlmacenActiveSoloDatos(){
 
 }
 
-async function getDataAlmacenFromBd(){
+async function getDataAlmacenFromBd(id_almacen){
     console.log('=== function getDataAlmacenFromBd() ===');
 
     try {

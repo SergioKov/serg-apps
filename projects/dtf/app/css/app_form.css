@@ -164,7 +164,6 @@ textarea:not(:placeholder-shown) + label
 .wr_id_lista,
 .wr_input_general,
 
-
 .wr_title2,
 .wr_title_note,
 .wr_fecha,
@@ -183,6 +182,13 @@ textarea:not(:placeholder-shown) + label
  {
     /* background: red; */
     width: 100%;
+}
+
+.wr_tipo_uso {
+    margin-top: 40px;
+}
+.wr_tipo_uso .d_info_sm{
+    top: -30px;
 }
 
 .wr_btns_form,

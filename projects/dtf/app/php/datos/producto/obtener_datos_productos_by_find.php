@@ -43,12 +43,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             ],JSON_UNESCAPED_UNICODE);
             exit;
         }
-
-        $words_input = $datos['words_input'];
-        $modo = $datos['modo'];
-        $buscar_en = $datos['buscar_en'];
     } 
-
 }
 
 
@@ -59,13 +54,11 @@ include($niveles_para_subir . 'includes/connect_db.php');
 $words_input = $datos['words_input'];
 $modo = $datos['modo'];
 $buscar_en = $datos['buscar_en'];
+$filtro = $datos['filtro'] ?? [];
 
 //echo_json_x($datos, 'datos');
 //echo_json_x($words_input);
 //echo_json_x($modo);
-
-
-
 
 
 $params = [];
@@ -106,9 +99,33 @@ switch ($buscar_en) {
 }
 
 
+//=======================================================================================//
+// start - construir $where con $filtro
+//=======================================================================================//
+$campos_permitidos = [
+    'id_producto'          => 'p.id_producto',
+    'nombre'               => 'p.nombre',
+    'descripcion'          => 'p.descripcion',
+    'precio_compra'        => 'p.precio_compra',
+    'precio_venta'         => 'p.precio_venta',
+    'is_deleted'           => 'p.is_deleted',
+];
+
+$filtro_validado = [];
+
+foreach ($filtro as $campo => $valor) {
+    if (isset($campos_permitidos[$campo])) {
+        $filtro_validado[$campos_permitidos[$campo]] = $valor;
+    }
+}
 
 // Buscar "Jesús Pedro" en varios campos
-$where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
+// si words_input es vacio -> se evita construccion de where y where es ''
+// si hay filtro -> se construye el where con sus campos a filtrar
+$where = buildWhere($modo, $words_input, $arr_campos, $params, $types, $filtro_validado);
+//=======================================================================================//
+// end - construir $where con $filtro
+//=======================================================================================//
 
 
 //test modos de where

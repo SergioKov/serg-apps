@@ -15,6 +15,7 @@ async function init() {
     await loadTaquillasAll(); 
     await loadPedidosAll(); 
     await loadMovimientosAll(); 
+    await loadConceptosAll(); 
     
     showBlockName(BlockNameActive);
 }
@@ -651,4 +652,391 @@ function displayElementos(arr, show = true){
             el.classList.add('d-none');
         }
     });
+}
+
+function crearItemsSelector({
+    tipo_item,          //'producto','bono','servicio'
+    datos,                  //objDataProductos.arr_data, objDataBonos.arr_data, objDataServicios.arr_data
+    contenedor_lista_items, //eid_contenedor_lista_items donde se colocan todos los items de pedido
+    contenedor,             //eid_contenedor_select_producto, eid_contenedor_select_bono, eid_contenedor_select_servicio
+    clase,                  //'d_producto','d_bono','d_servicio'
+    campoId,                //'id_producto','id_bono','id_servicio'
+    campoPrecio,            //'precio_venta','precio','precio',
+    mostrarCantidad         //función para mostrar la cantidad y su unidad => '1 m' o '1 ud.'
+}) {
+    console.log('=== function crearItemsSelector() ===');
+    console.log('tipo_item:', tipo_item );
+
+    if (!contenedor_lista_items || !contenedor || !datos?.length) {
+        return;
+    }
+
+    contenedor.innerHTML = '';//reset del contenedor
+
+    datos.forEach(obj => {
+
+        const id = obj[campoId];//[campoId] porque campoId no es nombre de la propiedad. son diferentes.
+        const nombre = obj.nombre;
+        const precio = Number(obj[campoPrecio]);//[campoPrecio] porque son diferentes en cada elemento 
+
+        // Crear elemento seleccionable
+        const d_item = document.createElement('div');
+        d_item.className = `d_item ${clase} d_art`;
+        d_item.dataset.tipo_item = tipo_item;
+        d_item.dataset.id_item = id;
+        d_item.dataset.nombre = nombre;
+        d_item.dataset.precio = precio;
+        d_item.innerHTML = `
+            <div class="datos_art">
+                <div class="wr_id_nombre">
+                    <div class="da_id">${id}</div>
+                    <div class="da_nombre">${nombre}</div>
+                </div>
+            </div>
+
+            <div class="wr_datos">
+                ${mostrarCantidad ? `
+                    <div class="art_cols art_col3">
+                        <div>${mostrarCantidad(obj)}</div>
+                    </div>
+                ` : ''}
+
+                <div class="art_cols art_col4">
+                    <div>${precio} €</div>
+                </div>
+            </div>
+        `;
+
+        // Gestionar selección y click
+        d_item.onclick = (e) => {
+            console.log('d_item clicked:', d_item );
+
+
+            if (contenedor.classList.contains('solo_ver')) {
+                return;//no dejo cambiar el valor si es form_ver
+            }
+
+            const element = e.currentTarget;
+            console.log('element:', element );
+
+            const id_item = element.dataset.id_item;
+            const nombre_item = element.dataset.nombre;
+            const precio_item = Number(element.dataset.precio);
+
+            if (!id_item) return;
+
+            // Buscar el artículo existente por tipo_item e ID
+            const item_existente = pedido.arr_items.find(
+                item =>
+                    String(item.id) === String(id_item) &&
+                    item.tipo_item === tipo_item
+            );
+
+            if (item_existente) {
+                // Actualizar artículo existente
+                
+                // Incrementar cantidad
+                item_existente.cantidad += 1;
+
+                // Buscar su elemento DOM
+                const div_item_existente = [...contenedor_lista_items.querySelectorAll('.div_item')].find(
+                    div =>
+                        String(div.dataset.id_item) === String(id_item) &&
+                        div.dataset.tipo_item === tipo_item
+                );
+
+                if (div_item_existente) {
+                    
+                    //si es producto,saco su precio de tarifas según cantidad de metros                    
+                    if(item_existente.tipo_item === 'producto'){
+                        actualizarPrecioProductoSegunTarifa(item_existente, div_item_existente);
+                    }                    
+                    
+                    // Actualizar cantidad y precio
+                    calcularImporteItem(
+                        div_item_existente,
+                        item_existente.cantidad,
+                        item_existente.precio
+                    );
+                }
+
+            } else {
+
+                // Crear artículo nuevo
+                const item = {
+                    tipo_item: tipo_item,
+                    id: id_item,
+                    nombre: nombre_item,
+                    cantidad: 1, //por defecto siempre 1
+                    precio: precio_item,
+                    importe: precio_item //se modifica luego
+                };
+
+                pedido.arr_items.push(item);//añado al array de pedido
+
+                const div_item = crearDivItem(item);
+
+                contenedor_lista_items.querySelector('.prim')?.remove();
+                contenedor_lista_items.append(div_item);
+                
+                // Calcular cantidad y precio nuevos
+                calcularImporteItem(
+                    div_item,
+                    item.cantidad,
+                    item.precio
+                );
+            }
+            
+            // Recalcular total del pedido
+            calcularTotal();
+        };
+
+        //añado al DOM
+        contenedor.append(d_item);
+    });
+}
+
+
+function actualizarPrecioProductoSegunTarifa(item, div_item) {
+    if (item.tipo_item !== 'producto') return;
+
+    const tarifa_producto = objDataTarifas.arr_data.find(
+        tarifa =>
+            String(tarifa.id_producto) === String(item.id) &&
+            item.cantidad >= Number(tarifa.cantidad_desde) &&
+            (
+                !tarifa.cantidad_hasta ||
+                item.cantidad <= Number(tarifa.cantidad_hasta)
+            )
+    );
+
+    if(tarifa_producto){
+        item.precio = Number(tarifa_producto.precio);
+        div_item.dataset.precio = item.precio;
+        console.log('new item.precio: ', item.precio);
+    }
+}
+
+
+function cleanContenedor(contenedor){
+    console.log('=== function cleanContenedor() ===');
+    if(!contenedor) return;
+
+    contenedor.innerHTML = '';//reset
+}
+
+function closeDivBySelector(selectorElemento){//=> 'd-none'
+    console.log('=== function closeDivBySelector() ===');
+
+    const divElement = document.querySelector(selectorElemento);    
+    if(!divElement) return;
+
+    divElement.classList.add('d-none');
+}
+
+
+function formatoImporte(valor) {
+    return (Number(valor) || 0).toLocaleString('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true
+    }).replace(/\./g, ' ').replace(',', '.');
+}
+
+function numeroPositivo(numero) {
+    return Math.abs(Number(numero) || 0);
+}
+
+function resetId(id_name, contenedor, input_id){
+    console.log('=== function resetId() ===');
+
+    if(!id_name || !contenedor || !input_id){
+        alert('no hay parametros necesarios pàra resetera el identificador.');
+        return;
+    }
+
+    switch (id_name) {
+        case 'id_cliente':
+            id_cliente = null;//reset
+            input_id.value = '';//reset
+            objCliente = {};//reset
+            pintDatosClienteFinded(contenedor, objCliente, input_id);
+            break;
+
+        case 'id_concepto':
+            id_concepto = null;//reset
+            input_id.value = '';//reset
+            objConcepto = {};//reset
+            pintDatosConceptoFinded(contenedor, objConcepto, input_id);
+            break;
+
+        case 'id_concepto_padre':
+            id_concepto_padre = null;//reset
+            input_id.value = '';//reset
+            objConceptoPadre = {};//reset
+            pintDatosConceptoFinded(contenedor, objConceptoPadre, input_id);
+            break;
+
+        case 'id_pedido':
+            id_pedido = null;//reset
+            input_id.value = '';//reset
+            objPedido = {};//reset
+            pintDatosPedidoFinded(contenedor, objPedido, input_id);
+            break;
+    }
+}
+
+
+function pintContenedorEstado(contenedor, estado_val){
+    
+    if(!contenedor){
+        return;
+    }
+
+    switch (contenedor.id) {
+        //Taquilla
+        case 'wr_estado_taquilla'://estado_taquilla
+            if(['libre','ocupado'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`; 
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;
+
+        //Pedido
+        case 'wr_estado_pedido'://estado_pedido
+            if(['en_preparacion', 'impreso', 'en_oficina', 'entregado'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`;
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;
+
+        case 'wr_tipo_pago'://tipo_pago
+            if(['normal', 'recurrente'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`;
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;  
+
+        case 'wr_metodo_pago'://metodo_pago
+            if(['efectivo', 'bizum', 'tarjeta', 'transferencia'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`;
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;  
+
+        case 'wr_estado_pago'://estado_pago
+            if(['pendiente', 'parcial', 'pagado'].includes(estado_val)){
+                contenedor.className = `wr_sel_opt_estado ${estado_val}`;
+            }else{
+                contenedor.className = `wr_sel_opt_estado`;
+            }    
+            break;
+
+    
+        default:
+            break;
+    }
+
+}
+
+
+function fechaMySQLLocal(tipo_data = 'fecha_hora_larga', fecha = new Date()) {//tipo_data 'hora_corta' o 'hora_larga'
+    
+    if (typeof fecha === 'string') {
+        fecha = new Date(fecha.replace(' ', 'T'));//convierto fecha MySQL '2026-10-22 07:42:59' a fecha JS
+    }
+
+    const pad = n => String(n).padStart(2, '0');//pad => funcion equivalente a function pad(n){...}
+
+    const fechaStr = `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}`;
+    const horaCorta = `${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`;
+    const horaLarga = `${horaCorta}:${pad(fecha.getSeconds())}`;
+
+    switch (tipo_data) {
+        case 'fecha_hora_larga':
+        default:
+            return `${fechaStr} ${horaLarga}`;//'2026-10-22 07:42:59'
+    
+        case 'fecha_hora_corta':
+            return `${fechaStr} ${horaCorta}`;//'2026-10-22 07:42'
+
+        case 'solo_fecha':
+            return fechaStr;//'2026-10-22'
+                        
+        case 'solo_hora_corta':
+            return horaCorta;//'07:42'
+    
+        case 'solo_hora_larga':
+            return horaLarga;//'07:42:59'
+    }
+
+}
+
+
+function convertirToTitleCase(text) {//'aaa' => 'Aaa'
+    console.log('=== function convertirToTitleCase() ===');
+    
+    if(text) {
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    }else{
+        return text;
+    }
+}
+
+
+function toggleContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tipo_display: 'flex', 'grid', 'block'
+    const contenedor = document.getElementById(id_contenedor);
+    const btn = document.getElementById(id_btn);
+    const eid_estado_pedido = document.querySelector('#form_pedido #estado_pedido');
+
+    if(eid_estado_pedido?.value == 'entregado'){
+        const text_show = 'El pedido con estado <b>ENTREGADO</b> no puede tener una taquilla asignada ya que su contenido ha sido recogido.';
+        showToast('warn', text_show, 1000, 'center', true);
+        return;
+    }
+
+    if (contenedor) {
+        const display_actual = contenedor.style.display;
+        const is_hidden = contenedor.classList.contains('d-none');
+
+        if(display_actual === 'none' || is_hidden){
+            // contenedor.style.display = tipo_display;
+            contenedor.classList.remove('d-none');
+            contenedor.classList.add(`d-${tipo_display}`);
+            btn.textContent = 'Ocultar taquillas';
+        }else{
+            // contenedor.style.display = 'none';
+            contenedor.classList.remove(`d-${tipo_display}`);
+            contenedor.classList.add('d-none');
+            btn.textContent = 'Mostrar taquillas';
+        }
+    }
+}
+
+
+function ocultarContenedor(id_contenedor, id_btn, tipo_display = 'block') {//tipo_display: 'flex', 'grid', 'block'
+    const contenedor = document.getElementById(id_contenedor);
+    const btn = document.getElementById(id_btn);
+
+    if (contenedor) {
+        contenedor.classList.remove(`d-${tipo_display}`);
+        contenedor.classList.add('d-none');
+        btn.textContent = 'Mostrar taquillas';
+    }
+}
+
+
+function mostrarContenedor(id_contenedor, id_btn, tipo_display) {//tipo_display: 'flex', 'grid', 'block'
+    const contenedor = document.getElementById(id_contenedor);
+    const btn = document.getElementById(id_btn);
+
+    if (contenedor) {
+        contenedor.classList.remove('d-none');
+        contenedor.classList.add(`d-${tipo_display}`);
+        btn.textContent = 'Ocultar taquillas';
+    }
 }

@@ -259,7 +259,7 @@ function buildBono(bono_action = null){
 
                 <!-- envio_gratis -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Envío gratis:</label>
+                    <label class="lab_varios_btns">Envío gratis</label>
                     <div id="d_envio_gratis" class="wr_varios_btns ${cl_d_envio_gratis}">
                         <div class="dbtn dbtn_no" data-value="0">No</div>
                         <div class="dbtn dbtn_si" data-value="1">Sí</div>
@@ -475,7 +475,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
                 id_bono = data.id_bono;//guardo el id del bono recién creada
 
                 //Cojo datos del bono desde BD
-                objBono = await getDataBonoFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objBono = await getDataBonoFromBd(id_bono);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objBono: ', objBono);
 
                 const itemBonoUpdate = objDataBonos?.arr_data?.find(item => item.id_bono == id_bono);
@@ -489,7 +489,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
 
                 } else {//es insert del bono nuevo
     
-                    console.warn('No encontrado objBono.id_bono en objDataBonos.arr_data');
+                    console.log('No encontrado objBono.id_bono en objDataBonos.arr_data');
                     //entonces es un bono nuevo que se crea
 
                     //1.debo añadir objBono en objDataBonos.arr_data al inicio (si existe!)
@@ -503,7 +503,7 @@ async function guardarBono(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_bono en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintBonoOne(objBono, 'arriba');//div de bono se pinta al inicio (arriba)
-                    loadBonosAll();
+                    await loadBonosAll();
                 }
 
                 closeModal(null,true);
@@ -905,16 +905,20 @@ function pintBonoOne(objBonoOne, lugar_de_pintar = 'abajo'){//pintar solo un div
     d_bono.dataset.tipo_art = 'bono';
     d_bono.innerHTML = `
         <div class="datos_bono datos_art">
-            <div class="da_nombre">${escaparHTML(objBonoOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objBonoOne.id_bono}</div>
+                <div class="da_nombre">${escaparHTML(objBonoOne.nombre) || '(nombre no asignado)'}</div>
+            </div>
             <div class="da_com ${cl_da_comm}">${escaparHTML(objBonoOne.descripcion) || '(sin descripcion)'}</div>
         </div>
+
         <div class="art_cols art_col3">
             <div class="da_cantidad">${cantidad_text}</div>
         </div>
+
         <div class="art_cols art_col4">
             <div class="da_precio">${precio_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -1312,7 +1316,7 @@ function buildBuscarBono(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_bono" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1334,7 +1338,7 @@ function buildBuscarBono(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_bono" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1463,11 +1467,7 @@ async function getDataBonosFromBdByFind(objFindParamsBono){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsBono), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1568,7 +1568,7 @@ function pintBonoActiveSoloDatos(){
 
 }
 
-async function getDataBonoFromBd(){
+async function getDataBonoFromBd(id_bono){
     console.log('=== function getDataBonoFromBd() ===');
 
     try {

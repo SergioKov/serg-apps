@@ -285,7 +285,7 @@ function buildTaquilla(taquilla_action = null){
 
                 <!-- estado_taquilla -->
                 <div id="wr_estado_taquilla" class="wr_sel_opt_estado ${objTaquilla?.estado_taquilla || 'libre'}">
-                    <h5>Estado de taquilla:</h5>
+                    <h5>Estado de taquilla</h5>
                     <select id="estado_taquilla" class="sel_opt_find">
                         <option value="libre">Libre</option>
                         <option value="ocupado">Ocupado</option>
@@ -523,7 +523,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
                 id_taquilla = data.id_taquilla;//guardo el id del taquilla recién creada
 
                 //Cojo datos del taquilla desde BD
-                objTaquilla = await getDataTaquillaFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objTaquilla = await getDataTaquillaFromBd(id_taquilla);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objTaquilla: ', objTaquilla);
 
                 const itemTaquillaUpdate = objDataTaquillas?.arr_data?.find(item => item.id_taquilla == id_taquilla);
@@ -537,7 +537,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
 
                 } else {//es insert del taquilla nuevo
     
-                    console.warn('No encontrado objTaquilla.id_taquilla en objDataTaquillas.arr_data');
+                    console.log('No encontrado objTaquilla.id_taquilla en objDataTaquillas.arr_data');
                     //entonces es un taquilla nuevo que se crea
 
                     //1.debo añadir objTaquilla en objDataTaquillas.arr_data al inicio (si existe!)
@@ -551,7 +551,7 @@ async function guardarTaquilla(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_taquilla en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintTaquillaOne(objTaquilla, 'arriba');//div de taquilla se pinta al inicio (arriba)
-                    loadTaquillasAll();
+                    await loadTaquillasAll();
                 }
 
                 closeModal(null,true);
@@ -1441,7 +1441,7 @@ function buildBuscarTaquilla(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_taquilla" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1463,7 +1463,7 @@ function buildBuscarTaquilla(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_taquilla" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1592,11 +1592,7 @@ async function getDataTaquillasFromBdByFind(objFindParamsTaquilla){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsTaquilla), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1708,7 +1704,7 @@ function pintTaquillaActiveSoloDatos(){
 
 }
 
-async function getDataTaquillaFromBd(){
+async function getDataTaquillaFromBd(id_taquilla){
     console.log('=== function getDataTaquillaFromBd() ===');
 
     try {

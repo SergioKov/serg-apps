@@ -43,12 +43,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             ],JSON_UNESCAPED_UNICODE);
             exit;
         }
-
-        $words_input = $datos['words_input'];
-        $modo = $datos['modo'];
-        $buscar_en = $datos['buscar_en'];
-    } 
-
+    }
 }
 
 
@@ -59,19 +54,16 @@ include($niveles_para_subir . 'includes/connect_db.php');
 $words_input = $datos['words_input'];
 $modo = $datos['modo'];
 $buscar_en = $datos['buscar_en'];
+$filtro = $datos['filtro'] ?? [];
 
 //echo_json_x($datos, 'datos');
 //echo_json_x($words_input);
 //echo_json_x($modo);
 
 
-
-
-
 $params = [];
 $types  = "";
 $arr_campos = [];
-
 
 switch ($buscar_en) {
     case '1'://Todos los campos por defecto disponibles (rápido)
@@ -81,7 +73,7 @@ switch ($buscar_en) {
         break;
 
     case '2'://Todos los campos disponibles (lento)
-        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.email', 'c.direccion', 'c.comentario', 'c.cliente_search', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
+        $arr_campos = ['c.id_cliente', 'c.nombre', 'c.telefono', 'c.codigo_cliente', 'c.email', 'c.direccion', 'c.comentario', 'c.cliente_search', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv'];
         break;
     
     case '3'://Todos los campos de texto disponibles
@@ -89,7 +81,7 @@ switch ($buscar_en) {
         break;
 
     case '4'://Todos los campos de números disponibles
-        $arr_campos = ['c.id_cliente', 'c.telefono', 'c.codigo_cliente', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv', 'c.saldo'];
+        $arr_campos = ['c.id_cliente', 'c.telefono', 'c.codigo_cliente', 'c.taquilla', 'c.descuento', 'c.precio_fijo_dtf', 'c.precio_fijo_uv'];
         break;
 
     case '5'://Sólo el identificador de cliente
@@ -106,9 +98,40 @@ switch ($buscar_en) {
 }
 
 
+//=======================================================================================//
+// start - construir $where con $filtro
+//=======================================================================================//
+$campos_permitidos = [
+    'id_cliente'           => 'c.id_cliente',
+    'nombre'               => 'c.nombre',
+    'telefono'             => 'c.telefono',
+    'codigo_cliente'       => 'c.codigo_cliente',
+    'email'                => 'c.email',
+    'direccion'            => 'c.direccion',
+    'comentario'           => 'c.comentario',
+    'taquilla'             => 'c.taquilla',
+    'descuento'            => 'c.descuento',
+    'precio_fijo_dtf'      => 'c.precio_fijo_dtf',
+    'precio_fijo_uv'       => 'c.precio_fijo_uv',
+    'is_deleted'           => 'c.is_deleted',
+];
+
+$filtro_validado = [];
+
+foreach ($filtro as $campo => $valor) {
+    if (isset($campos_permitidos[$campo])) {
+        $filtro_validado[$campos_permitidos[$campo]] = $valor;
+    }
+}
 
 // Buscar "Jesús Pedro" en varios campos
-$where = buildWhere($modo, $words_input, $arr_campos, $params, $types);
+// si words_input es vacio -> se evita construccion de where y where es ''
+// si hay filtro -> se construye el where con sus campos a filtrar
+$where = buildWhere($modo, $words_input, $arr_campos, $params, $types, $filtro_validado);
+//=======================================================================================//
+// end - construir $where con $filtro
+//=======================================================================================//
+
 
 
 //test modos de where
@@ -125,7 +148,6 @@ $sql_init = "SELECT
                 c.descuento,
                 c.precio_fijo_dtf,
                 c.precio_fijo_uv,
-                c.saldo,
 
                 c.created_at, 
                 c.updated_at
@@ -147,7 +169,9 @@ foreach ($params as $p) {
         $finalSQL = substr_replace($finalSQL, $safe, $pos, 1);
     }
 }
-//debug_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
+//debug_log_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
+// debug_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
+// debug_r($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
 //echo_json_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
 
 
@@ -202,7 +226,6 @@ if($result->num_rows > 0){
             'descuento' => $row['descuento'],
             'precio_fijo_dtf' => $row['precio_fijo_dtf'],
             'precio_fijo_uv' => $row['precio_fijo_uv'],
-            'saldo' => $row['saldo'],
     
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],

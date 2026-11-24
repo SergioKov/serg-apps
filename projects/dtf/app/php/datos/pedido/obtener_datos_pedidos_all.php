@@ -60,6 +60,7 @@ $sql_init = "SELECT
             
             t.nombre AS t_nombre,
             t.estado_taquilla,
+            t.codigo_apertura,
 
             p.fecha_pedido, 
             p.canal_venta, 
@@ -114,7 +115,9 @@ if (!$result) {
 
 
 
-// Consultar todas las líneas de los pedidos no eliminados
+//================================================================//
+// start - Consultar todas las líneas de los pedidos no eliminados
+//================================================================//
 $sql_items = "SELECT
                 pi.id_pedido,
                 pi.id_pedido_item,
@@ -129,10 +132,9 @@ $sql_items = "SELECT
               FROM pedido_items pi
               INNER JOIN pedidos p ON p.id_pedido = pi.id_pedido
               WHERE p.is_deleted = 0
-              ORDER BY pi.id_pedido, pi.id_pedido_item";
-
+              ORDER BY pi.id_pedido, pi.id_pedido_item
+";
 $stmt_items = $conn->prepare($sql_items);
-
 if (!$stmt_items) {
     error_log('Error al preparar consulta de pedido_items: ' . $conn->error);
     http_response_code(500);
@@ -143,10 +145,8 @@ if (!$stmt_items) {
     $conn->close();
     exit;
 }
-
 $stmt_items->execute();
 $result_items = $stmt_items->get_result();
-
 
 // Agrupar las líneas por pedido
 $arr_items_por_pedido = [];
@@ -155,7 +155,7 @@ while ($item = $result_items->fetch_assoc()) {
 
     $id_pedido_item = $item['id_pedido'];
 
-    // Obtener el ID según el tipo de concepto
+    // Obtener el ID según el tipo de item
     switch ($item['tipo_item']) {
 
         case 'producto':
@@ -178,7 +178,7 @@ while ($item = $result_items->fetch_assoc()) {
     // Añadir la línea al array único del pedido
     $arr_items_por_pedido[$id_pedido_item][] = [
         'id_pedido_item' => $item['id_pedido_item'],
-        'tipo_concepto'  => $item['tipo_item'],
+        'tipo_item'      => $item['tipo_item'],
         'id'             => $id_item,
         'nombre'         => $item['nombre'],
         'cantidad'       => (float) $item['cantidad'],
@@ -186,8 +186,75 @@ while ($item = $result_items->fetch_assoc()) {
         'importe'        => (float) $item['importe']
     ];
 }
-
 $stmt_items->close();
+//================================================================//
+// end - Consultar todas las líneas de los pedidos no eliminados
+//================================================================//
+
+
+
+
+
+//================================================================================//
+// start - Consultar todas las líneas de movimientos de los pedidos no eliminados
+//================================================================================//
+$sql_mov = "SELECT
+                m.id_movimiento,
+                m.tipo_movimiento,
+                m.id_concepto,
+                m.id_cliente,
+                m.id_pedido,
+                m.fecha_movimiento,
+                m.importe,
+                m.metodo_pago,
+                m.titulo,
+                m.comentario,
+                m.confirmado
+              FROM movimientos m
+              INNER JOIN pedidos p ON p.id_pedido = m.id_pedido
+              WHERE p.is_deleted = 0
+              ORDER BY m.id_pedido, m.fecha_movimiento, m.id_movimiento
+";
+$stmt_mov = $conn->prepare($sql_mov);
+if (!$stmt_mov) {
+    error_log('Error al preparar consulta de movimientos en pedidos: ' . $conn->error);
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'No se pudieron consultar las líneas de los pedidos.'
+    ], JSON_UNESCAPED_UNICODE);
+    $conn->close();
+    exit;
+}
+$stmt_mov->execute();
+$result_mov = $stmt_mov->get_result();
+
+// Agrupar las líneas por pedido
+$arr_pagos_por_pedido = [];
+
+while ($item = $result_mov->fetch_assoc()) {
+
+    $id_pedido_mov = $item['id_pedido'];
+
+    // Añadir la línea al array único del pedido
+    $arr_pagos_por_pedido[$id_pedido_mov][] = [
+        'id_movimiento'     => $item['id_movimiento'],
+        'tipo_movimiento'   => $item['tipo_movimiento'],
+        'id_concepto'       => $item['id_concepto'],
+        'id_cliente'        => $item['id_cliente'],
+        'id_pedido'         => $item['id_pedido'],
+        'fecha_movimiento'  => $item['fecha_movimiento'],
+        'importe'           => (float) $item['importe'],
+        'metodo_pago'       => $item['metodo_pago'],
+        'titulo'            => $item['titulo'],
+        'comentario'        => $item['comentario'],
+        'confirmado'        => $item['confirmado'],
+    ];
+}
+$stmt_mov->close();
+//================================================================================//
+// end - Consultar todas las líneas de movimientos de los pedidos no eliminados
+//================================================================================//
 
 
 
@@ -222,6 +289,7 @@ if($result->num_rows > 0){
             //taquilla
             't_nombre' => $row['t_nombre'],
             'estado_taquilla' => $row['estado_taquilla'],
+            'codigo_apertura' => $row['codigo_apertura'],
     
             'fecha_pedido' => $row['fecha_pedido'],
             'canal_venta' => $row['canal_venta'],
@@ -245,6 +313,8 @@ if($result->num_rows > 0){
             'updated_at' => $row['updated_at'],
 
             'arr_items' => $arr_items_por_pedido[$row['id_pedido']] ?? [],    
+            
+            'arr_pagos' => $arr_pagos_por_pedido[$row['id_pedido']] ?? [],    
 
             'valorData' => 'hay_datos'
         ];

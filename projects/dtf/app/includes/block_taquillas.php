@@ -58,7 +58,7 @@
 
 
                 <div class="wr_d_almacenes">
-                    <h5>Almacen:</h5>
+                    <h5>Almacen</h5>
                     <div id="d_almacenes" class="wr_varios_btns so-lo_ver">
                         <!-- <div class="dbtn active" onclick="showTaquillasByAlmacen('todos')" data-value="todos">Todos</div> -->
                         <!-- <div class="dbtn" onclick="showTaquillasByAlmacen(this.dataset.value)" data-value="1">Alcorcón</div> -->

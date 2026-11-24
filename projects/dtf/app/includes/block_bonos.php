@@ -60,7 +60,10 @@
 
                     <div class="d_bono d_art" data-tipo_art="bono" data-id_bono="5">
                         <div class="datos_bono datos_art">
-                            <div class="da_nombre">Nombre Bono (Ejemplo)</div>
+                            <div class="wr_id_nombre">
+                                <div class="da_id">15</div>
+                                <div class="da_nombre">Nombre Bono (Ejemplo)</div>
+                            </div>
                             <div class="da_com">descripcion aki...</div>
                         </div>
 
@@ -71,7 +74,6 @@
                         <div class="art_cols art_col4">
                             <div>24 €</div>
                         </div>
-
 
                         <div class="tres_puntos">
                             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">

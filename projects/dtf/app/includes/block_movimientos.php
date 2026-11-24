@@ -61,7 +61,10 @@
 
                     <div class="d_movimiento d_art" data-id_movimiento="4" data-id_cliente="2" data-tipo_art="movimiento">
                         <div class="datos_movimiento datos_art">
-                            <div class="da_diasem">Martes</div>
+                            <div class="wr_id_nombre">
+                                <div class="da_id">15</div>
+                                <div class="da_diasem">Martes</div>
+                            </div>
                             <div class="da_fechahora">
                                 <div class="da_fecha">20.10.2026</div>
                                 <div class="da_hora">09:59</div>
@@ -69,18 +72,20 @@
                             <div class="da_nombre">Ejemplo Nombre Cliente</div>
                             <div class="da_tel">+34 622315345</div>
                         </div>
+
                         <div class="art_cols art_col2">
                             <div class="da_kvadrat ocupado"></div>
                         </div>
+
                         <div class="art_cols art_col3">
                             <div class="da_bola pendiente"></div>
                         </div>
+
                         <div class="art_cols art_col4">
                             <div class="da_subtotal">100.00 €</div>
                             <div class="da_iva_total">21.00 €</div>
                             <div class="da_total">121.00 €</div>
                         </div>
-
 
                         <div class="tres_puntos">
                             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">

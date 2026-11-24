@@ -87,48 +87,6 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
         ],JSON_UNESCAPED_UNICODE);
         exit;
     }
-
-
-    // Validar el array plano de artículos recibido
-    $arr_items = $datos['arr_items'] ?? [];
-
-    if (!is_array($arr_items)) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'El array arr_items no es válido.',
-            'dic_code' => 'd235'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    $tipos_validos = ['producto', 'bono', 'servicio'];
-
-
-    foreach ($arr_items as $indice => $item) {
-        if (!is_array($item)) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => "El artículo en la posición $indice no es válido.",
-                'dic_code' => 'd235'
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-
-        if (!isset($item['tipo_concepto']) ||
-            !in_array($item['tipo_concepto'], $tipos_validos, true)) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => "El tipo_concepto del artículo en la posición $indice no es válido.",
-                'dic_code' => 'd235'
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-    }
-
-
     //exit('<br>hasta aki');
 
 
@@ -180,11 +138,54 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $total = ($datos['total'] === '') ? null : (float) $datos['total'];//si viene vacio => null
     $importe_pagado = ($datos['importe_pagado'] === '') ? null : (float) $datos['importe_pagado'];//si viene vacio => null
 
+    $arr_items = $datos['arr_items'] ?? [];//si no existe -> asigno array vacío
+    $arr_pagos = $datos['arr_pagos'] ?? [];//si no existe -> asigno array vacío
+    
+    //===========================================================//
+    // start - Validar el array plano de artículos recibido
+    //===========================================================//
+    if (!is_array($arr_items)) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'El array arr_items no es válido.',
+            'dic_code' => 'd235'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $tipos_validos = ['producto', 'bono', 'servicio'];
+
+    foreach ($arr_items as $indice => $item) {
+        if (!is_array($item)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => "El artículo en la posición $indice no es válido.",
+                'dic_code' => 'd235'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        if (!isset($item['tipo_item']) ||
+            !in_array($item['tipo_item'], $tipos_validos, true)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => "El tipo_item del artículo en la posición $indice no es válido.",
+                'dic_code' => 'd235'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+    //===========================================================//
+    // end - Validar el array plano de artículos recibido
+    //===========================================================//
+
+
     //si es nuevo pedido necesito esto
     $stored_id_cliente = null;//si se edita pedido se reasigna
     $stored_id_taquilla = null;//si se edita pedido se reasigna
     $stored_importe_pagado = 0;//si se edita pedido se reasigna
-    $saldo_cliente = 0;//si se edita pedido se reasigna
     
     //variables de busqueda
     // $pedido_search = normalizeSearchText($fecha_pedido ?? '');
@@ -192,6 +193,23 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     // if($comentario){
     //     $pedido_search .= ' __|__ ' . normalizeSearchText($comentario ?? '');
     // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     //debug($title);
@@ -205,24 +223,17 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
     //busco si hay registro en la tabla a donde insertar datos
     $sql_prep = "SELECT 
-                
                 p.id_pedido, 
                 p.id_cliente,
                 p.id_taquilla,
-                p.importe_pagado,
-                
-                c.saldo AS saldo_cliente 
-
+                p.importe_pagado 
                 FROM pedidos p
-
                 LEFT JOIN clientes c ON p.id_cliente = c.id_cliente 
-
                 WHERE p.id_pedido = ?
-
     ";
     $stmt = $conn->prepare($sql_prep);
     if(!$stmt) {
-        die("Error SQL");
+        die("1. Error SQL");
     }
     $stmt->bind_param("i", $id_pedido);
     $stmt->execute();
@@ -301,41 +312,34 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-    //saco saldo del cliente
+    //verifico el cliente
     if($id_cliente){
-        
-        //busco si la taquilla está libre para poder ocuparse
+        //busco si existe cliente indicado
         $sql_cliente = "SELECT     
                         id_cliente,
-                        nombre,
-                        saldo
+                        nombre
 
                         FROM clientes 
                         WHERE id_cliente = ?
         ";
         $stmt = $conn->prepare($sql_cliente);
-
         if (!$stmt) {
             throw new Exception(
                 'Error al preparar la consulta de cliente: ' . $conn->error
             );
         }
-
         $stmt->bind_param("i", $id_cliente);
         $stmt->execute();
         $result_cliente = $stmt->get_result();
 
         if($result_cliente->num_rows > 0){
             $row_cliente = $result_cliente->fetch_assoc();
-            $saldo_cliente = (float) $row_cliente["saldo"];
-
             $hay_cliente = true;
         }else{
             $hay_cliente = false;
         }
 
-        if($hay_cliente == false){
-            
+        if($hay_cliente == false){            
             //echo_json_x($row,'row');
             
             $respuesta = [
@@ -404,15 +408,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                         VALUES
                         (
                             ?, ?, ?, ?,
-                        
                             ?, ?, ?, ?,
-                            
                             ?, 
-                            
                             ?, ?, ?,
-                            
                             ?, ?, ?, ?, ?,
-                                                
                             NOW()
                         )
                         
@@ -504,174 +503,742 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
 
 
 
-
-        //===============================================================//
-        // START - INSERTAR ITEMS DEL PEDIDO
-        //===============================================================//
-
         // Obtener el ID definitivo del pedido
         $id_pedido_val = $hay_id_pedido_en_tabla
             ? $stored_id_pedido
             : $id_pedido_insertado;
 
 
-        // 1. Si es una actualización, eliminar las líneas anteriores
-        // para sustituirlas por las líneas recibidas
-        if ($hay_id_pedido_en_tabla) {
 
-            $sql_delete = "DELETE FROM pedido_items
-                            WHERE id_pedido = ?
+        //===============================================================//
+        // START - INSERTAR ITEMS DEL PEDIDO - VERSIÓN OLD OK
+        //===============================================================//
+        //NO EJECUTAR ESTE BLOQUE. ES CORRECTO PERO VERSIÓN NUEVA ES MEJOR. DEJO EL BLOQUE COMO EJEMPLO!
+        if(FALSE){
+            // 1. Si es una actualización, eliminar las líneas anteriores
+            // para sustituirlas por las líneas recibidas
+            if ($hay_id_pedido_en_tabla) {
+                $sql_delete = "DELETE FROM pedido_items
+                                WHERE id_pedido = ?
+                ";
+                $stmt_delete = $conn->prepare($sql_delete);
+                if (!$stmt_delete) {
+                    throw new Exception(
+                        'Error al preparar la consulta de eliminar en pedido_items: ' . $conn->error
+                    );
+                }    
+                $stmt_delete->bind_param("i", $id_pedido_val);
+                $result_delete = $stmt_delete->execute();
+                if (!$result_delete) {
+                    throw new Exception(
+                        'Error al ejecutar la consulta de eliminar en pedido_items: ' . $conn->error
+                    );
+                }
+                $stmt_delete->close();
+            }
+
+
+            // 2. Preparar INSERT de las líneas
+            $sql_item = "INSERT INTO pedido_items 
+                (
+                    id_pedido,
+
+                    tipo_item,
+                    
+                    id_producto,
+                    id_bono,
+                    id_servicio,
+
+                    nombre,            
+                    cantidad,
+                    precio,
+                    importe,
+                    
+                    created_at
+                ) 
+                VALUES 
+                (
+                    ?, 
+                    ?, 
+                    ?, ?, ?,
+                    ?, ?, ?, ?, 
+                    NOW()
+                )
+            ";
+            $stmt_item = $conn->prepare($sql_item);
+            if (!$stmt_item) {
+                throw new Exception(
+                    'Error al preparar la consulta de pedido_items: ' . $conn->error
+                );
+            }
+            
+            // 3. Obtener el array plano de artículos recibido
+            //$arr_items = $datos['arr_items'] ?? [];//aki no hace falta esta linea ya que lo tengo de arriba (linea 141)
+
+            // 4. Recorrer todos los artículos
+            foreach ($arr_items as $item) {
+
+                $tipo_item = $item['tipo_item'];
+
+                $id_producto = null;
+                $id_bono = null;
+                $id_servicio = null;
+
+                $id_item = (int) ($item['id'] ?? 0);
+
+                $nombre = $item['nombre'] ?? '';
+                $cantidad = (float) ($item['cantidad'] ?? 0);
+                $precio = (float) ($item['precio'] ?? 0);
+                $importe = (float) ($item['importe'] ?? 0);
+
+                // Asignar el ID según el tipo de item
+                switch ($tipo_item) {
+                    case 'producto':
+                        $id_producto = $id_item;
+                        break;
+
+                    case 'bono':
+                        $id_bono = $id_item;
+                        break;
+
+                    case 'servicio':
+                        $id_servicio = $id_item;
+                        break;
+                }
+
+                // Insertar la línea
+                $stmt_item->bind_param(
+                    "isiiisddd",
+                    $id_pedido_val,
+                    $tipo_item,
+                    $id_producto,
+                    $id_bono,
+                    $id_servicio,
+                    $nombre,
+                    $cantidad,
+                    $precio,
+                    $importe
+                );
+
+                if (!$stmt_item->execute()) {
+                    throw new Exception(
+                        'Error al guardar el item del pedido ' . $nombre . ': ' . $stmt_item->error
+                    );
+                }
+            }
+            $stmt_item->close();
+        }
+        //===============================================================//
+        // END - INSERTAR ITEMS DEL PEDIDO - VERSIÓN OLD OK
+        //===============================================================//
+
+
+
+        //===============================================================//
+        // START - SINCRONIZAR ITEMS DEL PEDIDO - VERSIÓN NEW
+        //===============================================================//
+        //SIEMPRE EJECUTAR ESTE BLOQUE! incluso cuando arr_items viene vacio!
+        //Si $arr_items está vacío:
+        // - No se ejecutará ningún UPDATE.
+        // - No se ejecutará ningún INSERT.
+        // - Se eliminarán todos los artículos anteriores del pedido.
+        if(TRUE){
+
+            // 1. Obtener los IDs de los items que ya existen en BD
+            $sql_existentes = "
+                SELECT id_pedido_item
+                FROM pedido_items
+                WHERE id_pedido = ?
+            ";
+            $stmt_existentes = $conn->prepare($sql_existentes);
+            if (!$stmt_existentes) {
+                throw new Exception($conn->error);
+            }
+            $stmt_existentes->bind_param("i", $id_pedido_val);
+            if (!$stmt_existentes->execute()) {
+                throw new Exception($stmt_existentes->error);
+            }
+            $result_existentes = $stmt_existentes->get_result();
+
+            $arr_items_existentes = [];
+            while ($row = $result_existentes->fetch_assoc()) {
+                $arr_items_existentes[(int)$row['id_pedido_item']] = true;//asi formo array: [15 => true,16 => true,18 => true] para comprobar luego la existencia de id 
+            }
+            $stmt_existentes->close();
+
+            // 2. Preparar consulta UPDATE
+            $sql_update = "
+                UPDATE pedido_items 
+                SET
+                    tipo_item = ?,
+                    id_producto = ?,
+                    id_bono = ?,
+                    id_servicio = ?,
+                    nombre = ?,
+                    cantidad = ?,
+                    precio = ?,
+                    importe = ?
+                WHERE id_pedido_item = ?
+                AND id_pedido = ?
+            ";
+            $stmt_update = $conn->prepare($sql_update);
+            if (!$stmt_update) {
+                throw new Exception($conn->error);
+            }
+
+
+            // 3. Preparar consulta INSERT
+            $sql_insert = "
+                INSERT INTO pedido_items
+                (
+                    id_pedido,
+                    tipo_item,
+                    id_producto,
+                    id_bono,
+                    id_servicio,
+                    nombre,
+                    cantidad,
+                    precio,
+                    importe,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ";
+            $stmt_insert = $conn->prepare($sql_insert);
+            if (!$stmt_insert) {
+                throw new Exception($conn->error);
+            }
+
+            // 4. Recorrer los items recibidos
+            //$arr_items = $datos['arr_items'] ?? [];//aki no hace falta esta linea ya que lo tengo de arriba (linea 141)
+
+            // Aquí guardaremos los IDs que llegan desde JS
+            $arr_ids_items_recibidos = [];
+
+            foreach ($arr_items as $item) {
+
+                $id_pedido_item = (int)($item['id_pedido_item'] ?? 0);
+                $tipo_item = $item['tipo_item'] ?? '';
+                $id_item = (int)($item['id'] ?? 0);
+
+                $id_producto = null;
+                $id_bono = null;
+                $id_servicio = null;
+
+                $nombre = $item['nombre'] ?? '';
+                $cantidad = (float)($item['cantidad'] ?? 0);
+                $precio = (float)($item['precio'] ?? 0);
+                $importe = (float)($item['importe'] ?? 0);
+
+                // Asignar el ID según el tipo de item
+                switch ($tipo_item) {
+                    case 'producto':
+                        $id_producto = $id_item;
+                        break;
+
+                    case 'bono':
+                        $id_bono = $id_item;
+                        break;
+
+                    case 'servicio':
+                        $id_servicio = $id_item;
+                        break;
+
+                    default:
+                        throw new Exception('Tipo de item no válido.');
+                }
+
+
+                // Si tiene ID, comprobar que pertenece al pedido
+                if ($id_pedido_item > 0) {
+
+                    // Si no pertenece al pedido, ignorar este elemento y no lanzar exepción ya que rompería la ejecusión de consulta
+                    if (!isset($arr_items_existentes[$id_pedido_item])) {
+                        continue;
+                    }
+
+                    // Evitar IDs duplicados
+                    if (isset($arr_ids_items_recibidos[$id_pedido_item])) {
+                        continue;
+                    }
+
+                    // UPDATE del item existente
+                    $stmt_update->bind_param(
+                        "siiisdddii",
+                        $tipo_item,
+                        $id_producto,
+                        $id_bono,
+                        $id_servicio,
+                        $nombre,
+                        $cantidad,
+                        $precio,
+                        $importe,
+                        $id_pedido_item,
+                        $id_pedido_val
+                    );
+
+                    if (!$stmt_update->execute()) {
+                        throw new Exception($stmt_update->error);
+                    }
+
+                    $arr_ids_items_recibidos[$id_pedido_item] = true;
+
+                } else {
+
+                    // INSERT de un item nuevo
+                    $stmt_insert->bind_param(
+                        "isiiisddd",
+                        $id_pedido_val,
+                        $tipo_item,
+                        $id_producto,
+                        $id_bono,
+                        $id_servicio,
+                        $nombre,
+                        $cantidad,
+                        $precio,
+                        $importe
+                    );
+
+                    if (!$stmt_insert->execute()) {
+                        throw new Exception($stmt_insert->error);
+                    }
+                }
+
+            }
+
+            $stmt_update->close();
+            $stmt_insert->close();
+
+            // 7. Eliminar los items que ya no vienen en el array
+            $sql_delete = "
+                DELETE FROM pedido_items
+                WHERE id_pedido_item = ?
+                AND id_pedido = ?
             ";
             $stmt_delete = $conn->prepare($sql_delete);
 
             if (!$stmt_delete) {
-                throw new Exception(
-                    'Error al preparar la consulta de eliminar en pedido_items: ' . $conn->error
-                );
-            }
-    
-            $stmt_delete->bind_param("i", $id_pedido_val);
-            $result_delete = $stmt_delete->execute();
-
-            if (!$result_delete) {
-                throw new Exception(
-                    'Error al ejecutar la consulta de eliminar en pedido_items: ' . $conn->error
-                );
+                throw new Exception($conn->error);
             }
 
+            foreach ($arr_items_existentes as $id_pedido_item => $valor) {
+
+                if (!isset($arr_ids_items_recibidos[$id_pedido_item])) {
+
+                    $stmt_delete->bind_param(
+                        "ii",
+                        $id_pedido_item,
+                        $id_pedido_val
+                    );
+
+                    if (!$stmt_delete->execute()) {
+                        throw new Exception($stmt_delete->error);
+                    }
+                }
+            }
             $stmt_delete->close();
         }
-
-
-        // 2. Preparar INSERT de las líneas
-        $sql_item = "INSERT INTO pedido_items 
-            (
-                id_pedido,
-
-                tipo_item,
-                
-                id_producto,
-                id_bono,
-                id_servicio,
-
-                nombre,            
-                cantidad,
-                precio,
-                importe,
-                
-                created_at
-            ) 
-            VALUES 
-            (
-                ?, 
-                
-                ?, 
-                
-                ?, ?, ?,
-                
-                ?, ?, ?, ?, 
-                
-                NOW()
-            )
-        ";
-        $stmt_item = $conn->prepare($sql_item);
-
-        if (!$stmt_item) {
-            throw new Exception(
-                'Error al preparar la consulta de pedido_items: ' . $conn->error
-            );
-        }
-
-        // 3. Obtener el array plano de artículos recibido
-        $arr_items = $datos['arr_items'] ?? [];
-
-        // 4. Recorrer todos los artículos
-        foreach ($arr_items as $item) {
-
-            $tipo_concepto = $item['tipo_concepto'];
-
-            $id_producto = null;
-            $id_bono = null;
-            $id_servicio = null;
-
-            $id_item = (int) ($item['id'] ?? 0);
-
-            $nombre = $item['nombre'] ?? '';
-            $cantidad = (float) ($item['cantidad'] ?? 0);
-            $precio = (float) ($item['precio'] ?? 0);
-            $importe = (float) ($item['importe'] ?? 0);
-
-            // Asignar el ID según el tipo de concepto
-            switch ($tipo_concepto) {
-                case 'producto':
-                    $id_producto = $id_item;
-                    break;
-
-                case 'bono':
-                    $id_bono = $id_item;
-                    break;
-
-                case 'servicio':
-                    $id_servicio = $id_item;
-                    break;
-            }
-
-            // Insertar la línea
-            $stmt_item->bind_param(
-                "isiiisddd",
-                $id_pedido_val,
-                $tipo_concepto,
-                $id_producto,
-                $id_bono,
-                $id_servicio,
-                $nombre,
-                $cantidad,
-                $precio,
-                $importe
-            );
-
-            if (!$stmt_item->execute()) {
-                throw new Exception(
-                    'Error al guardar el item ' . $nombre . ': ' . $stmt_item->error
-                );
-            }
-        }
-
-        $stmt_item->close();
-
         //===============================================================//
-        // END - INSERTAR ITEMS DEL PEDIDO
+        // END - SINCRONIZAR ITEMS DEL PEDIDO - VERSIÓN NEW
         //===============================================================//
+
 
 
         
-        // Gestionar cambios de taquilla
+
+
+        //===============================================================//
+        // START - INSERTAR PAGOS DEL PEDIDO EN MOVIMIENTOS - VERSIÓN OLD OK
+        //===============================================================//
+        //NO EJECUTAR ESTE BLOQUE. ES CORRECTO PERO VERSIÓN NUEVA ES MEJOR. DEJO EL BLOQUE COMO EJEMPLO!
+        if(FALSE){
+
+            // 1. Si es una actualización, eliminar las líneas anteriores
+            // para sustituirlas por las líneas recibidas
+            if ($hay_id_pedido_en_tabla) {
+                $sql_delete_mov = "DELETE FROM movimientos
+                                WHERE id_pedido = ?
+                ";
+                $stmt_delete_mov = $conn->prepare($sql_delete_mov);
+                if (!$stmt_delete_mov) {
+                    throw new Exception(
+                        'Error al preparar la consulta de eliminar movimientos del pedido: ' . $conn->error
+                    );
+                }    
+                $stmt_delete_mov->bind_param("i", $id_pedido_val);
+                $result_delete_mov = $stmt_delete_mov->execute();
+                if (!$result_delete_mov) {
+                    throw new Exception(
+                        'Error al ejecutar la consulta de eliminar movimientos del pedido: ' . $conn->error
+                    );
+                }
+                $stmt_delete_mov->close();
+            }
+
+            //busco concepto con pago_pedido
+            //busco si hay registro en la tabla a donde insertar array
+            $sql_prep_con = "SELECT id_concepto 
+                FROM conceptos 
+                WHERE tipo_uso = 'pago_pedido' 
+            ";
+            $stmt_con = $conn->prepare($sql_prep_con);
+            if (!$stmt_con) {
+                throw new Exception($conn->error);
+            }
+            $stmt_con->execute();
+            $result_con = $stmt_con->get_result();
+            $row_con = $result_con->fetch_assoc();
+            $id_concepto_pago_pedido = $row_con['id_concepto'] ?? null;
+            $stmt_con->close();
+
+            // 2. Preparar INSERT de las líneas
+            $sql_mov = "INSERT INTO movimientos 
+                (
+                    id_concepto,
+                    id_cliente,
+                    id_pedido,
+
+                    tipo_movimiento,
+                    fecha_movimiento,
+
+                    importe,
+                    metodo_pago,
+                    titulo,
+                    comentario,                
+                    confirmado,
+
+                    created_at
+                ) 
+                VALUES 
+                (
+                    ?, ?, ?,
+                    ?,
+                    ?, 
+                    ?, ?, ?, ?,
+                    ?,
+                    NOW()
+                )
+            ";
+            $stmt_mov = $conn->prepare($sql_mov);
+            if (!$stmt_mov) {
+                throw new Exception(
+                    'Error al preparar la consulta de pagos en movimientos: ' . $conn->error
+                );
+            }
+            
+            // 3. Obtener el array plano de artículos recibido
+            //$arr_pagos = $datos['arr_pagos'] ?? [];//aki no hace falta esta linea ya que lo tengo de arriba (linea 142)
+
+            // 4. Recorrer todos los artículos
+            foreach ($arr_pagos as $item) {
+
+                //$id_concepto = $id_concepto_pago_pedido;//es 27
+                //$id_cliente;//es el mismo cliente
+                //$id_pedido_val;//es el mismo id_pedido_val
+                
+                $tipo_movimiento = 'ingreso';//aki siempre ingreso ya que es pago de pedido
+                $fecha_movimiento = $item['fecha_movimiento'] ?? '';
+
+                $importe = (float) ($item['importe'] ?? 0);
+                $metodo_pago = $item['metodo_pago'] ?? '';
+                $titulo = $item['titulo'] ?? '';
+                $comentario = $item['comentario'] ?? '';
+                $confirmado = 1;//aki siempre 1
+
+                //IMPORTANTE! Normalizar Windows/Mac/Linux (debe estar con bind_param())
+                $titulo = str_replace(["\r\n", "\r"], "\n", $titulo);
+                $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
+
+                // Insertar la línea
+                $stmt_mov->bind_param(
+                    "iiissdsssi",
+                    
+                    $id_concepto_pago_pedido,
+                    $id_cliente,
+                    $id_pedido_val,
+
+                    $tipo_movimiento,
+                    $fecha_movimiento,
+
+                    $importe,
+                    $metodo_pago,
+                    $titulo,
+                    $comentario,
+                    $confirmado
+                );
+                if (!$stmt_mov->execute()) {
+                    throw new Exception(
+                        'Error al guardar el movimiento con importe ' . $importe . ': ' . $stmt_mov->error
+                    );
+                }
+            }
+            $stmt_mov->close();
+        }
+        //===============================================================//
+        // END - INSERTAR PAGOS DEL PEDIDO EN MOVIMIENTOS - VERSIÓN OLD OK
+        //===============================================================//
+
+
+
+
+
+
+        //===============================================================//
+        // START - INSERTAR PAGOS DEL PEDIDO EN MOVIMIENTOS - VERSIÓN NEW
+        //===============================================================//
+        //SIEMPRE EJECUTAR ESTE BLOQUE! incluso cuando arr_items viene vacio!
+        //Si $arr_pagos está vacío:
+        // - No se ejecutará ningún UPDATE.
+        // - No se ejecutará ningún INSERT.
+        // - Se eliminarán todos los pagos anteriores del pedido.
+        if(TRUE){
+            // 1. Obtener los IDs de los movimientos existentes del pedido
+            $sql_existentes = "
+                SELECT id_movimiento
+                FROM movimientos
+                WHERE id_pedido = ?
+            ";
+            $stmt_existentes = $conn->prepare($sql_existentes);
+            if (!$stmt_existentes) {
+                throw new Exception(
+                    'Error al preparar la consulta de movimientos existentes del pedido: ' . $conn->error
+                );
+            }
+            $stmt_existentes->bind_param("i", $id_pedido_val);
+            if (!$stmt_existentes->execute()) {
+                throw new Exception(
+                    'Error al ejecutar la consulta de movimientos existentes del pedido: ' . $stmt_existentes->error
+                );
+            }
+            $result_existentes = $stmt_existentes->get_result();
+
+            $arr_movimientos_existentes = [];
+
+            while ($row = $result_existentes->fetch_assoc()) {
+                $arr_movimientos_existentes[(int)$row['id_movimiento']] = true;
+            }
+            $stmt_existentes->close();
+
+            
+            //busco concepto con pago_pedido
+            //busco si hay registro en la tabla a donde insertar array
+            $sql_prep_con = "SELECT id_concepto 
+                FROM conceptos 
+                WHERE tipo_uso = 'pago_pedido' 
+            ";
+            $stmt_con = $conn->prepare($sql_prep_con);
+            if (!$stmt_con) {
+                throw new Exception($conn->error);
+            }
+            $stmt_con->execute();
+            $result_con = $stmt_con->get_result();
+            $row_con = $result_con->fetch_assoc();
+            $id_concepto_pago_pedido = $row_con['id_concepto'] ?? null;
+            $stmt_con->close();
+
+
+            // 2. Preparar consulta UPDATE
+            $sql_update = "
+                UPDATE movimientos SET
+                    id_concepto = ?,
+                    id_cliente = ?,
+                    tipo_movimiento = ?,
+                    fecha_movimiento = ?,
+                    importe = ?,
+                    metodo_pago = ?,
+                    titulo = ?,
+                    comentario = ?,
+                    confirmado = ?
+                WHERE id_movimiento = ?
+                    AND id_pedido = ?
+            ";
+            $stmt_update = $conn->prepare($sql_update);
+            if (!$stmt_update) {
+                throw new Exception(
+                    'Error al preparar la consulta de actualizar movimientos del pedido: ' . $conn->error
+                );
+            }
+
+            // 3. Preparar consulta INSERT
+            $sql_insert = "
+                INSERT INTO movimientos
+                (
+                    id_concepto,
+                    id_cliente,
+                    id_pedido,
+                    tipo_movimiento,
+                    fecha_movimiento,
+                    importe,
+                    metodo_pago,
+                    titulo,
+                    comentario,
+                    confirmado,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ";
+            $stmt_insert = $conn->prepare($sql_insert);
+            if (!$stmt_insert) {
+                throw new Exception(
+                    'Error al preparar la consulta de insertar movimientos del pedido: ' . $conn->error
+                );
+            }
+
+            // 4. Obtener pagos recibidos
+            //$arr_pagos = $datos['arr_pagos'] ?? [];//aki no hace falta esta linea ya que lo tengo de arriba (linea 142)
+
+            $arr_ids_movimientos_recibidos = [];
+
+            foreach ($arr_pagos as $item) {
+
+                $id_movimiento = (int)($item['id_movimiento'] ?? 0);
+
+                $tipo_movimiento = 'ingreso';
+                $fecha_movimiento = str_replace(
+                    'T',
+                    ' ',
+                    $item['fecha_movimiento'] ?? ''
+                );
+
+                $importe = (float)($item['importe'] ?? 0);
+                $metodo_pago = $item['metodo_pago'] ?? '';
+                $titulo = $item['titulo'] ?? '';
+                $comentario = $item['comentario'] ?? '';
+
+                $confirmado = 1;
+
+                // Normalizar saltos de línea
+                $titulo = str_replace(["\r\n", "\r"], "\n", $titulo);
+                $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
+
+                // 5. Si tiene ID, actualizar el movimiento
+                if ($id_movimiento > 0) {
+
+                    // Si no pertenece al pedido, ignorar este elemento y no lanzar exepción ya que rompería la ejecusión de consulta
+                    if (!isset($arr_movimientos_existentes[$id_movimiento])) {
+                        continue;
+                    }
+
+                    // Evitar IDs duplicados en el array recibido
+                    if (isset($arr_ids_movimientos_recibidos[$id_movimiento])) {
+                        continue;
+                    }
+
+                    $stmt_update->bind_param(
+                        "iissdsssiii",
+                        $id_concepto_pago_pedido,
+                        $id_cliente,
+                        $tipo_movimiento,
+                        $fecha_movimiento,
+                        $importe,
+                        $metodo_pago,
+                        $titulo,
+                        $comentario,
+                        $confirmado,
+                        $id_movimiento,
+                        $id_pedido_val
+                    );
+
+                    if (!$stmt_update->execute()) {
+                        throw new Exception($stmt_update->error);
+                    }
+
+                    $arr_ids_movimientos_recibidos[$id_movimiento] = true;
+
+                } else {
+
+                    // 6. Si no tiene ID, insertar un nuevo movimiento
+                    $stmt_insert->bind_param(
+                        "iiissdsssi",
+                        $id_concepto_pago_pedido,
+                        $id_cliente,
+                        $id_pedido_val,
+                        $tipo_movimiento,
+                        $fecha_movimiento,
+                        $importe,
+                        $metodo_pago,
+                        $titulo,
+                        $comentario,
+                        $confirmado
+                    );
+
+                    if (!$stmt_insert->execute()) {
+                        throw new Exception($stmt_insert->error);
+                    }
+
+                    // MySQL genera automáticamente el nuevo ID
+                }
+            }
+
+            $stmt_update->close();
+            $stmt_insert->close();
+
+            // 7. Eliminar los movimientos que ya no vienen en el array
+            $sql_delete = "
+                DELETE FROM movimientos
+                WHERE id_movimiento = ?
+                AND id_pedido = ?
+            ";
+            $stmt_delete = $conn->prepare($sql_delete);
+
+            if (!$stmt_delete) {
+                throw new Exception($conn->error);
+            }
+
+            foreach ($arr_movimientos_existentes as $id_movimiento => $valor) {
+
+                if (!isset($arr_ids_movimientos_recibidos[$id_movimiento])) {
+
+                    $stmt_delete->bind_param(
+                        "ii",
+                        $id_movimiento,
+                        $id_pedido_val
+                    );
+
+                    if (!$stmt_delete->execute()) {
+                        throw new Exception($stmt_delete->error);
+                    }
+                }
+            }
+            $stmt_delete->close();
+        }
+        //===============================================================//
+        // END - INSERTAR PAGOS DEL PEDIDO EN MOVIMIENTOS - VERSIÓN NEW
+        //===============================================================//
+
+
+
+
+
+
+
+
+        
+        //===============================================================//
+        // start - Gestionar cambios de taquilla
+        //===============================================================//
         if ($id_taquilla != $stored_id_taquilla) {
 
             // Si hay una nueva taquilla, marcarla como ocupada
             if ($id_taquilla) {
                 $sql = "UPDATE taquillas
                         SET estado_taquilla = 'ocupado'
-                        WHERE id_taquilla = ?";
-
+                        WHERE id_taquilla = ?
+                ";
                 $stmt = $conn->prepare($sql);
-
                 if (!$stmt) {
                     throw new Exception(
                         'Error al preparar la actualización de la nueva taquilla: '
                         . $conn->error
                     );
                 }
-
                 $stmt->bind_param("i", $id_taquilla);
-
                 if (!$stmt->execute()) {
                     throw new Exception(
                         'Error al marcar la nueva taquilla como ocupada: '
                         . $stmt->error
                     );
                 }
-
                 $stmt->close();
             }
 
@@ -679,68 +1246,164 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
             if ($stored_id_taquilla) {
                 $sql = "UPDATE taquillas
                         SET estado_taquilla = 'libre'
-                        WHERE id_taquilla = ?";
-
+                        WHERE id_taquilla = ?
+                ";
                 $stmt = $conn->prepare($sql);
-
                 if (!$stmt) {
                     throw new Exception(
                         'Error al preparar la liberación de la taquilla anterior: '
                         . $conn->error
                     );
                 }
-
                 $stmt->bind_param("i", $stored_id_taquilla);
-
                 if (!$stmt->execute()) {
                     throw new Exception(
                         'Error al liberar la taquilla anterior: '
                         . $stmt->error
                     );
                 }
-
                 $stmt->close();
             }
         }
+        //===============================================================//
+        // end - Gestionar cambios de taquilla
+        //===============================================================//
 
-        /*
-        //=============================================//
-        // start - Gestionar cambios de saldo en Cliente
-        //=============================================//
-        if ($importe_pagado != $stored_importe_pagado){
+        
+        //ahora ya no hace falta!
+        //===============================================================//
+        // start - Gestionar cambios de importe_pagado en movimientos
+        //===============================================================//
+        if (FALSE /* $importe_pagado != $stored_importe_pagado */){
 
-            //calculo nuevo saldo del cliente
-            $saldo_new = $saldo_cliente - $importe_pagado;
-            //echo_json_x($saldo_new,'saldo_new'); 
             
-            $sql = "UPDATE clientes
-                    SET saldo = $saldo_new
-                    WHERE id_cliente = ?
-            ";
-            $stmt = $conn->prepare($sql);
+            // 2. Registrar el ingreso si existe un pago
+            if ((float) $importe_pagado > 0) {
 
-            if (!$stmt) {
-                throw new Exception(
-                    'Error al preparar la consulta para actualizar saldo del cliente: '
-                    . $conn->error
+                //busco concepto con pago_pedido
+                //busco si hay registro en la tabla a donde insertar array
+                $sql_prep = "SELECT id_concepto 
+                    FROM conceptos 
+                    WHERE tipo_uso = 'pago_pedido' 
+                ";
+                $stmt = $conn->prepare($sql_prep);
+                if (!$stmt) {
+                    throw new Exception($conn->error);
+                }
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $id_concepto_pago_pedido = $row['id_concepto'] ?? null;
+                $stmt->close();
+
+
+                //saco movimiento vinculado con este pedido
+                $sql = "SELECT id_movimiento
+                        FROM movimientos
+                        WHERE id_pedido = ?
+                        AND id_concepto = ?
+                ";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param(
+                    'ii',
+                    $id_pedido_val,
+                    $id_concepto_pago_pedido
                 );
-            }
+                $stmt->execute();
+                $result_mov = $stmt->get_result();
+                
+                $row_mov = $result_mov->fetch_assoc();
+                $id_movimiento = $row_mov['id_movimiento'] ?? null;
+                $stmt->close();
 
-            $stmt->bind_param("i", $id_cliente);
+                if ($id_movimiento !== null) {
+                    // Actualizar movimiento existente
+                    $sql = "UPDATE movimientos SET
+                                id_cliente = ?,
+                                importe = ?,
+                                fecha_movimiento = ?,
+                                updated_at = NOW()
+                            WHERE id_movimiento = ?
+                    ";
+                    $stmt = $conn->prepare($sql);
 
-            if (!$stmt->execute()) {
-                throw new Exception(
-                    'Error al actualizar saldo del cliente: '
-                    . $stmt->error
-                );
-            }
+                    $stmt->bind_param(
+                        'idsi',
+                        $id_cliente,
+                        $importe_pagado,
+                        $fecha_pedido,
+                        $id_movimiento
+                    );
 
-            $stmt->close();
+                }else{
+                    
+                    //aki $tipo_movimiento siempre ingreso, ya que se paga por el pedido
+                    $tipo_movimiento = 'ingreso';
+                    $titulo = 'Pago de pedido ' . $id_pedido_val;
+                    $comentario .= ' | El pago se ha hecho automáticamente al introducir importe pagado de ' . $importe_pagado . ' €.';
+                    $confirmado = 1;//aki si
+
+                    // Crear movimiento nuevo
+                    $sql = "INSERT INTO movimientos (
+                            id_concepto,
+                            id_cliente,
+                            id_pedido,
+
+                            tipo_movimiento,
+                            fecha_movimiento,
+                            importe,
+
+                            metodo_pago,
+                            titulo,
+                            comentario,
+                            confirmado,
+
+                            created_at
+
+                        ) VALUES (
+                            ?, ?, ?,
+
+                            ?, ?, ?,
+
+                            ?, ?, ?, ?,
+
+                            NOW()
+                        )
+                    ";
+                    $stmt = $conn->prepare($sql);
+                    if (!$stmt) {
+                        die("2. Error SQL: " . $conn->error);
+                    }
+                    $stmt->bind_param(
+                        'iiissdsssi',
+                        $id_concepto_pago_pedido,
+                        $id_cliente,
+                        $id_pedido_val,
+
+                        $tipo_movimiento,
+                        $fecha_pedido,
+                        $importe_pagado,
+
+                        $metodo_pago,
+                        $titulo,
+                        $comentario,
+                        $confirmado
+                    );
+                }
+
+                //ejecuto
+                $result_ex_mov = $stmt->execute();
+                if (!$result_ex_mov) {
+                    throw new Exception($stmt->error);
+                }
+                $stmt->close();                
+            }                  
         }
         //=============================================//
-        // end - Gestionar cambios de saldo en Cliente
+        // end - Gestionar cambios de importe_pagado en movimientos
         //=============================================//
-        */
+        
   
 
 

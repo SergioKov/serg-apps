@@ -24,6 +24,8 @@ async function buildMovimiento(movimiento_action = null){
     //campos de input
     let id_movimiento_val = '';
     let id_cliente_val = '';
+    let id_pedido_val = '';
+    let id_concepto_val = '';
 
     let tipo_movimiento_val = '';
     
@@ -66,8 +68,16 @@ async function buildMovimiento(movimiento_action = null){
     
     if(movimiento_action == 'nuevo'){//si es nueva
         console.log('es movimiento nuevo');
-
+        
         //reseteo movimiento
+        id_movimiento = null;//reset ya que se va a crear un id_movimiento nuevo
+        id_concepto = null;//reset ya que se va a crear un id_movimiento nuevo
+        id_cliente = null;//reset ya que se va a crear un id_movimiento nuevo
+
+        objMovimiento = {};//reset
+        objCliente = {};//reset
+        objPedido = {};//reset
+        objConcepto = {};//reset
 
     }else{//si es: ver, editar, eliminar
         console.log('es movimiento que se edita');
@@ -84,19 +94,41 @@ async function buildMovimiento(movimiento_action = null){
         }        
 
         id_movimiento_val = objMovimiento.id_movimiento;
+        id_concepto_val = objMovimiento.id_concepto;        
         id_cliente_val = objMovimiento.id_cliente;
+        id_pedido_val = objMovimiento.id_pedido;
+
+        if(id_concepto_val){
+            // en vez de cojer datos del objConcepto de objDataConceptos, 
+            //cojo los datos del pedido directamente de la bd
+            id_concepto = objMovimiento.id_concepto;
+            objConcepto = await getDataConceptoFromBd(id_concepto);//IMPORTANTE para cojer todos los datos necesarios
+            console.log('objConcepto: ', objConcepto);
+        }else{
+            objConcepto = {};//reset. IMPORTANTE para no cojer el id_concepto seleccionado antes.
+        }
 
         if(id_cliente_val){
             // en vez de cojer datos del objCliente de objDataClientes, 
             //cojo los datos del pedido directamente de la bd
             id_cliente = objMovimiento.id_cliente;
-            objCliente = await getDataClienteFromBd();//IMPORTANTE para cojer todos los datos necesarios
+            objCliente = await getDataClienteFromBd(id_cliente);//IMPORTANTE para cojer todos los datos necesarios
             console.log('objCliente: ', objCliente);
         }else{
             objCliente = {};//reset. IMPORTANTE para no cojer el id_cliente seleccionado antes.
         }
+
+        if(id_pedido_val){
+            // en vez de cojer datos del objPedido de objDataPedidos, 
+            //cojo los datos del pedido directamente de la bd
+            id_pedido = objMovimiento.id_pedido;
+            objPedido = await getDataPedidoFromBd(id_pedido);//IMPORTANTE para cojer todos los datos necesarios
+            console.log('objPedido: ', objPedido);
+        }else{
+            objPedido = {};//reset. IMPORTANTE para no cojer el id_pedido seleccionado antes.
+        }       
           
-        comentario_val = escaparHTML(objMovimiento.comentario) || '';
+        tipo_movimiento_val = (objMovimiento.tipo_movimiento) ? escaparHTML(objMovimiento.tipo_movimiento) : '';
 
         diaSemana_val = convertirToTitleCase(getDiaSemana(objMovimiento.fecha_movimiento));
         fecha_movimiento_val = fechaMySQLLocal('fecha_hora_corta', objMovimiento.fecha_movimiento);
@@ -105,14 +137,14 @@ async function buildMovimiento(movimiento_action = null){
         fecha_val = convertirFecha(fecha_bd, 'ver','.');//de '2026-10-18' a '18.10.2026'
         hora_val = fechaMySQLLocal('solo_hora_corta', objMovimiento.fecha_movimiento);
                 
-        tipo_movimiento_val = (objMovimiento.tipo_movimiento) ? escaparHTML(objMovimiento.tipo_movimiento) : '';
+        titulo_val = (objMovimiento.titulo) ? escaparHTML(objMovimiento.titulo) : '';
+        comentario_val = (objMovimiento.comentario) ? escaparHTML(objMovimiento.comentario) : '';
         confirmado_val = (objMovimiento.confirmado) ? escaparHTML(objMovimiento.confirmado) : '';
 
         metodo_pago_val = (objMovimiento.metodo_pago) ? escaparHTML(objMovimiento.metodo_pago) : '';
 
-        importe_val = (objMovimiento.importe) ? escaparHTML(objMovimiento.importe) : '';
+        importe_val = (objMovimiento.importe) ? numeroPositivo(objMovimiento.importe) : '';
         importe_text = (objMovimiento.importe) ? `${importe_val} €` : '--';
-
     }
 
     //si es ver o editar, muestro id
@@ -133,20 +165,13 @@ async function buildMovimiento(movimiento_action = null){
             p_mensaje.append(wr_img_editar_en_ver);
         }
     }
-
+    
+    //solo clases aki
     switch (movimiento_action) {
         case 'nuevo'://Nueva Movimiento
             p_mensaje.innerHTML = `
                 <span>Rellena los campos del formulario con los datos de un movimiento <b class="c_blue">NUEVO</b>.</span>
             `;
-            // si antes fue seleccionada una lista, entonces reseteo id_movimiento
-            if(id_movimiento){
-                id_movimiento = null;//reset ya que se va a crear un id_movimiento nuevo
-            }else{
-                //id_movimiento es null, no hago nada.
-                // no reseteo arr_lista ya que hace falta crear una lista nueva con las canciones ya seleccionadas (añadidas a arr_lista) y no quiero perderlas.
-            }
-            objMovimiento = {};//reset
             cl_d_limpiar_input = 'd-flex';//muestro porque es 'nuevo'
             if(id_cliente_val){
                 cl_wr_saldo_cliente = 'd-flex';//muestro porque es 'nuevo' y hay cliente seleccionado
@@ -271,7 +296,7 @@ async function buildMovimiento(movimiento_action = null){
                 
                 <!-- tipo_movimiento -->
                 <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Tipo de movimiento:</label>
+                    <label class="lab_varios_btns">Tipo de movimiento</label>
                     <div id="d_tipo_movimiento" class="wr_varios_btns ${cl_solo_ver}">
                         <div class="dbtn" data-value="ingreso">Ingreso</div>
                         <div class="dbtn" data-value="gasto">Gasto</div>
@@ -280,12 +305,34 @@ async function buildMovimiento(movimiento_action = null){
                 </div>
                 <!-- /tipo_movimiento -->
 
-                                
-                <!-- buscar cliente -->
-                <div class="wr_buscar_cliente ${cl_solo_ver}">
+
+                
+                
+                
+                <!-- buscar concepto -->
+                <div class="wr_buscar_concepto d_buscar_by_id ${cl_solo_ver}">
 
                     <div class="wr_bl_buscar_head">
-                        <h5>Cliente:</h5>
+                        <h5>Concepto</h5>
+                        <div id="lupa_buscar_concepto" class="wr_btn_lupa wr_btn_img">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                        </div>
+                    </div>
+
+                    <div id="datos_concepto_finded" class="reg_selected">
+                        <!-- aki se pintan los datos del concepto vinculado -->
+                    </div>
+
+                    <input id="id_concepto" type="hidden" name="id_concepto" value="${id_concepto_val}">
+                </div>
+                <!-- /buscar concepto -->
+
+                                
+                <!-- buscar cliente -->
+                <div class="wr_buscar_cliente d_buscar_by_id ${cl_solo_ver}">
+
+                    <div class="wr_bl_buscar_head">
+                        <h5>Cliente</h5>
                         <div id="lupa_buscar_cliente" class="wr_btn_lupa wr_btn_img">
                             <img class="btn_img" src="./images/search_zoom_icon_white.svg">
                         </div>
@@ -298,6 +345,34 @@ async function buildMovimiento(movimiento_action = null){
                     <input id="id_cliente" type="hidden" name="id_cliente" value="${id_cliente_val}">
                 </div>
                 <!-- /buscar cliente -->
+
+
+
+
+
+
+
+                <!-- buscar pedido -->
+                <div class="wr_buscar_pedido d_buscar_by_id ${cl_solo_ver}">
+
+                    <div class="wr_bl_buscar_head">
+                        <h5>Pedido</h5>
+                        <div id="lupa_buscar_pedido" class="wr_btn_lupa wr_btn_img">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                        </div>
+                    </div>
+
+                    <div id="datos_pedido_finded" class="reg_selected">
+                        <!-- aki se pintan los datos del pedido vinculado -->
+                    </div>
+
+                    <input id="id_pedido" type="hidden" name="id_pedido" value="${id_pedido_val}">
+                </div>
+                <!-- /buscar pedido -->
+
+
+
+
 
 
                 <!-- fecha_movimiento -->
@@ -323,14 +398,14 @@ async function buildMovimiento(movimiento_action = null){
                         placeholder=" " 
                         value="${importe_val}"
                     >
-                    <label for="importe">Importe:</label>
+                    <label for="importe">Importe</label>
                 </div>
                 <!-- /importe -->
 
 
                 <!-- metodo_pago -->
                 <div id="wr_metodo_pago" class="wr_sel_opt_estado ${objMovimiento?.metodo_pago || ''}">
-                    <h5>Método de pago:</h5>
+                    <h5>Método de pago</h5>
                     <select id="metodo_pago" class="sel_opt_find">
                         <option value="">(no asignado)</option>
                         <option value="efectivo">Efectivo</option>
@@ -339,7 +414,19 @@ async function buildMovimiento(movimiento_action = null){
                         <option value="transferencia">Transferencia</option>
                     </select>
                 </div>
-                <!-- /metodo_pago -->                              
+                <!-- /metodo_pago --> 
+                
+                
+                <!-- confirmado -->
+                <div class="form_group wr_input_general">
+                    <label class="lab_varios_btns">Registro confirmado</label>
+                    <div id="d_confirmado" class="wr_varios_btns ${cl_solo_ver}">
+                        <div class="dbtn dbtn_no" data-value="0">No</div>
+                        <div class="dbtn dbtn_si" data-value="1">Sí</div>
+                    </div>
+                    <input id="confirmado" type="hidden" name="confirmado" value="${confirmado_val}"> 
+                </div>
+                <!-- /confirmado -->
 
 
                 <!-- titulo -->
@@ -364,32 +451,33 @@ async function buildMovimiento(movimiento_action = null){
                 <!-- /comentario -->
 
 
-                <!-- confirmado -->
-                <div class="form_group wr_input_general">
-                    <label class="lab_varios_btns">Registro confirmado:</label>
-                    <div id="d_confirmado" class="wr_varios_btns ${cl_solo_ver}">
-                        <div class="dbtn dbtn_no" data-value="0">No</div>
-                        <div class="dbtn dbtn_si" data-value="1">Sí</div>
-                    </div>
-                    <input id="confirmado" type="hidden" name="confirmado" value="${confirmado_val}"> 
-                </div>
-                <!-- /confirmado -->
-
-
                 ${ (['nuevo','editar'].includes(movimiento_action)) ? wr_btns_form.outerHTML : '' }
 
             </form>
         </div>     
     `;
     
+    const eid_datos_concepto_finded = form_movimiento.querySelector('#datos_concepto_finded');
     const eid_datos_cliente_finded = form_movimiento.querySelector('#datos_cliente_finded');
+    const eid_datos_pedido_finded = form_movimiento.querySelector('#datos_pedido_finded');
 
+    //tipo_movimiento
     const eid_d_tipo_movimiento = form_movimiento.querySelector('#d_tipo_movimiento');
+    const input_tipo_movimiento = form_movimiento.querySelector('#tipo_movimiento');
+
     const eid_d_confirmado = form_movimiento.querySelector('#d_confirmado');
+
+    //buscar_concepto
+    const eid_lupa_buscar_concepto = form_movimiento.querySelector('#lupa_buscar_concepto');
+    const input_id_concepto = form_movimiento.querySelector('#id_concepto');
 
     //buscar_cliente
     const eid_lupa_buscar_cliente = form_movimiento.querySelector('#lupa_buscar_cliente');
     const input_id_cliente = form_movimiento.querySelector('#id_cliente');
+
+    //buscar_pedido
+    const eid_lupa_buscar_pedido = form_movimiento.querySelector('#lupa_buscar_pedido');
+    const input_id_pedido = form_movimiento.querySelector('#id_pedido');
     
     //importe
     const eid_wr_importe = form_movimiento.querySelector('#wr_importe');
@@ -403,12 +491,33 @@ async function buildMovimiento(movimiento_action = null){
     //start - funciones de form. 
     //=============================================================================//
 
+    //pinto datos del concepto vinculado si hay
+    //si no hay id_concepto, entonces objConcepto es {} lo que es correcto para la función 
+    pintDatosConceptoFinded(eid_datos_concepto_finded, objConcepto, input_id_concepto);
+    
+    eid_lupa_buscar_concepto.onclick = (e) => {
+        console.log('eid_lupa_buscar_concepto.onclick');
+        buildModalBuscarConcepto(input_id_concepto, input_tipo_movimiento);
+    }
+
+
     //pinto datos del cliente vinculado si hay
-    pintDatosClienteFinded(eid_datos_cliente_finded, objCliente, input_id_cliente);//si no hay id_cliente, entonces objCliente es {} lo que es correcto para la función 
+    //si no hay id_cliente, entonces objCliente es {} lo que es correcto para la función 
+    pintDatosClienteFinded(eid_datos_cliente_finded, objCliente, input_id_cliente);
     
     eid_lupa_buscar_cliente.onclick = (e) => {
         console.log('eid_lupa_buscar_cliente.onclick');
         buildModalBuscarCliente(input_id_cliente);
+    }
+
+
+    //pinto datos del pedido vinculado si hay
+    //si no hay id_pedido, entonces objPedido es {} lo que es correcto para la función 
+    pintDatosPedidoFinded(eid_datos_pedido_finded, objPedido, input_id_pedido);
+    
+    eid_lupa_buscar_pedido.onclick = (e) => {
+        console.log('eid_lupa_buscar_pedido.onclick');
+        buildModalBuscarPedido(input_id_pedido);
     }
 
 
@@ -432,6 +541,18 @@ async function buildMovimiento(movimiento_action = null){
             console.log('es el click sobre el mismo valor. no hago nada');
             return;
         }
+
+        //compruebo si tipo_concepto corresponde a tipo_movimiento
+        if(objConcepto.tipo_concepto && tipo_movimiento_val != objConcepto.tipo_concepto){
+            const aviso_text = `
+                <p>Estás intentando asignar el tipo de movimiento <b class="da_tipo_movimiento ${tipo_movimiento_val}">${tipo_movimiento_val}</b> para el concepto con el tipo de concepto <b class="da_tipo_movimiento ${objConcepto.tipo_concepto}">${objConcepto.tipo_concepto}</b> lo que no tiene lógica y es incorrecto.</p> 
+                <p>Si quieres elegir este tipo de movimiento que es <b class="da_tipo_movimiento ${tipo_movimiento_val}">${tipo_movimiento_val}</b>, quita el concepto actual pulsando <span class="close_x_sm">✕</span>, cambia el tipo de movimiento y selecciona un concepto nuevo.</p>
+            `;
+
+            showToast('error', aviso_text, 50, 'center', true, 'Error en los tipos');
+            return;
+        }
+
         meterValor('tipo_movimiento', eid_d_tipo_movimiento, tipo_movimiento_val);
         pintDivSelected('d_tipo_movimiento', eid_d_tipo_movimiento, tipo_movimiento_val);
 
@@ -513,6 +634,10 @@ async function buildMovimiento(movimiento_action = null){
         }
     }
 
+    //=============================================================================//
+    //end - funciones de form. 
+    //=============================================================================//
+
     eid_bl_modalFullInner.append(contenedor);
 
     console.log('fin func');
@@ -541,7 +666,9 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
 
         const tipo_movimiento = form_movimiento?.querySelector('#tipo_movimiento').value.trim();
         //const id_almacen = form_movimiento?.querySelector('#id_almacen').value.trim();
+        const id_concepto = form_movimiento?.querySelector('#id_concepto').value.trim();
         const id_cliente = form_movimiento?.querySelector('#id_cliente').value.trim();
+        const id_pedido = form_movimiento?.querySelector('#id_pedido').value.trim();
         const fecha_movimiento = form_movimiento?.querySelector('#fecha_movimiento').value.trim();
         const importe = form_movimiento?.querySelector('#importe').value.trim();
         const metodo_pago = form_movimiento?.querySelector('#metodo_pago').value.trim();
@@ -553,6 +680,9 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
 
         if(tipo_movimiento == ''){
             errors.push('Tipo de movimiento');
+        }
+        if(id_concepto == ''){
+            errors.push('Concepto');
         }
         if(id_cliente == ''){
             //errors.push('Cliente');
@@ -584,7 +714,9 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
             id_movimiento: id_movimiento || null, //ya que se añade un nuevo movimiento, entonces no hay id_movimiento
             //id_almacen,
             tipo_movimiento,
+            id_concepto,
             id_cliente,
+            id_pedido,
             fecha_movimiento,
             importe,
             metodo_pago,
@@ -623,7 +755,7 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
                 id_movimiento = data.id_movimiento;//guardo el id del movimiento recién creada
 
                 //Cojo datos del movimiento desde BD
-                objMovimiento = await getDataMovimientoFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objMovimiento = await getDataMovimientoFromBd(id_movimiento);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objMovimiento: ', objMovimiento);
 
                 const itemMovimientoUpdate = objDataMovimientos?.arr_data?.find(item => item.id_movimiento == id_movimiento);
@@ -637,7 +769,7 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
 
                 } else {//es insert del movimiento nuevo
     
-                    console.warn('No encontrado objMovimiento.id_movimiento en objDataMovimientos.arr_data');
+                    console.log('No encontrado objMovimiento.id_movimiento en objDataMovimientos.arr_data');
                     //entonces es un movimiento nuevo que se crea
 
                     //1.debo añadir objMovimiento en objDataMovimientos.arr_data al inicio (si existe!)
@@ -653,6 +785,39 @@ async function guardarMovimiento(event, modo_guardar = 'normal'){
                     //pintMovimientoOne(objMovimiento, 'arriba');//div de movimiento se pinta al inicio (arriba)
                     await loadMovimientosAll();
                 }
+
+
+                //Cojo datos del cliente desde BD
+                objCliente = await getDataClienteFromBd(id_cliente);//IMPORTANTE para cojer todos los datos necesarios
+                console.log('objCliente: ', objCliente);
+
+                const itemClienteUpdate = objDataClientes?.arr_data?.find(item => item.id_cliente == id_cliente);
+                if(itemClienteUpdate){
+                    Object.assign(itemClienteUpdate, objCliente);
+                    // el objeto dentro de arr_data ya está actualizado
+
+                    //Actualizo d_art 
+                    pintClienteActiveSoloDatos();//en el contenedor_clientes
+                }
+
+
+
+                //Cojo datos del pedido desde BD
+                objPedido = await getDataPedidoFromBd(id_pedido);//IMPORTANTE para cojer todos los datos necesarios
+                console.log('objPedido: ', objPedido);
+
+                const itemPedidoUpdate = objDataPedidos?.arr_data?.find(item => item.id_pedido == id_pedido);
+                if(itemPedidoUpdate){
+                    Object.assign(itemPedidoUpdate, objPedido);
+                    // el objeto dentro de arr_data ya está actualizado
+
+                    //Actualizo d_art 
+                    pintPedidoActiveSoloDatos();//en el contenedor_pedidos
+                }
+
+
+
+
 
                 //actualizo Taquillas y obj y DOM
                 await loadTaquillasAll();
@@ -827,7 +992,7 @@ async function deleteMovimiento(event){
                 await loadMovimientosAll();
 
                 //actualizo clientes
-                loadClientesAll();
+                await loadClientesAll();
 
                 showToast('ok', text_show, 5000);
             }
@@ -1083,19 +1248,23 @@ function pintMovimientoOne(objMovimientoOne, lugar_de_pintar = 'abajo'){//pintar
     d_movimiento.dataset.tipo_art = 'movimiento';
     d_movimiento.innerHTML = `
         <div class="datos_movimiento datos_art">
-            <div class="da_diasem">${diaSemana_val}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objMovimientoOne.id_movimiento}</div>
+                <div class="da_diasem">${diaSemana_val}</div>
+            </div>
             <div class="da_fechahora">
                 <div class="da_fecha">${fecha_val}</div>
                 <div class="da_hora">${hora_val}</div>
             </div>
-            <div class="da_tipo_movimiento ${objMovimientoOne.tipo_movimiento}">${escaparHTML(convertirToTitleCase(objMovimientoOne.tipo_movimiento))} </div>            
+            <div class="da_tipo_movimiento ${objMovimientoOne.tipo_movimiento}">${escaparHTML(convertirToTitleCase(objMovimientoOne.tipo_movimiento))}</div>            
             <div class="da_nombre ${cl_da_nombre}">${objMovimientoOne.nombre}</div>
             <div class="da_tel ${cl_da_tel}">${objMovimientoOne.telefono}</div>
         </div>
 
         <div class="wr_datos">
             <div class="art_cols art_col2 wr_kvadrat ${cl_wr_kvadrat}">
-                <div class="da_metodo_pago">${escaparHTML(convertirToTitleCase(objMovimientoOne.metodo_pago))}</div>
+                <div class="da_metodo_pago">${escaparHTML(convertirToTitleCase(objMovimientoOne.metodo_pago)) || '(no asignado)'}</div>
+                <div class="da_pedido ${objMovimientoOne.id_pedido ? '' : 'd-none'}">Pedido ${escaparHTML(objMovimientoOne.id_pedido)}</div>
             </div>
             <div class="art_cols art_col3 wr_bola">
                 <div class="da_bola ${cl_da_bola}">${da_bola_html}</div>
@@ -1105,7 +1274,6 @@ function pintMovimientoOne(objMovimientoOne, lugar_de_pintar = 'abajo'){//pintar
         <div class="art_cols art_col4">
             <div class="da_importe ${objMovimientoOne.tipo_movimiento}">${importe_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -1500,7 +1668,7 @@ function buildBuscarMovimiento(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_movimiento" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1522,7 +1690,7 @@ function buildBuscarMovimiento(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_movimiento" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1651,11 +1819,7 @@ async function getDataMovimientosFromBdByFind(objFindParamsMovimiento){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsMovimiento), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1811,7 +1975,7 @@ function pintMovimientoActiveSoloDatos(){
 
 }
 
-async function getDataMovimientoFromBd(){
+async function getDataMovimientoFromBd(id_movimiento){
     console.log('=== function getDataMovimientoFromBd() ===');
 
     try {

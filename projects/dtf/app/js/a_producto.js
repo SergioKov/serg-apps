@@ -358,7 +358,7 @@ async function guardarProducto(event, modo_guardar = 'normal'){
                 id_producto = data.id_producto;//guardo el id del producto recién creada
 
                 //Cojo datos del producto desde BD
-                objProducto = await getDataProductoFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objProducto = await getDataProductoFromBd(id_producto);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objProducto: ', objProducto);
 
                 const itemProductoUpdate = objDataProductos?.arr_data?.find(item => item.id_producto == id_producto);
@@ -372,7 +372,7 @@ async function guardarProducto(event, modo_guardar = 'normal'){
 
                 } else {//es insert del producto nuevo
     
-                    console.warn('No encontrado objProducto.id_producto en objDataProductos.arr_data');
+                    console.log('No encontrado objProducto.id_producto en objDataProductos.arr_data');
                     //entonces es un producto nuevo que se crea
 
                     //1.debo añadir objProducto en objDataProductos.arr_data al inicio (si existe!)
@@ -386,7 +386,7 @@ async function guardarProducto(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_producto en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintProductoOne(objProducto, 'arriba');//div de producto se pinta al inicio (arriba)
-                    loadProductosAll();
+                    await loadProductosAll();
                 }
 
                 closeModal(null,true);
@@ -788,16 +788,20 @@ function pintProductoOne(objProductoOne, lugar_de_pintar = 'abajo'){//pintar sol
     d_producto.dataset.tipo_art = 'producto';
     d_producto.innerHTML = `
         <div class="datos_producto datos_art">
-            <div class="da_nombre">${escaparHTML(objProductoOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objProductoOne.id_producto}</div>
+                <div class="da_nombre">${escaparHTML(objProductoOne.nombre) || '(nombre no asignado)'}</div>
+            </div>
             <div class="da_com ${cl_da_comm}">${escaparHTML(objProductoOne.descripcion) || '(sin descripcion)'}</div>
         </div>
+
         <div class="art_cols art_col3">
             <div class="da_precio_compra">${precio_compra_text}</div>
         </div>
+
         <div class="art_cols art_col4">
             <div class="da_precio_venta">${precio_venta_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -1195,7 +1199,7 @@ function buildBuscarProducto(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_producto" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1217,7 +1221,7 @@ function buildBuscarProducto(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_producto" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1346,11 +1350,7 @@ async function getDataProductosFromBdByFind(objFindParamsProducto){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsProducto), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1451,7 +1451,7 @@ function pintProductoActiveSoloDatos(){
 
 }
 
-async function getDataProductoFromBd(){
+async function getDataProductoFromBd(id_producto){
     console.log('=== function getDataProductoFromBd() ===');
 
     try {

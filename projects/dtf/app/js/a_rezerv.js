@@ -2589,7 +2589,7 @@ async function guardarEsquema(){
                 Object.assign(itemSongUpdate, objSong);
                 // el objeto dentro de arr_data ya está actualizado
             } else {
-                console.warn('No encontrado objSong.id_song en objDataSongs.arr_data');
+                console.log('No encontrado objSong.id_song en objDataSongs.arr_data');
             }
 
             //editar_song();
@@ -3361,7 +3361,7 @@ async function guardarSong(event, id_contenedor, cancion_action, revisar = false
                     Object.assign(itemSongUpdate, objSong);
                     // el objeto dentro de arr_data ya está actualizado
                 } else {
-                    console.warn('No encontrado objSong.id_song en objDataSongs.arr_data');
+                    console.log('No encontrado objSong.id_song en objDataSongs.arr_data');
                 }
 
                 const itemListaUpdate = objDataListas.arr_data?.find(item => item.id_lista == id_lista);
@@ -3392,7 +3392,7 @@ async function guardarSong(event, id_contenedor, cancion_action, revisar = false
                     }
                     // el objeto dentro de arr_data ya está actualizado
                 } else {
-                    console.warn('No encontrado objSong.id_song en objDataSongs.arr_data');
+                    console.log('No encontrado objSong.id_song en objDataSongs.arr_data');
                 } 
                 
                 let hay_id_song_en_arr_pantalla = arr_pantalla.find(v => v.id_song == id_song);
@@ -3779,7 +3779,7 @@ async function guardarLista(event, modo_guardar = 'normal'){//modo_guardar: 'nor
                     Object.assign(itemListaUpdate, objLista);
                     // el objeto dentro de arr_data ya está actualizado
                 } else {
-                    console.warn('No encontrado objlista.id_lista en objDatalistas.arr_data');
+                    console.log('No encontrado objlista.id_lista en objDatalistas.arr_data');
                 }
 
                 //Actualizo tr_lista 
@@ -6166,7 +6166,7 @@ async function refreshLista(){
         Object.assign(itemListaUpdate, objLista);
         // el objeto dentro de arr_data ya está actualizado
     } else {
-        console.warn('No encontrado objlista.id_lista en objDatalistas.arr_data');
+        console.log('No encontrado objlista.id_lista en objDatalistas.arr_data');
     }
 
     //Actualizo p_lista 

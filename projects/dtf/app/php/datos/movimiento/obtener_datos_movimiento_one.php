@@ -60,7 +60,9 @@ include($niveles_para_subir . 'includes/connect_db.php');
 //Consula el movimientos por su id 
 $sql = "SELECT
             m.id_movimiento, 
+            m.id_concepto, 
             m.id_cliente, 
+            m.id_pedido, 
 
             c.nombre,
             c.telefono,
@@ -103,7 +105,9 @@ if($row){
         'success' => true,
 
         'id_movimiento' => $row['id_movimiento'],
+        'id_concepto' => $row['id_concepto'],
         'id_cliente' => $row['id_cliente'],
+        'id_pedido' => $row['id_pedido'],
 
         //cliente
         'nombre' => $row['nombre'],

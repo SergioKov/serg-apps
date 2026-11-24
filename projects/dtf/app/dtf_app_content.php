@@ -102,6 +102,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 </div>
 
                 <div id="head_block_c">
+                    <div id="head_block_almacen_uso" class="btn d-none" onclick="showBlockName('almacenes')">...</div>
                     <a href="<?= RUTA_APP ?>home">
                         <img class="logo_sm" src="<?= RUTA_APP ?>images/dtf_app_logo_sm.png" alt="Logo de DTF App">
                     </a>
@@ -127,8 +128,9 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="tarifas">Tarifas</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="taquillas">Taquillas</li>
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="pedidos">Pedidos</li>
-
                 <li onclick="showBlockName(this.dataset.block_name)" data-block_name="movimientos">Movimientos</li>
+
+                <li onclick="showBlockName(this.dataset.block_name)" data-block_name="conceptos">Conceptos</li>
 
                 <li class="d-none" on-click="" data-block_name="ingresos">Ingresos</li>
                 <li class="d-none" on-click="" data-block_name="gastos">Gastos</li>
@@ -161,8 +163,10 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
 
         <?php include __DIR__ . '/includes/block_pedidos.php'; ?>
 
-        <!-- pendiente de hacer... -->
         <?php include __DIR__ . '/includes/block_movimientos.php'; ?>
+
+        <!-- pendiente de hacer... -->
+        <?php include __DIR__ . '/includes/block_conceptos.php'; ?>
 
 
     </div><!--/#main-->
@@ -267,6 +271,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_config_taquilla.js"></script>
     <script src="js/a_config_pedido.js"></script>
     <script src="js/a_config_movimiento.js"></script>
+    <script src="js/a_config_concepto.js"></script>
 
     <script src="js/a_app.js"></script>
     
@@ -279,6 +284,7 @@ if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     <script src="js/a_taquilla.js"></script>
     <script src="js/a_pedido.js"></script>
     <script src="js/a_movimiento.js"></script>
+    <script src="js/a_concepto.js"></script>
     
     <script src="js/a_modal.js"></script>
     <script src="js/a_modal2.js"></script>

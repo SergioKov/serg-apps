@@ -34,7 +34,7 @@ document.addEventListener('click', (e) => {
         menu_btns_menos_mas_abierto && //si hay menu_btns_menos_mas_abierto
         !menu_btns_menos_mas_abierto.contains(e.target) && //si menu_btns_menos_mas_abierto no contiene el elemento clicked 
         !e.target.closest('.wr_cantidad_item') // si el elemento clicked no está en el contenedor del producto 
-        //!e.target.closest('.div_item[data-tipo_concepto="producto"] .wr_cantidad_item') // si el elemento clicked no está en el contenedor del producto 
+        //!e.target.closest('.div_item[data-tipo_item="producto"] .wr_cantidad_item') // si el elemento clicked no está en el contenedor del producto 
     ) {
         menu_btns_menos_mas_abierto.remove();//lo quito
     }

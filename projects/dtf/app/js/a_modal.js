@@ -300,10 +300,21 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     eid_h4_text.innerHTML = headerTitle;
                     eid_modcont_body.style.overflow = 'auto';//habilita scroll
                     eid_modcont_body.classList.add('theme_grey');   
-                    console.log('aki llamar buildPedido()');
+                    console.log('aki llamar buildMovimiento()');
                     let movimiento_action = args;
                     console.log('movimiento_action:', movimiento_action);
                     buildMovimiento(movimiento_action);
+                    break;                    
+
+
+                case 'buildConcepto':
+                    eid_h4_text.innerHTML = headerTitle;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildConcepto()');
+                    let concepto_action = args;
+                    console.log('concepto_action:', concepto_action);
+                    buildConcepto(concepto_action);
                     break;                    
 
 
@@ -453,6 +464,22 @@ function openModal(param = null, headerTitle = null, htmlTrans = null, action = 
                     let movimiento_action2 = args;
                     console.log('movimiento_action2:', movimiento_action2);
                     buildBuscarMovimiento();
+                    break;
+
+
+                case 'buildBuscarConcepto':
+                    eid_h4_text.innerHTML = `
+                        <span class="dbtn_fx">
+                            <img class="btn_img" src="./images/search_zoom_icon_white.svg">
+                            <span>${headerTitle}</span> 
+                        </span>
+                    `;
+                    eid_modcont_body.style.overflow = 'auto';//habilita scroll
+                    eid_modcont_body.classList.add('theme_grey');   
+                    console.log('aki llamar buildBuscarPedido()');
+                    let concepto_action2 = args;
+                    console.log('concepto_action2:', concepto_action2);
+                    buildBuscarConcepto();
                     break;
 
 

@@ -4,10 +4,12 @@
 //==================================================================//
 const header = document.querySelector('header');
 const hamburger = document.getElementById('hamburger');
+const head_block_almacen_uso = document.getElementById('head_block_almacen_uso');
 
 const menu_contenido = document.getElementById('menu_contenido');
 const eid_puntosMenu = document.getElementById('puntosMenu');
 const los_puntosMenu_ul = eid_puntosMenu.querySelector('ul');
+
 //==================================================================//
 //end - header
 //==================================================================//
@@ -187,8 +189,26 @@ let obj_ajustes_def = {
         buscar_en: 1,
         findedRows: 0,
     },    
+    objFindParamsPedidoSm: {
+        words_input: "10",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },    
     objFindParamsMovimiento: {
         words_input: "Demko",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },    
+    objFindParamsConcepto: {
+        words_input: "Ingreso",
+        modo: 3,
+        buscar_en: 1,
+        findedRows: 0,
+    },
+    objFindParamsConceptoSm: {
+        words_input: "gasto",
         modo: 3,
         buscar_en: 1,
         findedRows: 0,
@@ -227,7 +247,10 @@ let {
     objFindParamsTarifa,
     objFindParamsTaquilla,
     objFindParamsPedido,
-    objFindParamsMovimiento
+    objFindParamsPedidoSm, //buscar pedido
+    objFindParamsMovimiento,
+    objFindParamsConcepto,
+    objFindParamsConceptoSm //buscar concepto
 
 } = obj_ajustes;
 
@@ -245,8 +268,9 @@ const arr_divs_permitidos = [
     'd_canal_venta',
     'd_canal_aviso',
     'd_tipo_pago',
-    'd_tipo_concepto',
+    'd_tipo_item',
     'd_tipo_movimiento',
+    'd_tipo_concepto',
     'contenedor_tipos'
 ];
 
@@ -257,27 +281,17 @@ const arr_valores_permitidos = [
     'canal_venta',
     'canal_aviso',
     'tipo_pago',
-    'tipo_concepto',
-    'tipo_movimiento'
+    'tipo_item',
+    'tipo_movimiento',
+    'tipo_concepto'
 ];
-
-
-let pedido_old = {
-    productos: [],
-    bonos: [],
-    servicios: [],
-    subtotal: 0,
-    iva_incluido: 1,
-    iva_total: 0,
-    total: 0
-};
 
 
 //new - como ejemplo
 let pedido_def = {
-    arr_items_pedido: [
+    arr_items: [
         {
-            tipo_concepto: 'producto',
+            tipo_item: 'producto',
             id: 1,
             nombre: 'DTF Textil',
             cantidad: 6,
@@ -285,7 +299,7 @@ let pedido_def = {
             importe: 60
         },
         {
-            tipo_concepto: 'bono',
+            tipo_item: 'bono',
             id: 2,
             nombre: 'Bono 5m',
             cantidad: 1,
@@ -293,7 +307,7 @@ let pedido_def = {
             importe: 45
         },
         {
-            tipo_concepto: 'servicio',
+            tipo_item: 'servicio',
             id: 3,
             nombre: 'Envío Express',
             cantidad: 1,
@@ -301,6 +315,7 @@ let pedido_def = {
             importe: 15
         }
     ],
+    arr_pagos: [],
 
     subtotal: 0,
     iva_incluido: 1,
@@ -309,20 +324,20 @@ let pedido_def = {
 };
 
 let pedido = {
-    arr_items_pedido: [],
+    arr_items: [],
+    arr_pagos: [],
     subtotal: 0,
     iva_incluido: 1,
     iva_total: 0,
     total: 0,
     importe_pagado: 0,
+    total_pagado: 0,
     saldo: 0
 };
 
 let cliente = {
     info_saldo_cliente: 'Sin información todavía...',
 }
-
-let arr_items_pedido_bd = [];
 
 let mensaje_whatsapp = 
 `Hola. Su pedido ya esta listo para recoger. 

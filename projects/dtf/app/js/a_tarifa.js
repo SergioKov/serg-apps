@@ -434,7 +434,7 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
                 id_tarifa = data.id_tarifa;//guardo el id del tarifa recién creada
 
                 //Cojo datos del tarifa desde BD
-                objTarifa = await getDataTarifaFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objTarifa = await getDataTarifaFromBd(id_tarifa);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objTarifa: ', objTarifa);
 
                 const itemTarifaUpdate = objDataTarifas?.arr_data?.find(item => item.id_tarifa == id_tarifa);
@@ -448,7 +448,7 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
 
                 } else {//es insert del tarifa nuevo
     
-                    console.warn('No encontrado objTarifa.id_tarifa en objDataTarifas.arr_data');
+                    console.log('No encontrado objTarifa.id_tarifa en objDataTarifas.arr_data');
                     //entonces es un tarifa nuevo que se crea
 
                     //1.debo añadir objTarifa en objDataTarifas.arr_data al inicio (si existe!)
@@ -462,7 +462,7 @@ async function guardarTarifa(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_tarifa en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintTarifaOne(objTarifa, 'arriba');//div de tarifa se pinta al inicio (arriba)
-                    loadTarifasAll();
+                    await loadTarifasAll();
                 }
 
                 closeModal(null,true);
@@ -888,16 +888,20 @@ function pintTarifaOne(objTarifaOne, lugar_de_pintar = 'abajo'){//pintar solo un
     d_tarifa.dataset.tipo_art = 'tarifa';
     d_tarifa.innerHTML = `
         <div class="datos_tarifa datos_art">
-            <div class="da_nombre">${escaparHTML(objTarifaOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objTarifaOne.id_tarifa}</div>
+                <div class="da_nombre">${escaparHTML(objTarifaOne.nombre) || '(nombre no asignado)'}</div>
+            </div>
             <div class="da_com ${cl_da_comm}">${escaparHTML(objTarifaOne.descripcion) || '(sin descripcion)'}</div>
         </div>
+
         <div class="art_cols art_col3">
             <div class="da_cantidad_desde_hasta">${cantidad_desde_hasta_text}</div>
         </div>
+
         <div class="art_cols art_col4">
             <div class="da_precio">${precio_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -1295,7 +1299,7 @@ function buildBuscarTarifa(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_tarifa" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1317,7 +1321,7 @@ function buildBuscarTarifa(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_tarifa" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1446,11 +1450,7 @@ async function getDataTarifasFromBdByFind(objFindParamsTarifa){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsTarifa), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1550,7 +1550,7 @@ function pintTarifaActiveSoloDatos(){
 
 }
 
-async function getDataTarifaFromBd(){
+async function getDataTarifaFromBd(id_tarifa){
     console.log('=== function getDataTarifaFromBd() ===');
 
     try {

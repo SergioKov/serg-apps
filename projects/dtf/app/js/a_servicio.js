@@ -337,7 +337,7 @@ async function guardarServicio(event, modo_guardar = 'normal'){
                 id_servicio = data.id_servicio;//guardo el id del servicio recién creada
 
                 //Cojo datos del servicio desde BD
-                objServicio = await getDataServicioFromBd();//IMPORTANTE para cojer todos los datos necesarios
+                objServicio = await getDataServicioFromBd(id_servicio);//IMPORTANTE para cojer todos los datos necesarios
                 console.log('objServicio: ', objServicio);
 
                 const itemServicioUpdate = objDataServicios?.arr_data?.find(item => item.id_servicio == id_servicio);
@@ -351,7 +351,7 @@ async function guardarServicio(event, modo_guardar = 'normal'){
 
                 } else {//es insert del servicio nuevo
     
-                    console.warn('No encontrado objServicio.id_servicio en objDataServicios.arr_data');
+                    console.log('No encontrado objServicio.id_servicio en objDataServicios.arr_data');
                     //entonces es un servicio nuevo que se crea
 
                     //1.debo añadir objServicio en objDataServicios.arr_data al inicio (si existe!)
@@ -365,7 +365,7 @@ async function guardarServicio(event, modo_guardar = 'normal'){
                     //3. old -> debo pintar d_servicio en el top del contenedor
                     //3. new -> pero en vez de uno pinto todos para actualizar div filtros aplicados
                     //pintServicioOne(objServicio, 'arriba');//div de servicio se pinta al inicio (arriba)
-                    loadServiciosAll();
+                    await loadServiciosAll();
                 }
 
                 closeModal(null,true);
@@ -766,13 +766,16 @@ function pintServicioOne(objServicioOne, lugar_de_pintar = 'abajo'){//pintar sol
     d_servicio.dataset.tipo_art = 'servicio';
     d_servicio.innerHTML = `
         <div class="datos_servicio datos_art">
-            <div class="da_nombre">${escaparHTML(objServicioOne.nombre) || '(nombre no asignado)'}</div>
+            <div class="wr_id_nombre">
+                <div class="da_id">${objServicioOne.id_servicio}</div>
+                <div class="da_nombre">${escaparHTML(objServicioOne.nombre) || '(nombre no asignado)'}</div>
+            </div>        
             <div class="da_com ${cl_da_comm}">${escaparHTML(objServicioOne.descripcion) || '(sin descripcion)'}</div>
         </div>
+        
         <div class="art_cols art_col4">
             <div class="da_precio">${precio_text}</div>
         </div>
-
 
         <div class="tres_puntos">
             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
@@ -1170,7 +1173,7 @@ function buildBuscarServicio(){
     
     
         <div class="wr_sel_opt_find m_0">
-            <h5>Modo de búsqueda:</h5>
+            <h5>Modo de búsqueda</h5>
             <select id="modo_servicio" class="sel_opt_find">
                 <option value="1">1) Palabras PARCIALES, cualquier orden</option>
                 <option value="2">2) Palabras EXACTAS, cualquier orden</option>
@@ -1192,7 +1195,7 @@ function buildBuscarServicio(){
         </div>
 
         <div class="wr_sel_opt_find">
-            <h5>Buscar en:</h5>
+            <h5>Buscar en</h5>
             <select id="buscar_en_servicio" class="sel_opt_find">
                 <option value="1">1) Todos los campos por defecto disponibles (rápido)</option>
                 <option value="2">2) Todos los campos disponibles (lento)</option>
@@ -1321,11 +1324,7 @@ async function getDataServiciosFromBdByFind(objFindParamsServicio){
             headers: {
                 'Content-Type': 'application/json', // Especificar el tipo de contenido como JSON
             },
-            body: JSON.stringify({
-                words_input,
-                modo,
-                buscar_en
-            }), // Convertir los datos a formato JSON
+            body: JSON.stringify(objFindParamsServicio), // Convertir los datos a formato JSON
         });
 
         const text = await response.text();
@@ -1420,7 +1419,7 @@ function pintServicioActiveSoloDatos(){
 
 }
 
-async function getDataServicioFromBd(){
+async function getDataServicioFromBd(id_servicio){
     console.log('=== function getDataServicioFromBd() ===');
 
     try {

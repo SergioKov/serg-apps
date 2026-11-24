@@ -60,7 +60,10 @@
 
                     <div class="d_almacen d_art" data-tipo_art="almacen" data-id_almacen="5">
                         <div class="datos_almacen datos_art">
-                            <div class="da_nombre">Almacen 1 - Alcorcón</div>
+                            <div class="wr_id_nombre">
+                                <div class="da_id">15</div>
+                                <div class="da_nombre">Almacen 1 - Alcorcón</div>
+                            </div>
                             <div class="da_dir">C. Porto Cristo, 1 posterior, Local 16, 28924 Alcorcón, Madrid</div>
                             <div class="da_com">almacen fiel</div>
                         </div>
@@ -68,6 +71,7 @@
                         <div class="tres_puntos">
                             <img class="btn_img" src="./images/tres_puntos_vertical_white.svg">
                         </div>
+
                         <div class="tres_puntos_menu">
                             <div onclick="openModal('full','Almacen actual',null,'buildAlmacen',true, 'ver');">
                                 <img class="img_acts img_ver" src="./images/img_ver_white_24x24.png">
@@ -79,7 +83,6 @@
                                 <img class="img_acts img_eliminar" src="./images/img_eliminar_white_24x24.png">
                             </div>
                         </div>
-
                     </div>
 
 

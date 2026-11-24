@@ -1,0 +1,240 @@
+<?php
+$niveles_para_subir = '../../';
+
+include($niveles_para_subir . 'includes/config.php');
+session_start();//importante para ver al usuario logueado
+include($niveles_para_subir . 'functions.php');
+
+/*
+//HACER PRUEBAS...
+echo json_encode([
+    'HACIENDO_PRUEBAS' => 'DESCOMENTAR EN PROD',
+    'success' => false,
+    'valorCampo' => 'no_tiene_datos',
+    'error' => 'No hay todos los parametros necesarios.',
+    'dic_code' => 'd251'
+],JSON_UNESCAPED_UNICODE);
+exit;
+*/
+
+
+
+
+
+//si los datos SÍ VIENEN desde el metodo permitido
+//es lo mismo que => if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET'){
+if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
+    
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        // Obtener datos del cuerpo de la solicitud (en formato JSON)
+        $inputJSON = file_get_contents('php://input');
+        $datos = json_decode($inputJSON, true);
+        //debug($inputJSON, 'inputJSON');
+        //echo json_encode(['$datos' => $datos]);
+        // Verificar que se decodificó correctamente
+
+        if ($datos === null) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'valorData' => 'no_tiene_datos',
+                'error' => 'No hay todos los parametros necesarios.',
+                'dic_code' => 'd251'
+            ],JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    } 
+}
+
+
+
+include($niveles_para_subir . 'includes/connect_db.php');
+
+//aquí no hace falta $conn->real_escape_string() porque uso consulta preparada con bind_param()
+$words_input = $datos['words_input'];
+$modo = $datos['modo'];
+$buscar_en = $datos['buscar_en'];
+$filtro = $datos['filtro'] ?? [];
+
+//echo_json_x($datos, 'datos');
+//echo_json_x($words_input);
+//echo_json_x($modo);
+
+
+$params = [];
+$types  = "";
+$arr_campos = [];
+
+switch ($buscar_en) {
+    case '1'://Todos los campos por defecto disponibles (rápido)
+    default:
+        //'c.concepto_search' -> campo optimizado para busquedas con indice fulltext 
+        $arr_campos = ['c.id_concepto', 'c.tipo_concepto', 'c.tipo_uso', 'c.nombre', 'c.comentario'];
+        break;
+
+    case '2'://Todos los campos disponibles (lento)
+        $arr_campos = ['c.id_concepto', 'c.tipo_concepto', 'c.tipo_uso', 'c.nombre', 'c.comentario', ];
+        break;
+    
+    case '3'://Todos los campos de texto disponibles
+        $arr_campos = ['c.nombre', 'c.comentario'];
+        break;
+
+    case '4'://Todos los campos de números disponibles
+        $arr_campos = ['c.id_concepto'];
+        break;
+
+    case '5'://Sólo el identificador de concepto
+        $arr_campos = ['c.id_concepto'];
+        break;
+
+    case '6'://Sólo el nombre
+        $arr_campos = ['c.nombre'];
+        break;
+
+    case '7'://Sólo el comentario
+        $arr_campos = ['c.comentario'];
+        break;
+}
+
+
+//=======================================================================================//
+// start - construir $where con $filtro
+//=======================================================================================//
+$campos_permitidos = [
+    'id_concepto'           => 'c.id_concepto',
+    'id_concepto_padre'     => 'c.id_concepto_padre',
+    'tipo_concepto'         => 'c.tipo_concepto',
+    'tipo_uso'              => 'c.tipo_uso',
+    'nombre'                => 'c.nombre',
+    'comentario'            => 'c.comentario',
+    'orden'                 => 'c.orden',
+    'activo'                => 'c.activo',
+    'is_deleted'            => 'c.is_deleted',
+];
+
+$filtro_validado = [];
+
+foreach ($filtro as $campo => $valor) {
+    if (isset($campos_permitidos[$campo])) {
+        $filtro_validado[$campos_permitidos[$campo]] = $valor;
+    }
+}
+
+// Buscar "Jesús Pedro" en varios campos
+// si words_input es vacio -> se evita construccion de where y where es ''
+// si hay filtro -> se construye el where con sus campos a filtrar
+$where = buildWhere($modo, $words_input, $arr_campos, $params, $types, $filtro_validado);
+//=======================================================================================//
+// end - construir $where con $filtro
+//=======================================================================================//
+
+
+
+//test modos de where
+$sql_init = "SELECT 
+                c.id_concepto,
+                c.id_concepto_padre,
+
+                c.tipo_concepto,
+                c.tipo_uso,
+                c.nombre, 
+                c.comentario, 
+
+                c.created_at, 
+                c.updated_at
+                
+            FROM conceptos c
+            
+            WHERE $where
+            ORDER BY c.id_concepto DESC, c.nombre, c.comentario
+";
+
+
+// Si quieres ver la consulta “final” (sólo para debug, no ejecutar así en producción):
+// reconstruir consulta final para debug
+$finalSQL = $sql_init;
+foreach ($params as $p) {
+    $safe = "'" . $p . "'";
+    $pos = strpos($finalSQL, "?");
+    if ($pos !== false) {
+        $finalSQL = substr_replace($finalSQL, $safe, $pos, 1);
+    }
+}
+//debug_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
+//echo_json_x($finalSQL, 'finalSQL');//para ver la consulta preparada para debuguear
+
+
+$stmt = $conn->prepare($sql_init);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$result = $stmt->get_result();
+//echo_json_x($sql_init, 'sql');
+//debug_x($sql_init, 'sql');
+
+
+
+//hacer test en HOSTALIA
+/*
+if (!$result) {
+    die("Error en la consulta: " . $conn->error);
+}else{
+	echo "Filas encontradas: " . $result->num_rows;
+	die("<p>ok en la consulta</p>");
+}
+*/
+
+
+
+if($result->num_rows > 0){   
+    
+    $result_data = [
+        'success' => true,//AUNQUE NO TIENE DATOS , PONGO TRUE PARA QUE ENTRE EN EL BLOQUE
+        'valorData' => 'hay_datos',
+            'info' => '$ finalSQL:' . $finalSQL,//ocultar en PROD
+        'totalRows' => $result->num_rows,
+        'arr_data' => []
+    ];
+
+    //recorrer los registros de canciones encontrados
+    while ($row = $result->fetch_assoc()) {
+
+        $id_concepto_bd = $row['id_concepto'];
+
+        $data = [
+            'success' => true,
+
+            'id_concepto' => $row['id_concepto'],
+            'id_concepto_padre' => $row['id_concepto_padre'],
+            
+            'tipo_concepto' => $row['tipo_concepto'],
+            'tipo_uso' => $row['tipo_uso'],
+            'nombre' => $row['nombre'],
+            'comentario' => $row['comentario'],
+    
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+
+            'valorData' => 'hay_datos'
+        ];
+
+        $result_data['arr_data'][] = $data;
+    }
+    
+}else{
+    
+    $result_data = [
+        'success' => false,//AUNQUE NO TIENE DATOS , PONGO TRUE PARA QUE ENTRE EN EL BLOQUE
+        'valorData' => 'no_tiene_datos'
+    ];
+
+}
+
+//Cierro conexion con bd
+$conn->close();
+
+// Enviar respuesta al concepto en formato JSON
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($result_data,JSON_UNESCAPED_UNICODE);
+
+?>

@@ -113,6 +113,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     //ya que uso consulta preparada (prepared statements + bind_param()), no hay que usar $conn->real_escape_string()
     $id_movimiento = $datos['id_movimiento'];
     $tipo_movimiento = $datos['tipo_movimiento'];
+    $id_concepto = $datos['id_concepto'];//siempre viene
     $id_cliente = ($datos['id_cliente'] === '') ? null : $datos['id_cliente'];//si viene vacio => null
     $fecha_movimiento = $datos['fecha_movimiento'];
     $importe = ($datos['importe'] === '') ? null : $datos['importe'];//si viene vacio => null
@@ -178,6 +179,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $sql2_upsert = "INSERT INTO movimientos
                     (
                         id_movimiento,
+                        id_concepto,
                         id_cliente,
 
                         tipo_movimiento,
@@ -195,7 +197,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     )        
                     VALUES
                     (
-                        ?, ?,
+                        ?, ?, ?,
 
                         ?, 
                     
@@ -211,6 +213,7 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
                     ON DUPLICATE KEY UPDATE
                     
                         tipo_movimiento = VALUES(tipo_movimiento),
+                        id_concepto = VALUES(id_concepto),
                         id_cliente = VALUES(id_cliente),
                         
                         fecha_movimiento = VALUES(fecha_movimiento),
@@ -236,9 +239,10 @@ if (in_array($_SERVER['REQUEST_METHOD'], $arr_metodos)){
     $comentario = str_replace(["\r\n", "\r"], "\n", $comentario);
 
     $stmt->bind_param(
-        "iissdsssi",
+        "iiissdsssi",
     
         $id_movimiento_upsert,
+        $id_concepto,
         $id_cliente,
     
         $tipo_movimiento,
